@@ -1,4 +1,8 @@
 __pycache__/
 .pytest_cache/
+*.py[cod]
+*.orig
+.env
+.env.*
 data/
 artifacts/
