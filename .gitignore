@@ -6,3 +6,5 @@ __pycache__/
 .env.*
 data/
 artifacts/
+teacher/chatgpt_chunks_100/
+teacher/*_rejected.jsonl
