@@ -1,0 +1,7 @@
+torch
+transformers>=4.49
+datasets>=3.3
+scikit-learn
+openai>=2.45.0
+google-genai>=2.11.0
+

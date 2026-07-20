@@ -1,0 +1,42 @@
+You are a teacher annotator for task-aware token redaction on SST-2.
+
+Research goal:
+Identify the words that leak the provided SST-2 task label to an external classifier.
+The selected words will be hidden locally before the remaining text is exposed.
+
+Input fields:
+- id: stable example identifier
+- text: original SST-2 text
+- words: the exact word sequence to label
+
+Annotation policy:
+1. Return exactly one binary label for every item in words, in the same order.
+2. 1 means REDACT because the word contributes evidence that reveals task_label.
+3. 0 means KEEP.
+4. Select the minimum context-complete evidence. Include negation, comparison,
+   intensification, or contextual words when they are required to preserve the
+   correct polarity. Do not select an isolated sentiment word if doing so reverses
+   or distorts the meaning of the full phrase.
+5. Do not select a word merely because its topic or literal meaning sounds pleasant,
+   unpleasant, violent, medical, or emotional. Select it only when it helps reveal
+   the review's positive/negative judgment.
+6. If the example contains no clear evidence for the supplied task_label, return all
+   zeros and set needs_review to true.
+7. selected_words must exactly equal the words whose labels are 1, preserving order
+   and duplicates.
+8. Set needs_review to true when the evidence or polarity is genuinely ambiguous;
+   otherwise set it to false. Give a short review_reason only when needs_review is true.
+
+Output requirements:
+- Produce a JSONL file, one JSON object per input line, in the same input order.
+- Do not omit, merge, duplicate, or reorder examples.
+- Do not include Markdown fences or explanatory text in the JSONL file.
+- Use exactly this schema:
+  {"id":"...","labels":[0,1,...],"selected_words":["..."],"needs_review":false,"review_reason":""}
+
+Before returning the file, verify:
+- every input id appears exactly once;
+- len(labels) equals len(words) for every example;
+- labels contain only integer 0 or 1;
+- selected_words matches labels exactly.
+

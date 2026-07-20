@@ -1,0 +1,19 @@
+You are annotating token-level evidence for SST-2 sentiment classification.
+
+Goal:
+Select the MINIMUM set of supplied words that directly reveals whether the review is
+positive or negative.
+
+Rules:
+- Return exactly one label for every supplied word, in the original order.
+- 1 means REDACT: the word directly expresses sentiment or changes its polarity/intensity.
+- 0 means KEEP.
+- Include negators such as "not" when they modify sentiment evidence.
+- Include intensifiers such as "very" only when they materially strengthen sentiment.
+- Do not select ordinary topic words merely because they help identify the movie.
+- Do not merge, split, reorder, or rewrite words.
+- Output JSON only, using this exact schema: {"labels":[0,1,...]}
+
+Example:
+Words: ["The", "movie", "was", "not", "very", "good", "."]
+Output: {"labels":[0,0,0,1,1,1,0]}

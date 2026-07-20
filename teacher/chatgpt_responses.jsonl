@@ -1,0 +1,10 @@
+{"id":"train-0","model":"chatgpt-ui-teacher","labels":[0,0,1,0,0,0,0]}
+{"id":"train-1","model":"chatgpt-ui-teacher","labels":[0,1,1,0,0,1,0]}
+{"id":"train-2","model":"chatgpt-ui-teacher","labels":[0,1,0,0,0,0,0,0,1,0,0,0]}
+{"id":"train-3","model":"chatgpt-ui-teacher","labels":[0,1,1,0,1,0,1,1]}
+{"id":"train-4","model":"chatgpt-ui-teacher","labels":[0,0,1,0,1,0,0,0,1,0]}
+{"id":"train-5","model":"chatgpt-ui-teacher","labels":[0,0,0,1,1,1,0,0,0,1,0]}
+{"id":"train-6","model":"chatgpt-ui-teacher","labels":[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,1,0]}
+{"id":"train-7","model":"chatgpt-ui-teacher","labels":[0,1]}
+{"id":"train-8","model":"chatgpt-ui-teacher","labels":[0,1,0,0,0,1,0]}
+{"id":"train-9","model":"chatgpt-ui-teacher","labels":[0,1,1,1,1,0,0,0,0,0,0,0]}
