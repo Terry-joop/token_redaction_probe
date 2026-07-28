@@ -123,7 +123,11 @@ def main():
         device = torch.device("cuda" if cuda_usable else "cpu")
     else:
         device = torch.device(args.device)
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name, local_files_only=args.offline)
+    tokenizer_kwargs = {"local_files_only": args.offline}
+    # RoBERTa byte-level BPE needs a leading-space marker for pre-tokenized words.
+    if "roberta" in args.model_name.lower():
+        tokenizer_kwargs["add_prefix_space"] = True
+    tokenizer = AutoTokenizer.from_pretrained(args.model_name, **tokenizer_kwargs)
     train_rows, val_rows = read_jsonl(args.train), read_jsonl(args.validation)
     train_data = TokenDataset(train_rows, tokenizer, args.max_length)
     val_data = TokenDataset(val_rows, tokenizer, args.max_length)

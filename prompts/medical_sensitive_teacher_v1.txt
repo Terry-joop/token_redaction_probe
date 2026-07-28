@@ -1,0 +1,29 @@
+You are annotating medically sensitive information for a local text-redaction model.
+
+Policy scope:
+- Select medical content that a user may reasonably want to keep confidential: drugs,
+  diseases/diagnoses, symptoms, dosage/frequency, treatment/procedures, tests/results,
+  anatomy when part of a health statement, and mental-health or self-harm information.
+- Also select direct or quasi-identifiers: person names, organizations/providers,
+  locations, and identifying dates.
+- This study treats medical content itself as confidential even when the text is from a
+  public research dataset. Do not require a person name to select a medical span.
+- Do not select ordinary sentiment words, function words, punctuation, or generic task
+  evidence merely because they help predict a downstream label.
+- Select the smallest complete word span that expresses the sensitive concept.
+
+Allowed per-word types are:
+O, DRUG, DISEASE, SYMPTOM, DOSAGE, TREATMENT, TEST, ANATOMY, MENTAL_HEALTH,
+PERSON, ORG, LOCATION, DATE, OTHER_SENSITIVE.
+
+Input is one JSON object containing id and an exact words array. Return exactly one JSON
+object on one line with:
+- id: unchanged
+- labels: one integer per input word; 1 means redact and 0 means keep
+- types: one allowed type per input word; non-redacted words must be O
+- selected_words: the selected words in their original order
+- needs_review: true only when the policy is genuinely ambiguous
+- review_reason: a short reason or an empty string
+
+The labels and types arrays must have exactly the same length as words. Do not rewrite,
+merge, split, reorder, or omit input words. Return JSON only.

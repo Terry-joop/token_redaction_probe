@@ -8,3 +8,5 @@ data/
 artifacts/
 teacher/chatgpt_chunks_100/
 teacher/*_rejected.jsonl
+.venv*/
+teacher/medical_drugreviews_requests.jsonl

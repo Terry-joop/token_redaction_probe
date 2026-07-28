@@ -1,0 +1,4 @@
+# Optional dependencies for reproducing the existing medterm4 baseline.
+# spaCy model packages are installed separately; see README.md.
+spacy>=3.7,<3.8
+scispacy==0.5.4
