@@ -1,8 +1,57 @@
 # Token Redaction Probe
 
 RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student redactor**를 실험하는
-독립 프로젝트다. 현재 주 실험은 의료 문장에서 RedactFormer의 규칙 기반 `medterm4`
-선택을 Transformer+MLP Student가 얼마나 모방하는지 확인하는 것이다.
+독립 프로젝트다. 의료 실험은 RedactFormer의 규칙 기반 `medterm4`를, 비의료 실험은
+데이터셋 성격에 맞는 PII/엔티티 규칙을 Transformer+MLP Student가 얼마나 모방하는지
+확인한다. 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
+
+
+## 결과 대시보드
+
+지금까지의 메인·탐색 결과는 브라우저용 통합 표와 Excel 호환 CSV로 생성한다.
+
+```bash
+python src/build_results_dashboard.py
+```
+
+- 웹 표: `reports/redactor_results_dashboard.html`
+- Excel/스프레드시트: `reports/redactor_results.csv`
+
+HTML은 서버 없이 파일을 직접 열 수 있으며 그룹·모델·threshold 운용점 필터와 다크 모드를
+지원한다. 의료·실제 PII·비개인 엔티티 macro는 서로 분리되어 있다.
+
+## 전체 데이터 재실행(2026-07-29)
+
+메인 비교는 고정한 세 Student(BERT-tiny, ELECTRA-small, DistilRoBERTa)를 10개
+데이터셋의 사용 가능한 전체 데이터로 다시 학습한다. 빈 문장과 완전 중복을 제거하고,
+공식 split이 있으면 보존했다. 공식 test label을 사용할 수 없는 경우에는 기존 정책대로
+결정적·층화 80/10/10 split을 만들었다.
+
+| 데이터셋 | 전체 | Train | Validation | Test |
+|---|---:|---:|---:|---:|
+| Drug Reviews | 49,974 | 39,980 | 4,997 | 4,997 |
+| Symptom2Dx | 1,060 | 844 | 108 | 108 |
+| ADR | 20,892 | 16,714 | 2,089 | 2,089 |
+| RedditMH | 59,607 | 47,685 | 5,961 | 5,961 |
+| MedNLI | 14,021 | 11,210 | 1,395 | 1,416 |
+| Mental Health | 41,878 | 33,502 | 4,188 | 4,188 |
+| BIOS | 395,368 | 257,090 | 39,533 | 98,745 |
+| MRPC | 5,801 | 3,668 | 408 | 1,725 |
+| QNLI | 115,636 | 104,716 | 5,463 | 5,457 |
+| FinPhraseBank | 2,258 | 1,806 | 226 | 226 |
+
+학습 조건은 소규모 메인 표와 동일하게 encoder 전체 fine-tuning, 5 epoch, batch 16,
+max length 256, seed 42를 사용한다. threshold는 validation에서 선택한 뒤 test에 한 번만
+적용한다. Symptom2Dx는 기존 실험이 이미 사용 가능한 1,060개 전부와 같은 split을
+사용했으므로 해당 결과를 재사용한다.
+
+```bash
+python src/summarize_full_dataset_results.py
+python src/build_results_dashboard.py
+```
+
+완료된 전체 결과의 추적 가능한 사본은 `reports/full_dataset_results.json`, 브라우저 표는
+`reports/redactor_results_dashboard.html`, Excel용 원자료는 `reports/redactor_results.csv`다.
 
 ## 먼저 읽을 문서
 
@@ -141,6 +190,26 @@ python src/summarize_rule_student_comparison.py
 ```
 
 결과는 `artifacts/medical_redactor/core_matrix/`에 모인다.
+
+### 4-1. 비의료 정책 분리 실험
+
+`bios`와 MRPC는 PII 그룹, QNLI와 FinPhraseBank는 비개인 엔티티 대조 그룹이다.
+FinPhraseBank에도 `medterm4`를 적용하지 않는다.
+
+```bash
+python src/prepare_nonmedical_rule_datasets.py \
+  --datasets bios mrpc qnli finphrasebank \
+  --output-root data/nonmedical_redactor --seed 42
+
+.venv-cu130/bin/python src/run_extension_model_matrix.py \
+  --datasets bios mrpc qnli finphrasebank \
+  --data-root data/nonmedical_redactor \
+  --output-root artifacts/nonmedical_redactor/seed42 \
+  --seed 42 --batch-size 16 --device cuda
+```
+
+데이터는 `data/nonmedical_redactor/`, 평가 JSON은
+`artifacts/nonmedical_redactor/seed42/summary.json`에 생성된다.
 
 ### 5. 선택적 탐색: Leave-one-domain-out
 

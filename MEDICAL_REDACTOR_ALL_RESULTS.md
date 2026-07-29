@@ -527,3 +527,135 @@ ELECTRA는 제안 경량 모델, DistilRoBERTa는 고성능 기준선이며 mult
 - 규칙·Student 격리 벤치마크: `src/benchmark_redactor_worker.py`
 - 규칙·Student 통합 집계: `src/summarize_rule_student_comparison.py`
 - 3-seed 집계: `src/summarize_seed_repeats.py`
+
+## 16. 비의료 정책별 Student 실험 (2026-07-28)
+
+의료 `medterm4` 결과와 섞지 않는 별도 실험이다. 모든 데이터셋은 1,000개를
+train/validation/test = 800/100/100으로 나눴고, 세 Student를 encoder까지 5 epochs
+fine-tuning했다(seed 42). 수치는 test token 기준이다.
+
+### 16.1 Teacher 정책과 역할
+
+| 그룹 | 데이터셋 | Teacher 정책 | test mask | 해석 |
+|---|---|---|---:|---|
+| 실제 PII | bios | `piiclean-v1` | 13.48% | 인명·기관·지역·금액·비율·연도 |
+| 실제 PII | MRPC | `piiclean-strict-v1` | 9.03% | 인명·기관·지역 중심의 엄격 PII |
+| 비개인 엔티티 대조 | QNLI | `entityclean-v1` | 11.65% | NER 엔티티 모방; 개인정보 성능 주장이 아님 |
+| 비개인 엔티티 대조 | FinPhraseBank | `entityclean-v1` | 15.88% | 기업·인명·지역·금액·연도; `medterm4` 미사용 |
+
+라벨은 LLM이 아니라 RedactFormer의 `piiclean` 구현에 맞춘 spaCy NER 규칙에서 생성한
+deterministic pseudo-gold다. 따라서 아래 F1은 규칙 모방 점수이지 human-gold 개인정보
+탐지 점수가 아니다.
+
+### 16.2 실제 PII 그룹: 동일 마스킹 예산
+
+| Dataset | Student | Precision | Recall | F1 | F2 | Student mask |
+|---|---|---:|---:|---:|---:|---:|
+| bios | BERT-tiny | 0.749 | 0.802 | 0.775 | 0.791 | 14.42% |
+| bios | ELECTRA-small | 0.844 | 0.813 | 0.828 | 0.819 | 12.97% |
+| bios | DistilRoBERTa | **0.870** | **0.887** | **0.878** | **0.883** | 13.74% |
+| MRPC | BERT-tiny | 0.718 | 0.790 | 0.752 | 0.774 | 9.93% |
+| MRPC | ELECTRA-small | 0.916 | **0.914** | **0.915** | **0.914** | 9.01% |
+| MRPC | DistilRoBERTa | **0.917** | 0.904 | 0.911 | 0.907 | 8.90% |
+
+PII 두 데이터셋 내부 Macro F1은 BERT-tiny 0.763, ELECTRA-small 0.871,
+DistilRoBERTa 0.894다. DistilRoBERTa가 평균 최고이며, MRPC에서는 ELECTRA와 사실상
+비슷하다. 한 seed의 파일럿이므로 작은 차이를 우열로 확정하지 않는다.
+
+### 16.3 비개인 엔티티 대조 그룹: 동일 마스킹 예산
+
+| Dataset | Student | Precision | Recall | F1 | F2 | Student mask |
+|---|---|---:|---:|---:|---:|---:|
+| QNLI | BERT-tiny | 0.759 | 0.737 | 0.748 | 0.742 | 11.32% |
+| QNLI | ELECTRA-small | 0.844 | 0.809 | 0.826 | 0.816 | 11.17% |
+| QNLI | DistilRoBERTa | **0.880** | **0.871** | **0.875** | **0.872** | 11.53% |
+| FinPhraseBank | BERT-tiny | 0.795 | 0.742 | 0.768 | 0.752 | 14.82% |
+| FinPhraseBank | ELECTRA-small | 0.820 | 0.839 | 0.830 | 0.835 | 16.24% |
+| FinPhraseBank | DistilRoBERTa | **0.881** | **0.872** | **0.877** | **0.874** | 15.71% |
+
+이 그룹 내부 Macro F1은 BERT-tiny 0.758, ELECTRA-small 0.828,
+DistilRoBERTa 0.876이다. 이 값은 ‘일반 엔티티 규칙 압축 가능성’을 보여줄 뿐 PII recall로
+인용하면 안 된다.
+
+### 16.4 Recall 중심 F2 threshold
+
+| 그룹 | Student | Macro Precision | Macro Recall | Macro F2 | 평균 Student mask |
+|---|---|---:|---:|---:|---:|
+| 실제 PII | BERT-tiny | 0.551 | 0.920 | 0.811 | 18.64% |
+| 실제 PII | ELECTRA-small | 0.717 | 0.962 | 0.899 | 15.42% |
+| 실제 PII | DistilRoBERTa | **0.798** | **0.981** | **0.936** | 14.23% |
+| 비개인 엔티티 대조 | BERT-tiny | 0.562 | 0.922 | 0.817 | 22.65% |
+| 비개인 엔티티 대조 | ELECTRA-small | 0.692 | 0.940 | 0.877 | 18.79% |
+| 비개인 엔티티 대조 | DistilRoBERTa | **0.771** | **0.963** | **0.917** | 17.19% |
+
+Recall 중심 threshold는 놓치는 규칙 토큰을 줄이지만 더 많이 가린다. 그래서 본 표는 동일
+예산 표를 대체하지 않고 privacy-oriented 운용점으로 함께 제시한다.
+
+### 16.5 제외한 데이터셋
+
+- `biosx`: RedactFormer 감사 문서에서도 원본/정제 출처가 회수되지 않아 임의 데이터로
+  대체하지 않았다.
+- `MDCC`: Empath adversity 정책 코드는 확인했지만 실행에 필요한 원본 CSV가 저장소에 없어
+  재현하지 않았다.
+- `medterm4`: 의료 용어 선택 규칙이므로 위 네 비의료 데이터셋의 baseline으로 사용하지 않았다.
+
+### 16.6 산출물
+
+- 생성 코드: `src/prepare_nonmedical_rule_datasets.py`
+- 데이터: `data/nonmedical_redactor/{bios,mrpc,qnli,finphrasebank}/`
+- 학습 실행기: `src/run_extension_model_matrix.py --data-root ...`
+- 모델·로그·개별 평가: `artifacts/nonmedical_redactor/seed42/`
+- 통합 평가 JSON: `artifacts/nonmedical_redactor/seed42/summary.json`
+## 17. 메인 실험 갱신 (2026-07-29): 전체 데이터 3모델 × 10데이터셋
+
+앞 절의 약 1,000개 결과는 파일럿·탐색 기록으로 보존한다. 모델 정확도 비교의 최신 메인
+결과는 빈 문장과 완전 중복을 제거한 뒤 사용 가능한 데이터 706,495개를 전부 사용한 아래
+표다. 공식 split이 있으면 보존했고, 나머지는 결정적·층화 split을 사용했다. 학습 조건은
+encoder 전체 fine-tuning, 5 epoch, batch 16, max length 256, seed 42로 고정했다.
+threshold는 validation에서 선택하고 test에 한 번만 적용했다.
+
+Symptom2Dx는 기존 실험부터 사용 가능한 1,060개 전부를 썼고 재생성한 split도 동일하므로
+기존 전체-coverage 결과를 재사용했다. 나머지 9개 데이터셋은 전체 데이터로 다시 학습했다.
+
+### 17.1 동일 마스킹 예산 test F1
+
+| 그룹 | 데이터셋 | 전체 예시 | BERT-tiny | ELECTRA-small | DistilRoBERTa |
+|---|---|---:|---:|---:|---:|
+| 의료 규칙 | Drug Reviews | 49,974 | 0.855 | 0.892 | **0.910** |
+| 의료 규칙 | Symptom2Dx | 1,060 | 0.778 | 0.890 | **0.906** |
+| 의료 규칙 | ADR | 20,892 | 0.783 | 0.840 | **0.857** |
+| 의료 규칙 | RedditMH | 59,607 | 0.783 | 0.835 | **0.873** |
+| 의료 규칙 | MedNLI | 14,021 | 0.798 | 0.856 | **0.859** |
+| 의료 규칙 | Mental Health | 41,878 | 0.735 | 0.786 | **0.813** |
+| 실제 PII | BIOS | 395,368 | 0.892 | 0.910 | **0.944** |
+| 실제 PII | MRPC | 5,801 | 0.841 | 0.906 | **0.935** |
+| 비개인 엔티티 대조 | QNLI | 115,636 | 0.861 | 0.887 | **0.914** |
+| 비개인 엔티티 대조 | FinPhraseBank | 2,258 | 0.827 | 0.863 | **0.890** |
+
+### 17.2 의미가 같은 그룹 내부 Macro
+
+| 그룹 | 데이터셋 수 | BERT F1 | ELECTRA F1 | Distil F1 | BERT privacy F2 | ELECTRA privacy F2 | Distil privacy F2 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| 의료 규칙 | 6 | 0.788 | 0.850 | **0.870** | 0.859 | 0.895 | **0.909** |
+| 실제 PII | 2 | 0.867 | 0.908 | **0.939** | 0.901 | 0.934 | **0.961** |
+| 비개인 엔티티 대조 | 2 | 0.844 | 0.875 | **0.902** | 0.878 | 0.904 | **0.935** |
+
+세 그룹은 Teacher 의미가 다르므로 10개를 하나의 macro로 합치지 않는다. DistilRoBERTa는
+10개 데이터셋 모두에서 동일 예산 F1이 가장 높았고, ELECTRA-small은 일관되게 중간,
+BERT-tiny는 최소 크기 baseline이었다. 따라서 정확도 최우선 기준선은 DistilRoBERTa,
+경량성과 성능 절충 후보는 ELECTRA-small이라는 기존 선택이 전체 데이터에서도 유지된다.
+
+다만 이 표는 규칙 Teacher 모방 점수다. human-gold 개인정보 정답률이나 RTM 복구 저항성을
+직접 뜻하지 않는다. 실제 privacy 결론에는 human-gold 민감 토큰 Recall/F2, 같은 마스킹
+예산의 기존 규칙·random 비교, RedactFormer 연결 후 RTM 복구율과 downstream utility가
+각각 필요하다.
+
+### 17.3 산출물
+
+- 전체 split과 pseudo-label: `data/full_redactor/<dataset>/`
+- 모델·평가: `artifacts/full_redactor/seed42/`
+- 30개 통합 결과: `reports/full_dataset_results.json`
+- 브라우저 표: `reports/redactor_results_dashboard.html`
+- Excel용 원자료: `reports/redactor_results.csv`
+- 집계 코드: `src/summarize_full_dataset_results.py`
+- HTML/CSV 생성: `src/build_results_dashboard.py`

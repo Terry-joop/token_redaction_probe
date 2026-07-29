@@ -1,5 +1,7 @@
 import argparse
+import json
 import re
+from pathlib import Path
 
 from common import write_jsonl
 from medical_common import read_records, word_offsets
@@ -67,18 +69,22 @@ def keep_word(word: str) -> bool:
     return not (len(normalized) == 1 and normalized.isalpha())
 
 
-def annotate(text: str, words: list[str], science, linker, pii) -> tuple[list[int], list[str]]:
+def annotate(
+    text: str, words: list[str], science, linker, pii, science_doc=None, pii_doc=None,
+) -> tuple[list[int], list[str]]:
     offset_words, offsets = word_offsets(text)
     if offset_words != words:
         raise ValueError("stored words do not match tokenizer offsets")
     spans = []
-    for entity in science(text).ents:
+    science_document = science_doc if science_doc is not None else science(text)
+    pii_document = pii_doc if pii_doc is not None else pii(text)
+    for entity in science_document.ents:
         if not entity._.kb_ents:
             continue
         concept = linker.kb.cui_to_entity[entity._.kb_ents[0][0]]
         if set(concept.types) & SENSITIVE_TUIS:
             spans.append((entity.start_char, entity.end_char, "MEDICAL"))
-    for entity in pii(text).ents:
+    for entity in pii_document.ents:
         entity_type = entity.label_
         if entity_type in PII_KEEP:
             normalized = "LOCATION" if entity_type in {"GPE", "LOC", "FAC"} else entity_type
@@ -106,26 +112,54 @@ def main() -> None:
     parser.add_argument("--output", default="data/medical_redactor/drugreviews/medterm4.jsonl")
     parser.add_argument("--threshold", type=float, default=0.85)
     parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--batch-size", type=int, default=32)
+    parser.add_argument("--resume", action="store_true")
     args = parser.parse_args()
 
     science, linker, pii = load_pipelines(args.threshold)
-    output = []
     rows = read_records(args.input)
     if args.limit is not None:
         rows = rows[:args.limit]
-    for number, row in enumerate(rows, start=1):
-        labels, types = annotate(row["text"], row["words"], science, linker, pii)
-        output.append({
-            "id": row["id"], "labels": labels, "types": types,
-            "selected_words": [word for word, label in zip(row["words"], labels) if label],
-            "source": "medterm4-reimplementation-v2-latest-aligned",
-        })
-        if number % 25 == 0:
-            print(f"annotated {number}/{len(rows)}")
-    write_jsonl(args.output, output)
+    ids = [row["id"] for row in rows]
+    if len(ids) != len(set(ids)):
+        raise ValueError("duplicate ids in annotation input")
+    output_path = Path(args.output)
+    existing = read_records(output_path) if args.resume and output_path.exists() else []
+    completed = {row["id"] for row in existing}
+    if not completed.issubset(ids):
+        raise ValueError("resume output contains ids absent from current input")
+    pending = [row for row in rows if row["id"] not in completed]
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    mode = "a" if existing else "w"
+    annotated = len(existing)
+    with output_path.open(mode, encoding="utf-8") as stream:
+        for start in range(0, len(pending), args.batch_size):
+            chunk = pending[start:start + args.batch_size]
+            science_docs = science.pipe((row["text"] for row in chunk), batch_size=args.batch_size)
+            pii_docs = pii.pipe((row["text"] for row in chunk), batch_size=args.batch_size)
+            for row, science_doc, pii_doc in zip(chunk, science_docs, pii_docs):
+                labels, types = annotate(
+                    row["text"], row["words"], science, linker, pii, science_doc, pii_doc,
+                )
+                record = {
+                    "id": row["id"], "labels": labels, "types": types,
+                    "selected_words": [
+                        word for word, label in zip(row["words"], labels) if label
+                    ],
+                    "source": "medterm4-reimplementation-v2-latest-aligned",
+                }
+                stream.write(json.dumps(record, ensure_ascii=False) + "\n")
+                annotated += 1
+            stream.flush()
+            if annotated == len(rows) or annotated % 1024 < len(chunk):
+                print(f"annotated {annotated}/{len(rows)}", flush=True)
+    output = read_records(output_path)
     total = sum(len(row["words"]) for row in rows)
     selected = sum(sum(row["labels"]) for row in output)
-    print(f"wrote {len(output)} rows to {args.output}; mask_rate={selected / max(total, 1):.2%}")
+    print(
+        f"wrote {len(output)} rows to {output_path}; "
+        f"mask_rate={selected / max(total, 1):.2%}"
+    )
 
 
 if __name__ == "__main__":

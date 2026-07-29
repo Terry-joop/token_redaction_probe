@@ -165,7 +165,7 @@ def main():
             optimizer.step()
             losses.append(loss.item())
         metrics = evaluate(model, val_loader, device)
-        print(f"epoch={epoch} loss={np.mean(losses):.4f} metrics={metrics}")
+        print(f"epoch={epoch} loss={np.mean(losses):.4f} metrics={metrics}", flush=True)
         if best_metrics is None or metrics["f1"] > best_metrics["f1"]:
             best_metrics = metrics
             best_epoch = epoch

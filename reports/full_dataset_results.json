@@ -1,0 +1,2455 @@
+{
+  "protocol": "Fixed three-model in-domain comparison on every usable deduplicated example; official splits preserved where available; seed 42; threshold selected on validation and applied once to test.",
+  "data_scope": "full_usable_deduplicated",
+  "seed": 42,
+  "datasets": {
+    "drug": {
+      "stats": {
+        "all": {
+          "examples": 49974,
+          "task_labels": {
+            "ADHD": 2180,
+            "Birth Control": 18088,
+            "Bipolar Disorde": 2874,
+            "Depression": 6261,
+            "Obesity": 2444,
+            "Insomnia": 2822,
+            "Pain": 4427,
+            "Anxiety": 4313,
+            "Acne": 3935,
+            "Weight Loss": 2630
+          },
+          "tokens": 5094597,
+          "selected_tokens": 365507,
+          "mask_rate": 0.0717440457017503
+        },
+        "train": {
+          "examples": 39980,
+          "task_labels": {
+            "Weight Loss": 2104,
+            "Anxiety": 3451,
+            "Birth Control": 14470,
+            "Pain": 3541,
+            "Depression": 5009,
+            "ADHD": 1744,
+            "Acne": 3147,
+            "Obesity": 1956,
+            "Insomnia": 2258,
+            "Bipolar Disorde": 2300
+          },
+          "tokens": 4070018,
+          "selected_tokens": 292199,
+          "mask_rate": 0.07179304858111192
+        },
+        "validation": {
+          "examples": 4997,
+          "task_labels": {
+            "Birth Control": 1809,
+            "Anxiety": 431,
+            "Depression": 626,
+            "Weight Loss": 263,
+            "Bipolar Disorde": 287,
+            "Pain": 443,
+            "ADHD": 218,
+            "Insomnia": 282,
+            "Acne": 394,
+            "Obesity": 244
+          },
+          "tokens": 511263,
+          "selected_tokens": 36868,
+          "mask_rate": 0.07211161378781566
+        },
+        "test": {
+          "examples": 4997,
+          "task_labels": {
+            "Weight Loss": 263,
+            "Anxiety": 431,
+            "Pain": 443,
+            "Birth Control": 1809,
+            "Insomnia": 282,
+            "Acne": 394,
+            "Depression": 626,
+            "Obesity": 244,
+            "Bipolar Disorde": 287,
+            "ADHD": 218
+          },
+          "tokens": 513316,
+          "selected_tokens": 36440,
+          "mask_rate": 0.07098941003202705
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.9735944419234199,
+              "precision": 0.7490620736698499,
+              "recall": 0.9531300857111858,
+              "f1": 0.838863690618286,
+              "f2": 0.9038809778582599,
+              "gold_mask_rate": 0.07211260112350759,
+              "predicted_mask_rate": 0.09175833633248313,
+              "residual_sensitive_rate": 0.04686991428881415,
+              "evaluated_tokens": 511256
+            },
+            "test": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.972971551359702,
+              "precision": 0.7402273888605008,
+              "recall": 0.9540889132821075,
+              "f1": 0.8336610397084212,
+              "f2": 0.9019706529409323,
+              "gold_mask_rate": 0.07099010151740368,
+              "predicted_mask_rate": 0.09150008474394665,
+              "residual_sensitive_rate": 0.04591108671789246,
+              "evaluated_tokens": 513311
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9793821490603534,
+              "precision": 0.8525968981865909,
+              "recall": 0.8633503309102745,
+              "f1": 0.8579399199471706,
+              "f2": 0.8611779984307784,
+              "gold_mask_rate": 0.07211260112350759,
+              "predicted_mask_rate": 0.07302212590170092,
+              "residual_sensitive_rate": 0.13664966908972553,
+              "evaluated_tokens": 511256
+            },
+            "test": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9792718254625363,
+              "precision": 0.8473905315883018,
+              "recall": 0.8635290889132821,
+              "f1": 0.8553836953271536,
+              "f2": 0.8602523866283203,
+              "gold_mask_rate": 0.07099010151740368,
+              "predicted_mask_rate": 0.07234210839042997,
+              "residual_sensitive_rate": 0.13647091108671794,
+              "evaluated_tokens": 513311
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9800119705196614,
+              "precision": 0.7997435493667469,
+              "recall": 0.9642779646305739,
+              "f1": 0.8743375019982539,
+              "f2": 0.9261690764621597,
+              "gold_mask_rate": 0.07211260112350759,
+              "predicted_mask_rate": 0.0869486128280157,
+              "residual_sensitive_rate": 0.035722035369426086,
+              "evaluated_tokens": 511256
+            },
+            "test": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9794666391330012,
+              "precision": 0.7913123678409142,
+              "recall": 0.9653402854006586,
+              "f1": 0.8697060350582243,
+              "f2": 0.9246690569569012,
+              "gold_mask_rate": 0.07099010151740368,
+              "predicted_mask_rate": 0.08660246906845948,
+              "residual_sensitive_rate": 0.03465971459934136,
+              "evaluated_tokens": 513311
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9848569014348976,
+              "precision": 0.8815299973801415,
+              "recall": 0.9126613865682978,
+              "f1": 0.8968256083584317,
+              "f2": 0.9062604367546138,
+              "gold_mask_rate": 0.07211260112350759,
+              "predicted_mask_rate": 0.07465927050244887,
+              "residual_sensitive_rate": 0.08733861343170224,
+              "evaluated_tokens": 511256
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9843233439376908,
+              "precision": 0.8728562048588313,
+              "recall": 0.912019758507135,
+              "f1": 0.8920083204723881,
+              "f2": 0.9039083961160823,
+              "gold_mask_rate": 0.07099010151740368,
+              "predicted_mask_rate": 0.07417530502950453,
+              "residual_sensitive_rate": 0.08798024149286499,
+              "evaluated_tokens": 513311
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.9833158276659958,
+              "precision": 0.8256193409017787,
+              "recall": 0.9744493870022783,
+              "f1": 0.8938817148117738,
+              "f2": 0.940540144303771,
+              "gold_mask_rate": 0.07211161378781566,
+              "predicted_mask_rate": 0.0851107942487526,
+              "residual_sensitive_rate": 0.025550612997721656,
+              "evaluated_tokens": 511263
+            },
+            "test": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.9829792954047799,
+              "precision": 0.8203177392872835,
+              "recall": 0.9734632272228321,
+              "f1": 0.8903530238570335,
+              "f2": 0.9384242578160135,
+              "gold_mask_rate": 0.07098941003202705,
+              "predicted_mask_rate": 0.08424245494003693,
+              "residual_sensitive_rate": 0.026536772777167927,
+              "evaluated_tokens": 513316
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.987548482874763,
+              "precision": 0.9073015703450487,
+              "recall": 0.9214766192904416,
+              "f1": 0.9143341586823124,
+              "f2": 0.9186062860974713,
+              "gold_mask_rate": 0.07211161378781566,
+              "predicted_mask_rate": 0.07323823550696999,
+              "residual_sensitive_rate": 0.07852338070955844,
+              "evaluated_tokens": 511263
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9870450171044737,
+              "precision": 0.9003386550556362,
+              "recall": 0.9192645444566411,
+              "f1": 0.9097031746462808,
+              "f2": 0.9154159789250462,
+              "gold_mask_rate": 0.07098941003202705,
+              "predicted_mask_rate": 0.0724816682121734,
+              "residual_sensitive_rate": 0.08073545554335892,
+              "evaluated_tokens": 513316
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "symptom2dx": {
+      "stats": {
+        "all": {
+          "examples": 1060,
+          "task_labels": {
+            "cervical spondylosis": 49,
+            "impetigo": 50,
+            "urinary tract infection": 48,
+            "arthritis": 50,
+            "dengue": 50,
+            "common cold": 49,
+            "drug reaction": 48,
+            "fungal infection": 48,
+            "malaria": 50,
+            "allergy": 50,
+            "bronchial asthma": 49,
+            "varicose veins": 50,
+            "migraine": 42,
+            "hypertension": 50,
+            "gastroesophageal reflux disease": 49,
+            "pneumonia": 47,
+            "psoriasis": 50,
+            "diabetes": 50,
+            "jaundice": 37,
+            "chicken pox": 50,
+            "typhoid": 47,
+            "peptic ulcer disease": 47
+          },
+          "tokens": 34745,
+          "selected_tokens": 4299,
+          "mask_rate": 0.12373003309828752
+        },
+        "train": {
+          "examples": 844,
+          "task_labels": {
+            "urinary tract infection": 38,
+            "drug reaction": 38,
+            "diabetes": 40,
+            "fungal infection": 38,
+            "pneumonia": 37,
+            "arthritis": 40,
+            "allergy": 40,
+            "hypertension": 40,
+            "cervical spondylosis": 39,
+            "dengue": 40,
+            "gastroesophageal reflux disease": 39,
+            "impetigo": 40,
+            "jaundice": 29,
+            "peptic ulcer disease": 37,
+            "migraine": 34,
+            "chicken pox": 40,
+            "bronchial asthma": 39,
+            "malaria": 40,
+            "common cold": 39,
+            "typhoid": 37,
+            "varicose veins": 40,
+            "psoriasis": 40
+          },
+          "tokens": 27555,
+          "selected_tokens": 3465,
+          "mask_rate": 0.12574850299401197
+        },
+        "validation": {
+          "examples": 108,
+          "task_labels": {
+            "diabetes": 5,
+            "bronchial asthma": 5,
+            "dengue": 5,
+            "typhoid": 5,
+            "cervical spondylosis": 5,
+            "urinary tract infection": 5,
+            "chicken pox": 5,
+            "impetigo": 5,
+            "peptic ulcer disease": 5,
+            "arthritis": 5,
+            "common cold": 5,
+            "psoriasis": 5,
+            "malaria": 5,
+            "fungal infection": 5,
+            "varicose veins": 5,
+            "drug reaction": 5,
+            "jaundice": 4,
+            "migraine": 4,
+            "pneumonia": 5,
+            "allergy": 5,
+            "hypertension": 5,
+            "gastroesophageal reflux disease": 5
+          },
+          "tokens": 3632,
+          "selected_tokens": 416,
+          "mask_rate": 0.1145374449339207
+        },
+        "test": {
+          "examples": 108,
+          "task_labels": {
+            "varicose veins": 5,
+            "hypertension": 5,
+            "drug reaction": 5,
+            "chicken pox": 5,
+            "malaria": 5,
+            "cervical spondylosis": 5,
+            "bronchial asthma": 5,
+            "psoriasis": 5,
+            "peptic ulcer disease": 5,
+            "common cold": 5,
+            "urinary tract infection": 5,
+            "allergy": 5,
+            "migraine": 4,
+            "gastroesophageal reflux disease": 5,
+            "jaundice": 4,
+            "diabetes": 5,
+            "pneumonia": 5,
+            "dengue": 5,
+            "arthritis": 5,
+            "impetigo": 5,
+            "typhoid": 5,
+            "fungal infection": 5
+          },
+          "tokens": 3558,
+          "selected_tokens": 418,
+          "mask_rate": 0.11748173130972456
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "budget_matched": {
+            "validation": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9432819383259912,
+              "precision": 0.7476415094339622,
+              "recall": 0.7620192307692307,
+              "f1": 0.7547619047619047,
+              "f2": 0.7590996168582376,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.11674008810572688,
+              "residual_sensitive_rate": 0.23798076923076927,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9488476672287802,
+              "precision": 0.795,
+              "recall": 0.7607655502392344,
+              "f1": 0.7775061124694377,
+              "f2": 0.7673745173745173,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.11242270938729623,
+              "residual_sensitive_rate": 0.23923444976076558,
+              "evaluated_tokens": 3558
+            }
+          },
+          "f2_optimized": {
+            "validation": {
+              "threshold": 0.42999999999999994,
+              "accuracy_secondary": 0.9061123348017621,
+              "precision": 0.5511596180081856,
+              "recall": 0.9711538461538461,
+              "f1": 0.7032201914708442,
+              "f2": 0.8427200667501042,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.2018171806167401,
+              "residual_sensitive_rate": 0.028846153846153855,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.42999999999999994,
+              "accuracy_secondary": 0.9097807757166948,
+              "precision": 0.5678321678321678,
+              "recall": 0.9712918660287081,
+              "f1": 0.7166813768755517,
+              "f2": 0.8504398826979472,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.20095559302979202,
+              "residual_sensitive_rate": 0.028708133971291905,
+              "evaluated_tokens": 3558
+            }
+          }
+        },
+        "electra_small": {
+          "budget_matched": {
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9754955947136564,
+              "precision": 0.8811188811188811,
+              "recall": 0.9086538461538461,
+              "f1": 0.8946745562130177,
+              "f2": 0.903010033444816,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.11811674008810573,
+              "residual_sensitive_rate": 0.09134615384615385,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9738617200674536,
+              "precision": 0.8805620608899297,
+              "recall": 0.8995215311004785,
+              "f1": 0.8899408284023669,
+              "f2": 0.8956646021915198,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.12001124227093873,
+              "residual_sensitive_rate": 0.1004784688995215,
+              "evaluated_tokens": 3558
+            }
+          },
+          "f2_optimized": {
+            "validation": {
+              "threshold": 0.82,
+              "accuracy_secondary": 0.9743942731277533,
+              "precision": 0.8473118279569892,
+              "recall": 0.9471153846153846,
+              "f1": 0.8944381384790011,
+              "f2": 0.9253170502583372,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.1280286343612335,
+              "residual_sensitive_rate": 0.05288461538461542,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.82,
+              "accuracy_secondary": 0.9735806632939854,
+              "precision": 0.8417721518987342,
+              "recall": 0.9545454545454546,
+              "f1": 0.8946188340807175,
+              "f2": 0.929636533084809,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.13322091062394603,
+              "residual_sensitive_rate": 0.045454545454545414,
+              "evaluated_tokens": 3558
+            }
+          }
+        },
+        "distilroberta": {
+          "budget_matched": {
+            "validation": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9779735682819384,
+              "precision": 0.9057971014492754,
+              "recall": 0.9014423076923077,
+              "f1": 0.9036144578313253,
+              "f2": 0.9023099133782483,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.11398678414096916,
+              "residual_sensitive_rate": 0.09855769230769229,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9780775716694773,
+              "precision": 0.912621359223301,
+              "recall": 0.8995215311004785,
+              "f1": 0.9060240963855422,
+              "f2": 0.9021113243761996,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.11579539066891512,
+              "residual_sensitive_rate": 0.1004784688995215,
+              "evaluated_tokens": 3558
+            }
+          },
+          "f2_optimized": {
+            "validation": {
+              "threshold": 0.6599999999999999,
+              "accuracy_secondary": 0.9732929515418502,
+              "precision": 0.824847250509165,
+              "recall": 0.9735576923076923,
+              "f1": 0.8930540242557883,
+              "f2": 0.9396751740139211,
+              "gold_mask_rate": 0.1145374449339207,
+              "predicted_mask_rate": 0.13518722466960353,
+              "residual_sensitive_rate": 0.02644230769230771,
+              "evaluated_tokens": 3632
+            },
+            "test": {
+              "threshold": 0.6599999999999999,
+              "accuracy_secondary": 0.975548060708263,
+              "precision": 0.8469601677148847,
+              "recall": 0.9665071770334929,
+              "f1": 0.9027932960893855,
+              "f2": 0.9399720800372267,
+              "gold_mask_rate": 0.11748173130972456,
+              "predicted_mask_rate": 0.13406408094435077,
+              "residual_sensitive_rate": 0.03349282296650713,
+              "evaluated_tokens": 3558
+            }
+          }
+        }
+      },
+      "result_source": "reused_full_coverage_pilot"
+    },
+    "adr": {
+      "stats": {
+        "all": {
+          "examples": 20892,
+          "task_labels": {
+            "1": 4271,
+            "0": 16621
+          },
+          "tokens": 423633,
+          "selected_tokens": 74662,
+          "mask_rate": 0.17624217187990548
+        },
+        "train": {
+          "examples": 16714,
+          "task_labels": {
+            "1": 3417,
+            "0": 13297
+          },
+          "tokens": 339047,
+          "selected_tokens": 59941,
+          "mask_rate": 0.1767925980763729
+        },
+        "validation": {
+          "examples": 2089,
+          "task_labels": {
+            "0": 1662,
+            "1": 427
+          },
+          "tokens": 42285,
+          "selected_tokens": 7328,
+          "mask_rate": 0.1733002246659572
+        },
+        "test": {
+          "examples": 2089,
+          "task_labels": {
+            "0": 1662,
+            "1": 427
+          },
+          "tokens": 42301,
+          "selected_tokens": 7393,
+          "mask_rate": 0.17477128200278952
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.5199999999999999,
+              "accuracy_secondary": 0.8970793425564622,
+              "precision": 0.6333811401936178,
+              "recall": 0.9642467248908297,
+              "f1": 0.7645531270287816,
+              "f2": 0.873035484827518,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.26382878089156914,
+              "residual_sensitive_rate": 0.03575327510917026,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.5199999999999999,
+              "accuracy_secondary": 0.9019644925651876,
+              "precision": 0.6476797088262056,
+              "recall": 0.9628026511564994,
+              "f1": 0.7744111407278463,
+              "f2": 0.877422217839357,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.2598047327486348,
+              "residual_sensitive_rate": 0.037197348843500566,
+              "evaluated_tokens": 42301
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8599999999999999,
+              "accuracy_secondary": 0.9231878916873596,
+              "precision": 0.7758993778739518,
+              "recall": 0.7828875545851528,
+              "f1": 0.7793778019290857,
+              "f2": 0.7814798670517081,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.17486106184226086,
+              "residual_sensitive_rate": 0.2171124454148472,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.8599999999999999,
+              "accuracy_secondary": 0.9237843076995815,
+              "precision": 0.7796109993293092,
+              "recall": 0.7861490599215474,
+              "f1": 0.7828663793103449,
+              "f2": 0.7848326896588975,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.1762369683931822,
+              "residual_sensitive_rate": 0.21385094007845262,
+              "evaluated_tokens": 42301
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.49999999999999994,
+              "accuracy_secondary": 0.9232115407354854,
+              "precision": 0.7028128416658384,
+              "recall": 0.96492903930131,
+              "f1": 0.8132727586405198,
+              "f2": 0.8979503720823915,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.23793307319380394,
+              "residual_sensitive_rate": 0.03507096069868998,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.49999999999999994,
+              "accuracy_secondary": 0.9268575210987919,
+              "precision": 0.7181126331811263,
+              "recall": 0.9572568646016502,
+              "f1": 0.8206168831168831,
+              "f2": 0.8974814213609963,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.23297321576322072,
+              "residual_sensitive_rate": 0.04274313539834984,
+              "evaluated_tokens": 42301
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9431240392574199,
+              "precision": 0.8334913968296979,
+              "recall": 0.8395196506550219,
+              "f1": 0.8364946631314162,
+              "f2": 0.83830703403919,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.1745536242166253,
+              "residual_sensitive_rate": 0.16048034934497812,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9443039171650789,
+              "precision": 0.8434474294286104,
+              "recall": 0.8366021912620046,
+              "f1": 0.8400108651364933,
+              "f2": 0.8379623357268663,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.17335287581853856,
+              "residual_sensitive_rate": 0.16339780873799536,
+              "evaluated_tokens": 42301
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.32999999999999996,
+              "accuracy_secondary": 0.9325529147451815,
+              "precision": 0.7313895781637717,
+              "recall": 0.9653384279475983,
+              "f1": 0.8322352941176471,
+              "f2": 0.9072953006361584,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.2287335934728627,
+              "residual_sensitive_rate": 0.03466157205240172,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.32999999999999996,
+              "accuracy_secondary": 0.9345641946998889,
+              "precision": 0.7411617478360621,
+              "recall": 0.9613147572027594,
+              "f1": 0.8370038864680249,
+              "f2": 0.907407880289063,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.2266849483463748,
+              "residual_sensitive_rate": 0.038685242797240615,
+              "evaluated_tokens": 42301
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.9498640179732766,
+              "precision": 0.8559322033898306,
+              "recall": 0.8545305676855895,
+              "f1": 0.8552308112537558,
+              "f2": 0.854810527465327,
+              "gold_mask_rate": 0.1733002246659572,
+              "predicted_mask_rate": 0.17301643608844744,
+              "residual_sensitive_rate": 0.14546943231441045,
+              "evaluated_tokens": 42285
+            },
+            "test": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.950403063757358,
+              "precision": 0.8622246545355041,
+              "recall": 0.8524279724063303,
+              "f1": 0.8572983267582642,
+              "f2": 0.8543694585287818,
+              "gold_mask_rate": 0.17477128200278952,
+              "predicted_mask_rate": 0.1727855133448382,
+              "residual_sensitive_rate": 0.14757202759366972,
+              "evaluated_tokens": 42301
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "redditmh": {
+      "stats": {
+        "all": {
+          "examples": 59607,
+          "task_labels": {
+            "ADHD": 12872,
+            "aspergers": 9617,
+            "depression": 9876,
+            "OCD": 18653,
+            "ptsd": 8589
+          },
+          "tokens": 6134727,
+          "selected_tokens": 226371,
+          "mask_rate": 0.03689993051035523
+        },
+        "train": {
+          "examples": 47685,
+          "task_labels": {
+            "OCD": 14923,
+            "ADHD": 10298,
+            "aspergers": 7693,
+            "ptsd": 6871,
+            "depression": 7900
+          },
+          "tokens": 4901666,
+          "selected_tokens": 180756,
+          "mask_rate": 0.03687644160169216
+        },
+        "validation": {
+          "examples": 5961,
+          "task_labels": {
+            "ptsd": 859,
+            "depression": 988,
+            "OCD": 1865,
+            "aspergers": 962,
+            "ADHD": 1287
+          },
+          "tokens": 615270,
+          "selected_tokens": 22701,
+          "mask_rate": 0.036895996879418795
+        },
+        "test": {
+          "examples": 5961,
+          "task_labels": {
+            "aspergers": 962,
+            "ptsd": 859,
+            "OCD": 1865,
+            "depression": 988,
+            "ADHD": 1287
+          },
+          "tokens": 617791,
+          "selected_tokens": 22914,
+          "mask_rate": 0.03709021335694434
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7999999999999999,
+              "accuracy_secondary": 0.9771276370862048,
+              "precision": 0.6309209528144439,
+              "recall": 0.9161489314827055,
+              "f1": 0.7472416891284815,
+              "f2": 0.8401826484018264,
+              "gold_mask_rate": 0.03690375915886422,
+              "predicted_mask_rate": 0.05358728279710819,
+              "residual_sensitive_rate": 0.08385106851729451,
+              "evaluated_tokens": 614978
+            },
+            "test": {
+              "threshold": 0.7999999999999999,
+              "accuracy_secondary": 0.9777202987255091,
+              "precision": 0.6393956930949407,
+              "recall": 0.9163210965122878,
+              "f1": 0.7532113383566559,
+              "f2": 0.8432757277029252,
+              "gold_mask_rate": 0.03710422190297413,
+              "predicted_mask_rate": 0.05317424197025378,
+              "residual_sensitive_rate": 0.08367890348771223,
+              "evaluated_tokens": 617423
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9833880236366179,
+              "precision": 0.7667250887017484,
+              "recall": 0.7903062348534919,
+              "f1": 0.7783370942544697,
+              "f2": 0.7854746743976246,
+              "gold_mask_rate": 0.03690375915886422,
+              "predicted_mask_rate": 0.038038759110081984,
+              "residual_sensitive_rate": 0.20969376514650806,
+              "evaluated_tokens": 614978
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9836935131992167,
+              "precision": 0.7739238022099919,
+              "recall": 0.7918285390021389,
+              "f1": 0.7827737982221455,
+              "f2": 0.7881816206821638,
+              "gold_mask_rate": 0.03710422190297413,
+              "predicted_mask_rate": 0.03796262853829546,
+              "residual_sensitive_rate": 0.2081714609978611,
+              "evaluated_tokens": 617423
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9843311468052516,
+              "precision": 0.7258951738453555,
+              "recall": 0.9245208195637805,
+              "f1": 0.8132558139534883,
+              "f2": 0.8765509462338639,
+              "gold_mask_rate": 0.03690375915886422,
+              "predicted_mask_rate": 0.04700168136095925,
+              "residual_sensitive_rate": 0.07547918043621948,
+              "evaluated_tokens": 614978
+            },
+            "test": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9844919933335817,
+              "precision": 0.730293609671848,
+              "recall": 0.9228687415426252,
+              "f1": 0.8153647390038373,
+              "f2": 0.8766357620287596,
+              "gold_mask_rate": 0.03710422190297413,
+              "predicted_mask_rate": 0.04688843791047628,
+              "residual_sensitive_rate": 0.07713125845737479,
+              "evaluated_tokens": 617423
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9871279948225791,
+              "precision": 0.7971131036146516,
+              "recall": 0.8735404274069178,
+              "f1": 0.8335786065677164,
+              "f2": 0.8571045645952046,
+              "gold_mask_rate": 0.03690375915886422,
+              "predicted_mask_rate": 0.04044209711566918,
+              "residual_sensitive_rate": 0.12645957259308216,
+              "evaluated_tokens": 614978
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9872162196743561,
+              "precision": 0.8020598648213711,
+              "recall": 0.8702256754987123,
+              "f1": 0.8347534805820161,
+              "f2": 0.8556810768121416,
+              "gold_mask_rate": 0.03710422190297413,
+              "predicted_mask_rate": 0.04025765156140928,
+              "residual_sensitive_rate": 0.12977432450128767,
+              "evaluated_tokens": 617423
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.9875269474512507,
+              "precision": 0.7710047639670853,
+              "recall": 0.941516086381666,
+              "f1": 0.8477717369736895,
+              "f2": 0.9016358847958943,
+              "gold_mask_rate": 0.03688915046026084,
+              "predicted_mask_rate": 0.045047359231066876,
+              "residual_sensitive_rate": 0.05848391361833405,
+              "evaluated_tokens": 615086
+            },
+            "test": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.9878838717199655,
+              "precision": 0.778395552025417,
+              "recall": 0.941320293398533,
+              "f1": 0.8521402316113987,
+              "f2": 0.9034983321320214,
+              "gold_mask_rate": 0.03709005641885983,
+              "predicted_mask_rate": 0.04485331744191319,
+              "residual_sensitive_rate": 0.05867970660146704,
+              "evaluated_tokens": 617524
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9900111529119505,
+              "precision": 0.8419160191767234,
+              "recall": 0.89779638607316,
+              "f1": 0.8689587510130956,
+              "f2": 0.8860346567382302,
+              "gold_mask_rate": 0.03688915046026084,
+              "predicted_mask_rate": 0.039337588564851096,
+              "residual_sensitive_rate": 0.10220361392683996,
+              "evaluated_tokens": 615086
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9903307401817582,
+              "precision": 0.8508266688766419,
+              "recall": 0.8964809640237513,
+              "f1": 0.873057380360142,
+              "f2": 0.8869623063698174,
+              "gold_mask_rate": 0.03709005641885983,
+              "predicted_mask_rate": 0.03908026246753163,
+              "residual_sensitive_rate": 0.10351903597624867,
+              "evaluated_tokens": 617524
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "mednli": {
+      "stats": {
+        "all": {
+          "examples": 14021,
+          "task_labels": {
+            "0": 4673,
+            "2": 4675,
+            "1": 4673
+          },
+          "tokens": 423479,
+          "selected_tokens": 60909,
+          "mask_rate": 0.14383003643628137
+        },
+        "train": {
+          "examples": 11210,
+          "task_labels": {
+            "0": 3737,
+            "2": 3737,
+            "1": 3736
+          },
+          "tokens": 338201,
+          "selected_tokens": 48274,
+          "mask_rate": 0.14273760278650863
+        },
+        "validation": {
+          "examples": 1395,
+          "task_labels": {
+            "0": 465,
+            "1": 465,
+            "2": 465
+          },
+          "tokens": 44064,
+          "selected_tokens": 6437,
+          "mask_rate": 0.1460829702251271
+        },
+        "test": {
+          "examples": 1416,
+          "task_labels": {
+            "0": 471,
+            "1": 472,
+            "2": 473
+          },
+          "tokens": 41214,
+          "selected_tokens": 6198,
+          "mask_rate": 0.15038579123598778
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.4099999999999999,
+              "accuracy_secondary": 0.9186980798038948,
+              "precision": 0.6494294985868314,
+              "recall": 0.9638030138263166,
+              "f1": 0.775984990619137,
+              "f2": 0.8787286479136568,
+              "gold_mask_rate": 0.14610286440601025,
+              "predicted_mask_rate": 0.2168278178764356,
+              "residual_sensitive_rate": 0.03619698617368339,
+              "evaluated_tokens": 44058
+            },
+            "test": {
+              "threshold": 0.4099999999999999,
+              "accuracy_secondary": 0.9149437002523781,
+              "precision": 0.6465338992273371,
+              "recall": 0.9585350112939658,
+              "f1": 0.7722103074023526,
+              "f2": 0.8741649745445984,
+              "gold_mask_rate": 0.1504076878276063,
+              "predicted_mask_rate": 0.22299068142108328,
+              "residual_sensitive_rate": 0.04146498870603421,
+              "evaluated_tokens": 41208
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9382178038040765,
+              "precision": 0.7841517515679975,
+              "recall": 0.7963336958210346,
+              "f1": 0.7901957761677201,
+              "f2": 0.7938671209540034,
+              "gold_mask_rate": 0.14610286440601025,
+              "predicted_mask_rate": 0.14837259975486858,
+              "residual_sensitive_rate": 0.20366630417896536,
+              "evaluated_tokens": 44058
+            },
+            "test": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9395505727043293,
+              "precision": 0.8027110893352931,
+              "recall": 0.792997741206841,
+              "f1": 0.797824851878906,
+              "f2": 0.7949215591136989,
+              "gold_mask_rate": 0.1504076878276063,
+              "predicted_mask_rate": 0.14858765288293535,
+              "residual_sensitive_rate": 0.20700225879315903,
+              "evaluated_tokens": 41208
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.33999999999999997,
+              "accuracy_secondary": 0.9370148440691816,
+              "precision": 0.7129565015119795,
+              "recall": 0.9523069752990524,
+              "f1": 0.8154306617891587,
+              "f2": 0.8923892156291854,
+              "gold_mask_rate": 0.14610286440601025,
+              "predicted_mask_rate": 0.19515184529483862,
+              "residual_sensitive_rate": 0.047693024700947606,
+              "evaluated_tokens": 44058
+            },
+            "test": {
+              "threshold": 0.33999999999999997,
+              "accuracy_secondary": 0.9402300524170064,
+              "precision": 0.7300160118241162,
+              "recall": 0.9562762181348822,
+              "f1": 0.8279667528113431,
+              "f2": 0.9004588131627723,
+              "gold_mask_rate": 0.1504076878276063,
+              "predicted_mask_rate": 0.1970248495437779,
+              "residual_sensitive_rate": 0.04372378186511783,
+              "evaluated_tokens": 41208
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.950383585273957,
+              "precision": 0.8133569217160549,
+              "recall": 0.8570762777691471,
+              "f1": 0.8346444780635401,
+              "f2": 0.8479604069964034,
+              "gold_mask_rate": 0.14610286440601025,
+              "predicted_mask_rate": 0.15395614871306007,
+              "residual_sensitive_rate": 0.14292372223085292,
+              "evaluated_tokens": 44058
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9556396816152204,
+              "precision": 0.8360504460166103,
+              "recall": 0.8770571151984511,
+              "f1": 0.8560629921259842,
+              "f2": 0.868537099763533,
+              "gold_mask_rate": 0.1504076878276063,
+              "predicted_mask_rate": 0.1577848961366725,
+              "residual_sensitive_rate": 0.12294288480154891,
+              "evaluated_tokens": 41208
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.9410629992737836,
+              "precision": 0.7264150943396226,
+              "recall": 0.9569675314587541,
+              "f1": 0.8259033317691225,
+              "f2": 0.8998480775972888,
+              "gold_mask_rate": 0.1460829702251271,
+              "predicted_mask_rate": 0.1924473493100944,
+              "residual_sensitive_rate": 0.04303246854124587,
+              "evaluated_tokens": 44064
+            },
+            "test": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.9431989129907313,
+              "precision": 0.7401319885443904,
+              "recall": 0.9590190383994837,
+              "f1": 0.8354768430669759,
+              "f2": 0.9054626329098499,
+              "gold_mask_rate": 0.15038579123598778,
+              "predicted_mask_rate": 0.19486096957344592,
+              "residual_sensitive_rate": 0.04098096160051634,
+              "evaluated_tokens": 41214
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9562908496732027,
+              "precision": 0.8511598941304687,
+              "recall": 0.8493086841696442,
+              "f1": 0.8502332814930016,
+              "f2": 0.8496782816822605,
+              "gold_mask_rate": 0.1460829702251271,
+              "predicted_mask_rate": 0.1457652505446623,
+              "residual_sensitive_rate": 0.15069131583035578,
+              "evaluated_tokens": 44064
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9573445916436163,
+              "precision": 0.8564547206165704,
+              "recall": 0.8606001936108422,
+              "f1": 0.858522452921294,
+              "f2": 0.8597678916827853,
+              "gold_mask_rate": 0.15038579123598778,
+              "predicted_mask_rate": 0.15111369922841753,
+              "residual_sensitive_rate": 0.13939980638915783,
+              "evaluated_tokens": 41214
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "mentalhealth": {
+      "stats": {
+        "all": {
+          "examples": 41878,
+          "task_labels": {
+            "Normal": 15736,
+            "Anxiety": 2705,
+            "Depression": 10888,
+            "Suicidal": 8233,
+            "Stress": 2049,
+            "Bipolar": 1682,
+            "Personality disorder": 585
+          },
+          "tokens": 2717557,
+          "selected_tokens": 96263,
+          "mask_rate": 0.0354226240700747
+        },
+        "train": {
+          "examples": 33502,
+          "task_labels": {
+            "Bipolar": 1346,
+            "Suicidal": 6586,
+            "Normal": 12589,
+            "Depression": 8710,
+            "Anxiety": 2164,
+            "Personality disorder": 468,
+            "Stress": 1639
+          },
+          "tokens": 2168381,
+          "selected_tokens": 76846,
+          "mask_rate": 0.0354393439160369
+        },
+        "validation": {
+          "examples": 4188,
+          "task_labels": {
+            "Depression": 1089,
+            "Normal": 1574,
+            "Suicidal": 824,
+            "Stress": 205,
+            "Anxiety": 270,
+            "Bipolar": 168,
+            "Personality disorder": 58
+          },
+          "tokens": 275084,
+          "selected_tokens": 9735,
+          "mask_rate": 0.035389190210990094
+        },
+        "test": {
+          "examples": 4188,
+          "task_labels": {
+            "Depression": 1089,
+            "Anxiety": 271,
+            "Bipolar": 168,
+            "Normal": 1573,
+            "Stress": 205,
+            "Suicidal": 823,
+            "Personality disorder": 59
+          },
+          "tokens": 274092,
+          "selected_tokens": 9682,
+          "mask_rate": 0.035323905841834126
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7699999999999999,
+              "accuracy_secondary": 0.972600448052137,
+              "precision": 0.5731861408525637,
+              "recall": 0.8853620955315871,
+              "f1": 0.6958663006620378,
+              "f2": 0.7983956129462549,
+              "gold_mask_rate": 0.03540411975211661,
+              "predicted_mask_rate": 0.05468636350411684,
+              "residual_sensitive_rate": 0.11463790446841293,
+              "evaluated_tokens": 274968
+            },
+            "test": {
+              "threshold": 0.7699999999999999,
+              "accuracy_secondary": 0.9724581452133891,
+              "precision": 0.5702169625246548,
+              "recall": 0.8957859946292088,
+              "f1": 0.6968503937007874,
+              "f2": 0.8039786421446846,
+              "gold_mask_rate": 0.03533795892445882,
+              "predicted_mask_rate": 0.055514393228776965,
+              "residual_sensitive_rate": 0.10421400537079117,
+              "evaluated_tokens": 273983
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9812232696168282,
+              "precision": 0.7380754009581337,
+              "recall": 0.7279917822290703,
+              "f1": 0.7329989139990691,
+              "f2": 0.7299864035268427,
+              "gold_mask_rate": 0.03540411975211661,
+              "predicted_mask_rate": 0.03492042710424486,
+              "residual_sensitive_rate": 0.27200821777092965,
+              "evaluated_tokens": 274968
+            },
+            "test": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9812214626454926,
+              "precision": 0.7338900917620373,
+              "recall": 0.7351786820904772,
+              "f1": 0.7345338217842217,
+              "f2": 0.7349206021434324,
+              "gold_mask_rate": 0.03533795892445882,
+              "predicted_mask_rate": 0.035400006569750675,
+              "residual_sensitive_rate": 0.2648213179095228,
+              "evaluated_tokens": 273983
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7899999999999999,
+              "accuracy_secondary": 0.9785284105786856,
+              "precision": 0.6386937948012453,
+              "recall": 0.9061119671289163,
+              "f1": 0.7492567739743481,
+              "f2": 0.8360978938787891,
+              "gold_mask_rate": 0.03540411975211661,
+              "predicted_mask_rate": 0.050227662855314076,
+              "residual_sensitive_rate": 0.09388803287108372,
+              "evaluated_tokens": 274968
+            },
+            "test": {
+              "threshold": 0.7899999999999999,
+              "accuracy_secondary": 0.9788052543405977,
+              "precision": 0.6407964537460941,
+              "recall": 0.9107622392067755,
+              "f1": 0.7522927952907051,
+              "f2": 0.8399855207757816,
+              "gold_mask_rate": 0.03533795892445882,
+              "predicted_mask_rate": 0.05022574393301774,
+              "residual_sensitive_rate": 0.08923776079322454,
+              "evaluated_tokens": 273983
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9847545896249745,
+              "precision": 0.7839360721237578,
+              "recall": 0.7860297894196199,
+              "f1": 0.7849815346737793,
+              "f2": 0.785610151742264,
+              "gold_mask_rate": 0.03540411975211661,
+              "predicted_mask_rate": 0.0354986762095953,
+              "residual_sensitive_rate": 0.21397021058038013,
+              "evaluated_tokens": 274968
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9848238759339083,
+              "precision": 0.7824708529351606,
+              "recall": 0.7902292914687048,
+              "f1": 0.7863309352517985,
+              "f2": 0.7886653197542572,
+              "gold_mask_rate": 0.03533795892445882,
+              "predicted_mask_rate": 0.035688345627283444,
+              "residual_sensitive_rate": 0.2097707085312952,
+              "evaluated_tokens": 273983
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9824933359032079,
+              "precision": 0.6893518518518519,
+              "recall": 0.9189467187821436,
+              "f1": 0.7877612203509391,
+              "f2": 0.8615568585094893,
+              "gold_mask_rate": 0.03535516999356319,
+              "predicted_mask_rate": 0.04713052901836854,
+              "residual_sensitive_rate": 0.08105328121785638,
+              "evaluated_tokens": 274981
+            },
+            "test": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9822176495483268,
+              "precision": 0.6860681114551084,
+              "recall": 0.9155133236934517,
+              "f1": 0.7843553667817007,
+              "f2": 0.8581164807930607,
+              "gold_mask_rate": 0.035323905841834126,
+              "predicted_mask_rate": 0.04713745749602323,
+              "residual_sensitive_rate": 0.08448667630654827,
+              "evaluated_tokens": 274092
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9870500143646288,
+              "precision": 0.8136007329736333,
+              "recall": 0.8220530754988685,
+              "f1": 0.8178050652340753,
+              "f2": 0.820348586561557,
+              "gold_mask_rate": 0.03535516999356319,
+              "predicted_mask_rate": 0.03572246809779585,
+              "residual_sensitive_rate": 0.17794692450113148,
+              "evaluated_tokens": 274981
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.986690600236417,
+              "precision": 0.8085498056862344,
+              "recall": 0.8165668250361495,
+              "f1": 0.8125385405960945,
+              "f2": 0.8149507277450212,
+              "gold_mask_rate": 0.035323905841834126,
+              "predicted_mask_rate": 0.03567415320403368,
+              "residual_sensitive_rate": 0.18343317496385048,
+              "evaluated_tokens": 274092
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "bios": {
+      "stats": {
+        "policy": "piiclean-v1",
+        "all": {
+          "examples": 395368,
+          "task_labels": {
+            "21": 117879,
+            "13": 18927,
+            "2": 32460,
+            "11": 19886,
+            "20": 7008,
+            "25": 13565,
+            "26": 16169,
+            "22": 18353,
+            "19": 40939,
+            "16": 2519,
+            "14": 7728,
+            "18": 24225,
+            "24": 6885,
+            "5": 5591,
+            "6": 14525,
+            "27": 1654,
+            "17": 1428,
+            "7": 3943,
+            "0": 5619,
+            "9": 6984,
+            "1": 10080,
+            "12": 7480,
+            "3": 2614,
+            "23": 1402,
+            "8": 1485,
+            "4": 2804,
+            "15": 1757,
+            "10": 1459
+          },
+          "tokens": 27966248,
+          "selected_tokens": 4664698,
+          "mask_rate": 0.16679741951798469,
+          "zero_mask_examples": 26194
+        },
+        "train": {
+          "examples": 257090,
+          "task_labels": {
+            "21": 76656,
+            "13": 12307,
+            "2": 21122,
+            "11": 12929,
+            "20": 4556,
+            "25": 8818,
+            "26": 10517,
+            "22": 11934,
+            "19": 26616,
+            "16": 1636,
+            "14": 5021,
+            "18": 15751,
+            "24": 4483,
+            "5": 3634,
+            "6": 9451,
+            "27": 1073,
+            "17": 927,
+            "7": 2563,
+            "0": 3655,
+            "9": 4541,
+            "1": 6552,
+            "12": 4862,
+            "3": 1700,
+            "23": 910,
+            "8": 964,
+            "4": 1820,
+            "15": 1145,
+            "10": 947
+          },
+          "tokens": 18190856,
+          "selected_tokens": 3031571,
+          "mask_rate": 0.16665356484598637,
+          "zero_mask_examples": 17009
+        },
+        "validation": {
+          "examples": 39533,
+          "task_labels": {
+            "21": 11776,
+            "6": 1453,
+            "2": 3246,
+            "7": 395,
+            "18": 2422,
+            "19": 4093,
+            "1": 1010,
+            "26": 1616,
+            "11": 1987,
+            "5": 561,
+            "20": 701,
+            "22": 1835,
+            "4": 282,
+            "13": 1893,
+            "25": 1358,
+            "3": 263,
+            "23": 141,
+            "12": 750,
+            "24": 686,
+            "0": 562,
+            "9": 699,
+            "15": 172,
+            "27": 167,
+            "10": 146,
+            "8": 149,
+            "17": 144,
+            "16": 253,
+            "14": 773
+          },
+          "tokens": 2789838,
+          "selected_tokens": 465481,
+          "mask_rate": 0.16684875609264768,
+          "zero_mask_examples": 2651
+        },
+        "test": {
+          "examples": 98745,
+          "task_labels": {
+            "21": 29447,
+            "5": 1396,
+            "4": 702,
+            "1": 2518,
+            "0": 1402,
+            "2": 8092,
+            "19": 10230,
+            "18": 6052,
+            "22": 4584,
+            "8": 372,
+            "9": 1744,
+            "26": 4036,
+            "6": 3621,
+            "11": 4970,
+            "13": 4727,
+            "24": 1716,
+            "14": 1934,
+            "25": 3389,
+            "12": 1868,
+            "20": 1751,
+            "3": 651,
+            "15": 440,
+            "17": 357,
+            "27": 414,
+            "16": 630,
+            "7": 985,
+            "23": 351,
+            "10": 366
+          },
+          "tokens": 6985554,
+          "selected_tokens": 1167646,
+          "mask_rate": 0.1671515244173905,
+          "zero_mask_examples": 6534
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.49999999999999994,
+              "accuracy_secondary": 0.9518801181352188,
+              "precision": 0.7937584803256446,
+              "recall": 0.9614517002242904,
+              "f1": 0.869594364177434,
+              "f2": 0.9224744267270539,
+              "gold_mask_rate": 0.16687352519192672,
+              "predicted_mask_rate": 0.20212802570925228,
+              "residual_sensitive_rate": 0.038548299775709616,
+              "evaluated_tokens": 2789346
+            },
+            "test": {
+              "threshold": 0.49999999999999994,
+              "accuracy_secondary": 0.95112794765615,
+              "precision": 0.7917621494736411,
+              "recall": 0.9602093119853379,
+              "f1": 0.8678878686402827,
+              "f2": 0.9210199670127226,
+              "gold_mask_rate": 0.16718048737464344,
+              "predicted_mask_rate": 0.20274808648796624,
+              "residual_sensitive_rate": 0.03979068801466212,
+              "evaluated_tokens": 6984278
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8099999999999999,
+              "accuracy_secondary": 0.9643826904227729,
+              "precision": 0.8944593246379372,
+              "recall": 0.8917863311763644,
+              "f1": 0.8931208279319452,
+              "f2": 0.8923196510327612,
+              "gold_mask_rate": 0.16687352519192672,
+              "predicted_mask_rate": 0.16637484198805025,
+              "residual_sensitive_rate": 0.10821366882363559,
+              "evaluated_tokens": 2789346
+            },
+            "test": {
+              "threshold": 0.8099999999999999,
+              "accuracy_secondary": 0.9639750880477552,
+              "precision": 0.8937939727224032,
+              "recall": 0.8903064741978444,
+              "f1": 0.8920468148387146,
+              "f2": 0.8910017949406707,
+              "gold_mask_rate": 0.16718048737464344,
+              "predicted_mask_rate": 0.1665281651159934,
+              "residual_sensitive_rate": 0.10969352580215563,
+              "evaluated_tokens": 6984278
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.48999999999999994,
+              "accuracy_secondary": 0.9602039331083344,
+              "precision": 0.8232175586092444,
+              "recall": 0.969774506518171,
+              "f1": 0.890506340975515,
+              "f2": 0.9364320160052643,
+              "gold_mask_rate": 0.16687352519192672,
+              "predicted_mask_rate": 0.19658192278763553,
+              "residual_sensitive_rate": 0.030225493481829013,
+              "evaluated_tokens": 2789346
+            },
+            "test": {
+              "threshold": 0.48999999999999994,
+              "accuracy_secondary": 0.9594865782833959,
+              "precision": 0.8211321614942545,
+              "recall": 0.9686734296248399,
+              "f1": 0.8888215692214481,
+              "f2": 0.9350706748836305,
+              "gold_mask_rate": 0.16718048737464344,
+              "predicted_mask_rate": 0.19721952648505686,
+              "residual_sensitive_rate": 0.03132657037516007,
+              "evaluated_tokens": 6984278
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8499999999999999,
+              "accuracy_secondary": 0.9705411232597175,
+              "precision": 0.9112549328446446,
+              "recall": 0.9123140581092578,
+              "f1": 0.9117841879080213,
+              "f2": 0.9121020361436001,
+              "gold_mask_rate": 0.16687352519192672,
+              "predicted_mask_rate": 0.167067477466044,
+              "residual_sensitive_rate": 0.08768594189074219,
+              "evaluated_tokens": 2789346
+            },
+            "test": {
+              "threshold": 0.8499999999999999,
+              "accuracy_secondary": 0.970036129718777,
+              "precision": 0.9103115744153966,
+              "recall": 0.9104737353710706,
+              "f1": 0.9103926476721254,
+              "f2": 0.9104412985581796,
+              "gold_mask_rate": 0.16718048737464344,
+              "predicted_mask_rate": 0.16721026854887505,
+              "residual_sensitive_rate": 0.08952626462892943,
+              "evaluated_tokens": 6984278
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.36999999999999994,
+              "accuracy_secondary": 0.9760661664678991,
+              "precision": 0.8821401597202786,
+              "recall": 0.9886457384459378,
+              "f1": 0.9323612183247123,
+              "f2": 0.9653356928707901,
+              "gold_mask_rate": 0.16685145415746763,
+              "predicted_mask_rate": 0.1869963375872095,
+              "residual_sensitive_rate": 0.011354261554062162,
+              "evaluated_tokens": 2789691
+            },
+            "test": {
+              "threshold": 0.36999999999999994,
+              "accuracy_secondary": 0.9757993952998305,
+              "precision": 0.8812065036056912,
+              "recall": 0.9884721485910927,
+              "f1": 0.93176234851708,
+              "f2": 0.9649795498885231,
+              "gold_mask_rate": 0.1671524978239956,
+              "predicted_mask_rate": 0.18749928420907966,
+              "residual_sensitive_rate": 0.01152785140890733,
+              "evaluated_tokens": 6985280
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9812975702326888,
+              "precision": 0.9436784225148899,
+              "recall": 0.9442663664644312,
+              "f1": 0.9439723029408795,
+              "f2": 0.9441487190723532,
+              "gold_mask_rate": 0.16685145415746763,
+              "predicted_mask_rate": 0.16695540832300065,
+              "residual_sensitive_rate": 0.055733633535568816,
+              "evaluated_tokens": 2789691
+            },
+            "test": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9812127788721425,
+              "precision": 0.9441361275840405,
+              "recall": 0.9434261699356034,
+              "f1": 0.9437810152437353,
+              "f2": 0.943568076034275,
+              "gold_mask_rate": 0.1671524978239956,
+              "predicted_mask_rate": 0.1670268049383847,
+              "residual_sensitive_rate": 0.056573830064396646,
+              "evaluated_tokens": 6985280
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "mrpc": {
+      "stats": {
+        "policy": "piiclean-strict-v1",
+        "all": {
+          "examples": 5801,
+          "task_labels": {
+            "1": 3900,
+            "0": 1901
+          },
+          "tokens": 282754,
+          "selected_tokens": 24790,
+          "mask_rate": 0.08767338393090814,
+          "zero_mask_examples": 1043
+        },
+        "train": {
+          "examples": 3668,
+          "task_labels": {
+            "1": 2474,
+            "0": 1194
+          },
+          "tokens": 179179,
+          "selected_tokens": 15681,
+          "mask_rate": 0.08751583611918808,
+          "zero_mask_examples": 666
+        },
+        "validation": {
+          "examples": 408,
+          "task_labels": {
+            "1": 279,
+            "0": 129
+          },
+          "tokens": 19921,
+          "selected_tokens": 1755,
+          "mask_rate": 0.08809798704884293,
+          "zero_mask_examples": 64
+        },
+        "test": {
+          "examples": 1725,
+          "task_labels": {
+            "1": 1147,
+            "0": 578
+          },
+          "tokens": 83654,
+          "selected_tokens": 7354,
+          "mask_rate": 0.08790972338441676,
+          "zero_mask_examples": 313
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.73,
+              "accuracy_secondary": 0.964911400030119,
+              "precision": 0.748587570621469,
+              "recall": 0.905982905982906,
+              "f1": 0.819798917246713,
+              "f2": 0.8694225721784777,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.10662115355654836,
+              "residual_sensitive_rate": 0.09401709401709402,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.73,
+              "accuracy_secondary": 0.9634207569273436,
+              "precision": 0.7288424642933277,
+              "recall": 0.92983410388904,
+              "f1": 0.8171606118546845,
+              "f2": 0.8812309912882107,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.11215243742080475,
+              "residual_sensitive_rate": 0.07016589611096002,
+              "evaluated_tokens": 83654
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9710857888660208,
+              "precision": 0.8343732274532047,
+              "recall": 0.8381766381766381,
+              "f1": 0.8362706083001705,
+              "f2": 0.8374131845610839,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.08849957331459264,
+              "residual_sensitive_rate": 0.16182336182336188,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.9710713175699907,
+              "precision": 0.8127535496957403,
+              "recall": 0.8717704650530324,
+              "f1": 0.8412281852775226,
+              "f2": 0.8592912288226464,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.09429315992062544,
+              "residual_sensitive_rate": 0.12822953494696765,
+              "evaluated_tokens": 83654
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9803222729782641,
+              "precision": 0.8454130765331982,
+              "recall": 0.9504273504273504,
+              "f1": 0.8948497854077253,
+              "f2": 0.9273879684198821,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.09904121279052257,
+              "residual_sensitive_rate": 0.04957264957264962,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9785067061945634,
+              "precision": 0.8211560693641619,
+              "recall": 0.9658689148762578,
+              "f1": 0.8876530867283179,
+              "f2": 0.9329848158461619,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.10340210868577714,
+              "residual_sensitive_rate": 0.03413108512374219,
+              "evaluated_tokens": 83654
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.9199999999999999,
+              "accuracy_secondary": 0.9842377390693239,
+              "precision": 0.9091425326519024,
+              "recall": 0.9122507122507123,
+              "f1": 0.9106939704209329,
+              "f2": 0.9116273772918801,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.08839917674815521,
+              "residual_sensitive_rate": 0.0877492877492877,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.9199999999999999,
+              "accuracy_secondary": 0.9831329045831639,
+              "precision": 0.8862602365787079,
+              "recall": 0.9271144955126461,
+              "f1": 0.9062271549146009,
+              "f2": 0.9186450726238917,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.0919621297248189,
+              "residual_sensitive_rate": 0.07288550448735387,
+              "evaluated_tokens": 83654
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.988755584559008,
+              "precision": 0.9031068983675619,
+              "recall": 0.9772079772079773,
+              "f1": 0.9386973180076629,
+              "f2": 0.9614306536607243,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.09532653983233773,
+              "residual_sensitive_rate": 0.022792022792022748,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.985774738805078,
+              "precision": 0.8733042635658915,
+              "recall": 0.9804188196899647,
+              "f1": 0.9237668161434978,
+              "f2": 0.9569441495009556,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.09869223229014751,
+              "residual_sensitive_rate": 0.019581180310035307,
+              "evaluated_tokens": 83654
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9896089553737262,
+              "precision": 0.9407744874715261,
+              "recall": 0.9413105413105413,
+              "f1": 0.9410424380518371,
+              "f2": 0.9412032816773017,
+              "gold_mask_rate": 0.08809798704884293,
+              "predicted_mask_rate": 0.08814818533206165,
+              "residual_sensitive_rate": 0.05868945868945874,
+              "evaluated_tokens": 19921
+            },
+            "test": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9884643890310086,
+              "precision": 0.9253095459992011,
+              "recall": 0.9450639107968453,
+              "f1": 0.9350824083417424,
+              "f2": 0.9410458472120671,
+              "gold_mask_rate": 0.08790972338441676,
+              "predicted_mask_rate": 0.08978650154206613,
+              "residual_sensitive_rate": 0.05493608920315474,
+              "evaluated_tokens": 83654
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "qnli": {
+      "stats": {
+        "policy": "entityclean-v1",
+        "all": {
+          "examples": 115636,
+          "task_labels": {
+            "1": 55116,
+            "0": 55063,
+            "-1": 5457
+          },
+          "tokens": 5197363,
+          "selected_tokens": 543489,
+          "mask_rate": 0.10457014451366972,
+          "zero_mask_examples": 19894
+        },
+        "train": {
+          "examples": 104716,
+          "task_labels": {
+            "1": 52355,
+            "0": 52361
+          },
+          "tokens": 4695765,
+          "selected_tokens": 492675,
+          "mask_rate": 0.10491900680719755,
+          "zero_mask_examples": 17842
+        },
+        "validation": {
+          "examples": 5463,
+          "task_labels": {
+            "0": 2702,
+            "1": 2761
+          },
+          "tokens": 251263,
+          "selected_tokens": 25589,
+          "mask_rate": 0.10184149675837668,
+          "zero_mask_examples": 1012
+        },
+        "test": {
+          "examples": 5457,
+          "task_labels": {
+            "-1": 5457
+          },
+          "tokens": 250335,
+          "selected_tokens": 25225,
+          "mask_rate": 0.10076497493358899,
+          "zero_mask_examples": 1040
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.59,
+              "accuracy_secondary": 0.9587278465647001,
+              "precision": 0.7306957708049113,
+              "recall": 0.9418890929696354,
+              "f1": 0.8229589920442517,
+              "f2": 0.8904175379227285,
+              "gold_mask_rate": 0.10184311805746261,
+              "predicted_mask_rate": 0.13127887956252313,
+              "residual_sensitive_rate": 0.05811090703036459,
+              "evaluated_tokens": 251259
+            },
+            "test": {
+              "threshold": 0.59,
+              "accuracy_secondary": 0.9579552582896824,
+              "precision": 0.7229830261439893,
+              "recall": 0.9444664815549385,
+              "f1": 0.8190151866948729,
+              "f2": 0.8899404214602349,
+              "gold_mask_rate": 0.10072678309580033,
+              "predicted_mask_rate": 0.13158409947219327,
+              "residual_sensitive_rate": 0.05553351844506149,
+              "evaluated_tokens": 250281
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.9199999999999999,
+              "accuracy_secondary": 0.971794045188431,
+              "precision": 0.8601292432264093,
+              "recall": 0.8634569541599906,
+              "f1": 0.8617898863038009,
+              "f2": 0.8627893536596795,
+              "gold_mask_rate": 0.10184311805746261,
+              "predicted_mask_rate": 0.10223713379421234,
+              "residual_sensitive_rate": 0.13654304584000942,
+              "evaluated_tokens": 251259
+            },
+            "test": {
+              "threshold": 0.9199999999999999,
+              "accuracy_secondary": 0.9716878228870749,
+              "precision": 0.8539014293524955,
+              "recall": 0.8673145577151924,
+              "f1": 0.8605557304785895,
+              "f2": 0.8645983265583728,
+              "gold_mask_rate": 0.10072678309580033,
+              "predicted_mask_rate": 0.1023090046787411,
+              "residual_sensitive_rate": 0.1326854422848076,
+              "evaluated_tokens": 250281
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.38999999999999996,
+              "accuracy_secondary": 0.9720806020878854,
+              "precision": 0.8090310129109544,
+              "recall": 0.9501348235569972,
+              "f1": 0.8739239050340576,
+              "f2": 0.9181091776931908,
+              "gold_mask_rate": 0.10184311805746261,
+              "predicted_mask_rate": 0.11960566586669533,
+              "residual_sensitive_rate": 0.04986517644300281,
+              "evaluated_tokens": 251259
+            },
+            "test": {
+              "threshold": 0.38999999999999996,
+              "accuracy_secondary": 0.9708048153875044,
+              "precision": 0.7987717365909015,
+              "recall": 0.9493058310194368,
+              "f1": 0.8675572311540484,
+              "f2": 0.914824810207873,
+              "gold_mask_rate": 0.10072678309580033,
+              "predicted_mask_rate": 0.11970944658204179,
+              "residual_sensitive_rate": 0.050694168980563226,
+              "evaluated_tokens": 250281
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.9099999999999999,
+              "accuracy_secondary": 0.9775888624885078,
+              "precision": 0.8885903426791277,
+              "recall": 0.8917503614834499,
+              "f1": 0.8901675476408746,
+              "f2": 0.891116560967228,
+              "gold_mask_rate": 0.10184311805746261,
+              "predicted_mask_rate": 0.10220529413871741,
+              "residual_sensitive_rate": 0.10824963851655012,
+              "evaluated_tokens": 251259
+            },
+            "test": {
+              "threshold": 0.9099999999999999,
+              "accuracy_secondary": 0.9771736568097459,
+              "precision": 0.8823690919788194,
+              "recall": 0.8923443078143594,
+              "f1": 0.88732866581205,
+              "f2": 0.8903312621205525,
+              "gold_mask_rate": 0.10072678309580033,
+              "predicted_mask_rate": 0.10186550317443194,
+              "residual_sensitive_rate": 0.10765569218564064,
+              "evaluated_tokens": 250281
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.9795630024675634,
+              "precision": 0.8477573366885436,
+              "recall": 0.9742848210098484,
+              "f1": 0.9066278752613874,
+              "f2": 0.946045431431629,
+              "gold_mask_rate": 0.10183873278675476,
+              "predicted_mask_rate": 0.11703812783570804,
+              "residual_sensitive_rate": 0.025715178990151633,
+              "evaluated_tokens": 251260
+            },
+            "test": {
+              "threshold": 0.05,
+              "accuracy_secondary": 0.9780065213221661,
+              "precision": 0.835696754840469,
+              "recall": 0.9728571428571429,
+              "f1": 0.8990758398122342,
+              "f2": 0.9419376652117785,
+              "gold_mask_rate": 0.10069688638833835,
+              "predicted_mask_rate": 0.11722396266223387,
+              "residual_sensitive_rate": 0.027142857142857135,
+              "evaluated_tokens": 250256
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9839210379686381,
+              "precision": 0.9166924504950495,
+              "recall": 0.9262935751133343,
+              "f1": 0.9214680040432315,
+              "f2": 0.9243572943966055,
+              "gold_mask_rate": 0.10183873278675476,
+              "predicted_mask_rate": 0.10290535700071639,
+              "residual_sensitive_rate": 0.07370642488666568,
+              "evaluated_tokens": 251260
+            },
+            "test": {
+              "threshold": 0.95,
+              "accuracy_secondary": 0.9825658525669714,
+              "precision": 0.9091301786766149,
+              "recall": 0.9186904761904762,
+              "f1": 0.9138853251751702,
+              "f2": 0.9167623648675405,
+              "gold_mask_rate": 0.10069688638833835,
+              "predicted_mask_rate": 0.1017558020586919,
+              "residual_sensitive_rate": 0.08130952380952383,
+              "evaluated_tokens": 250256
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    },
+    "finphrasebank": {
+      "stats": {
+        "policy": "entityclean-v1",
+        "all": {
+          "examples": 2258,
+          "task_labels": {
+            "1": 1385,
+            "2": 570,
+            "0": 303
+          },
+          "tokens": 54931,
+          "selected_tokens": 8871,
+          "mask_rate": 0.1614935100398682,
+          "zero_mask_examples": 418
+        },
+        "train": {
+          "examples": 1806,
+          "task_labels": {
+            "2": 456,
+            "1": 1108,
+            "0": 242
+          },
+          "tokens": 43615,
+          "selected_tokens": 6968,
+          "mask_rate": 0.15976154992548436,
+          "zero_mask_examples": 334
+        },
+        "validation": {
+          "examples": 226,
+          "task_labels": {
+            "1": 139,
+            "2": 57,
+            "0": 30
+          },
+          "tokens": 5749,
+          "selected_tokens": 958,
+          "mask_rate": 0.16663767611758568,
+          "zero_mask_examples": 40
+        },
+        "test": {
+          "examples": 226,
+          "task_labels": {
+            "0": 31,
+            "1": 138,
+            "2": 57
+          },
+          "tokens": 5567,
+          "selected_tokens": 945,
+          "mask_rate": 0.16975031435243398,
+          "zero_mask_examples": 44
+        }
+      },
+      "models": {
+        "bert_tiny": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9043311880327013,
+              "precision": 0.6497797356828194,
+              "recall": 0.9237995824634656,
+              "f1": 0.7629310344827587,
+              "f2": 0.8519445514054679,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.23691076708992867,
+              "residual_sensitive_rate": 0.07620041753653439,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9042572301059817,
+              "precision": 0.6499272197962155,
+              "recall": 0.944973544973545,
+              "f1": 0.7701595515308323,
+              "f2": 0.8663174233604967,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.24681156816957067,
+              "residual_sensitive_rate": 0.05502645502645498,
+              "evaluated_tokens": 5567
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9316402852670029,
+              "precision": 0.7933541017653167,
+              "recall": 0.7974947807933194,
+              "f1": 0.7954190525767829,
+              "f2": 0.7966631908237748,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.16750739259001565,
+              "residual_sensitive_rate": 0.20250521920668063,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.7499999999999999,
+              "accuracy_secondary": 0.9400035925992456,
+              "precision": 0.8082744702320888,
+              "recall": 0.8476190476190476,
+              "f1": 0.8274793388429752,
+              "f2": 0.839446656885349,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.17801329261720855,
+              "residual_sensitive_rate": 0.1523809523809524,
+              "evaluated_tokens": 5567
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "electra_small": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.18,
+              "accuracy_secondary": 0.9196381979474691,
+              "precision": 0.6884498480243161,
+              "recall": 0.9457202505219207,
+              "f1": 0.7968337730870713,
+              "f2": 0.87995337995338,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.2289093755435728,
+              "residual_sensitive_rate": 0.05427974947807934,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.18,
+              "accuracy_secondary": 0.9153942877671996,
+              "precision": 0.6740088105726872,
+              "recall": 0.9714285714285714,
+              "f1": 0.7958387516254877,
+              "f2": 0.8926487747957993,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.24465600862223819,
+              "residual_sensitive_rate": 0.02857142857142858,
+              "evaluated_tokens": 5567
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.7899999999999999,
+              "accuracy_secondary": 0.9450339189424247,
+              "precision": 0.8350730688935282,
+              "recall": 0.8350730688935282,
+              "f1": 0.8350730688935282,
+              "f2": 0.8350730688935282,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.16663767611758568,
+              "residual_sensitive_rate": 0.16492693110647183,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.7899999999999999,
+              "accuracy_secondary": 0.9516795401472966,
+              "precision": 0.8313725490196079,
+              "recall": 0.8973544973544973,
+              "f1": 0.8631043256997456,
+              "f2": 0.8833333333333333,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.18322256152326208,
+              "residual_sensitive_rate": 0.10264550264550265,
+              "evaluated_tokens": 5567
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        },
+        "distilroberta": {
+          "f2_optimized": {
+            "threshold_selected_by": "validation_f2",
+            "validation": {
+              "threshold": 0.22999999999999998,
+              "accuracy_secondary": 0.9384240737519569,
+              "precision": 0.7479474548440066,
+              "recall": 0.9509394572025052,
+              "f1": 0.8373161764705882,
+              "f2": 0.901980198019802,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.21186293268394504,
+              "residual_sensitive_rate": 0.04906054279749483,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.22999999999999998,
+              "accuracy_secondary": 0.9470091611280762,
+              "precision": 0.7717391304347826,
+              "recall": 0.9767195767195768,
+              "f1": 0.8622139187295657,
+              "f2": 0.927451768488746,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.21483743488413867,
+              "residual_sensitive_rate": 0.023280423280423235,
+              "evaluated_tokens": 5567
+            }
+          },
+          "budget_matched": {
+            "threshold_selected_by": "validation_mask_rate",
+            "validation": {
+              "threshold": 0.8499999999999999,
+              "accuracy_secondary": 0.9546008001391546,
+              "precision": 0.8633993743482794,
+              "recall": 0.8643006263048016,
+              "f1": 0.863849765258216,
+              "f2": 0.8641202254226675,
+              "gold_mask_rate": 0.16663767611758568,
+              "predicted_mask_rate": 0.16681161941207168,
+              "residual_sensitive_rate": 0.13569937369519836,
+              "evaluated_tokens": 5749
+            },
+            "test": {
+              "threshold": 0.8499999999999999,
+              "accuracy_secondary": 0.9620980779594036,
+              "precision": 0.8791322314049587,
+              "recall": 0.9005291005291005,
+              "f1": 0.8897020386826974,
+              "f2": 0.8961668070766639,
+              "gold_mask_rate": 0.16975031435243398,
+              "predicted_mask_rate": 0.17388180348482127,
+              "residual_sensitive_rate": 0.09947089947089949,
+              "evaluated_tokens": 5567
+            }
+          },
+          "warning": "This measures pseudo-teacher imitation, not human-gold privacy correctness."
+        }
+      },
+      "result_source": "full_rerun"
+    }
+  },
+  "missing": []
+}

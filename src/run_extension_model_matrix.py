@@ -32,13 +32,17 @@ def main() -> None:
     parser.add_argument("--force", action="store_true")
     parser.add_argument("--reevaluate", action="store_true")
     parser.add_argument(
+        "--data-root", default="data/medical_redactor/cross_dataset",
+        help="Directory containing <dataset>/train.jsonl, validation.jsonl, and test.jsonl",
+    )
+    parser.add_argument(
         "--output-root", default="artifacts/medical_redactor/core_matrix/extension_seed42",
     )
     args = parser.parse_args()
     root = Path(args.output_root)
     summary = {}
     for dataset in args.datasets:
-        data = Path("data/medical_redactor/cross_dataset") / dataset
+        data = Path(args.data_root) / dataset
         for short_name in args.models:
             model_name = MODELS[short_name]
             output = root / f"{dataset}_{short_name}_seed{args.seed}"

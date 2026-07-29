@@ -95,6 +95,10 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="Build balanced medical cross-dataset probes")
     parser.add_argument("--output-root", default="data/medical_redactor/cross_dataset")
     parser.add_argument("--size", type=int, default=1000)
+    parser.add_argument(
+        "--full-data", action="store_true",
+        help="Use every usable deduplicated row under the current domain filters.",
+    )
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--exclude-drugreviews",
@@ -103,15 +107,16 @@ def main() -> None:
     args = parser.parse_args()
     root = Path(args.output_root)
 
-    previous = read_records(args.exclude_drugreviews)
+    previous = [] if args.full_data else read_records(args.exclude_drugreviews)
     excluded = {clean_text(row["text"]).casefold() for row in previous}
+    sample_size = None if args.full_data else args.size
 
     drug_raw = load_dataset("lewtun/drug-reviews", split="train")
     counts = Counter(str(x) for x in drug_raw["condition"] if x)
     top = {label for label, _ in counts.most_common(10)}
     drug_filtered = drug_raw.filter(lambda ex: ex["condition"] in top)
     drug = make_rows("lewtun/drug-reviews", drug_filtered, "review", "condition",
-                     args.size, args.seed, excluded)
+                     sample_size, args.seed, excluded)
 
     symptom_raw = load_dataset("gretelai/symptom_to_diagnosis")
     symptom_all = concatenate_datasets([
@@ -126,7 +131,7 @@ def main() -> None:
         "train",
     )
     adr = make_rows("ade_corpus_v2/Ade_corpus_v2_classification", adr_raw,
-                    "text", "label", args.size, args.seed)
+                    "text", "label", sample_size, args.seed)
 
     reddit_raw = with_split(
         load_dataset("solomonk/reddit_mental_health_posts", split="train"),
@@ -135,7 +140,7 @@ def main() -> None:
     allowed = {"OCD", "ADHD", "depression", "ptsd", "aspergers"}
     reddit_filtered = reddit_raw.filter(lambda ex: ex["subreddit"] in allowed)
     reddit = make_rows("solomonk/reddit_mental_health_posts", reddit_filtered,
-                       "body", "subreddit", args.size, args.seed)
+                       "body", "subreddit", sample_size, args.seed)
 
     all_rows = []
     for task, rows in (

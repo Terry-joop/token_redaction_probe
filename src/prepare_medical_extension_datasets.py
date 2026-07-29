@@ -84,7 +84,7 @@ def emit(task: str, rows: list[dict], output_root: Path) -> None:
     print(f"{task}: examples={len(output)} split_label_counts={dict(counts)}")
 
 
-def build_mednli(source_root: Path, seed: int) -> list[dict]:
+def build_mednli(source_root: Path, seed: int, full_data: bool = False) -> list[dict]:
     label_map = {"entailment": 0, "neutral": 1, "contradiction": 2}
     specs = [
         ("mli_train_v1.jsonl", "train", 800),
@@ -117,14 +117,14 @@ def build_mednli(source_root: Path, seed: int) -> list[dict]:
                     "desired_split": split,
                 })
         rows = deduplicate(rows, seen)
-        chosen = balanced_sample(rows, size, seed + offset)
-        if len(chosen) != size:
+        chosen = rows if full_data else balanced_sample(rows, size, seed + offset)
+        if not full_data and len(chosen) != size:
             raise ValueError(f"MedNLI {split}: requested {size}, found {len(chosen)}")
         selected.extend(chosen)
     return selected
 
 
-def build_mentalhealth(seed: int) -> list[dict]:
+def build_mentalhealth(seed: int, full_data: bool = False) -> list[dict]:
     dataset = load_dataset("btwitssayan/sentiment-analysis-for-mental-health", split="train")
     seen: set[str] = set()
     rows = []
@@ -141,14 +141,14 @@ def build_mentalhealth(seed: int) -> list[dict]:
             "source_split": "train",
         })
     rows = deduplicate(rows, seen)
-    pool = balanced_sample(rows, 1000, seed)
+    pool = rows if full_data else balanced_sample(rows, 1000, seed)
     labels = [str(row["task_label"]) for row in pool]
     train_rows, heldout = train_test_split(
-        pool, test_size=200, random_state=seed, stratify=labels,
+        pool, test_size=(0.2 if full_data else 200), random_state=seed, stratify=labels,
     )
     heldout_labels = [str(row["task_label"]) for row in heldout]
     validation_rows, test_rows = train_test_split(
-        heldout, test_size=100, random_state=seed, stratify=heldout_labels,
+        heldout, test_size=(0.5 if full_data else 100), random_state=seed, stratify=heldout_labels,
     )
     output = (
         [row | {"desired_split": "train"} for row in train_rows]
@@ -158,8 +158,12 @@ def build_mentalhealth(seed: int) -> list[dict]:
     rng = random.Random(seed)
     rng.shuffle(output)
     counts = Counter(row["desired_split"] for row in output)
-    if counts != {"train": 800, "validation": 100, "test": 100}:
-        raise ValueError(f"mentalhealth split sizes are not 800/100/100: {dict(counts)}")
+    expected = (
+        {"train": len(pool) - len(heldout), "validation": len(validation_rows), "test": len(test_rows)}
+        if full_data else {"train": 800, "validation": 100, "test": 100}
+    )
+    if counts != expected:
+        raise ValueError(f"mentalhealth split sizes are not {expected}: {dict(counts)}")
     return output
 
 
@@ -168,14 +172,18 @@ def main() -> None:
     parser.add_argument("--output-root", default="data/medical_redactor/cross_dataset")
     parser.add_argument("--mednli-root", default="/home/jovyan/Redactformer/data/mednli")
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--full-data", action="store_true")
     parser.add_argument("--datasets", nargs="+", choices=["mednli", "mentalhealth"],
                         default=["mednli", "mentalhealth"])
     args = parser.parse_args()
     output_root = Path(args.output_root)
     if "mednli" in args.datasets:
-        emit("mednli", build_mednli(Path(args.mednli_root), args.seed), output_root)
+        emit(
+            "mednli", build_mednli(Path(args.mednli_root), args.seed, args.full_data),
+            output_root,
+        )
     if "mentalhealth" in args.datasets:
-        emit("mentalhealth", build_mentalhealth(args.seed), output_root)
+        emit("mentalhealth", build_mentalhealth(args.seed, args.full_data), output_root)
 
 
 if __name__ == "__main__":
