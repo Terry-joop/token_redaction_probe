@@ -16,6 +16,11 @@ python src/build_results_dashboard.py
 
 - 웹 표: `reports/redactor_results_dashboard.html`
 - Excel/스프레드시트: `reports/redactor_results.csv`
+- 외부 공유용 대시보드: <https://terry-joop.github.io/token_redaction_probe/>
+
+`main` 브랜치에 결과가 반영되면 GitHub Actions가 대시보드와 집계 CSV/JSON을
+GitHub Pages에 자동으로 배포한다. 최초 한 번은 저장소의
+`Settings > Pages > Build and deployment > Source`를 `GitHub Actions`로 설정해야 한다.
 
 HTML은 서버 없이 파일을 직접 열 수 있으며 그룹·모델·threshold 운용점 필터와 다크 모드를
 지원한다. 의료·실제 PII·비개인 엔티티 macro는 서로 분리되어 있다.
