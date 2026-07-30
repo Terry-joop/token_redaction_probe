@@ -15,12 +15,12 @@ GROUPS = {
  'entity':('비개인 엔티티 대조',['qnli','finphrasebank']),
 }
 META = {
- 'drug':('Drug Reviews','medterm4-v2','약물 리뷰'),
- 'symptom2dx':('Symptom2Dx','medterm4-v2','증상→진단'),
- 'adr':('ADR','medterm4-v2','약물 부작용'),
- 'redditmh':('RedditMH','medterm4-v2','정신건강 서술'),
- 'mednli':('MedNLI','medterm4-v2','의료 문장쌍 NLI'),
- 'mentalhealth':('Mental Health','medterm4-v2','정신상태 분류'),
+ 'drug':('Drug Reviews','RedactFormer medterm-v4','약물 리뷰'),
+ 'symptom2dx':('Symptom2Dx','RedactFormer medterm-v4','증상→진단'),
+ 'adr':('ADR','RedactFormer medterm-v4','약물 부작용'),
+ 'redditmh':('RedditMH','RedactFormer medterm-v4','정신건강 서술'),
+ 'mednli':('MedNLI','RedactFormer medterm-v4','의료 문장쌍 NLI'),
+ 'mentalhealth':('Mental Health','RedactFormer medterm-v4','정신상태 분류'),
  'bios':('BIOS','piiclean-v1','약력·직업'),
  'mrpc':('MRPC','piiclean-strict-v1','패러프레이즈'),
  'qnli':('QNLI','entityclean-v1','질문·문장 매칭'),

@@ -47,7 +47,7 @@ def main() -> None:
             "labels": labels,
             "types": types,
             "selected_words": [word for word, label in zip(row["words"], labels) if label],
-            "source": "medterm4-reimplementation-v2-latest-aligned",
+            "source": "redactformer-medterm-v4-word-adapter@f2c601e3",
         })
         if number % 25 == 0:
             print(f"annotated {number}/{len(inputs)}")

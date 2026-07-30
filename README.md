@@ -1,7 +1,7 @@
 # Token Redaction Probe
 
 RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student redactor**를 실험하는
-독립 프로젝트다. 의료 실험은 RedactFormer의 규칙 기반 `medterm4`를, 비의료 실험은
+독립 프로젝트다. 의료 실험은 RedactFormer의 규칙 기반 `medterm-v4`를, 비의료 실험은
 데이터셋 성격에 맞는 PII/엔티티 규칙을 Transformer+MLP Student가 얼마나 모방하는지
 확인한다. 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
 
@@ -71,7 +71,7 @@ SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 
 ```text
 공개 의료 문장
-→ medterm4 규칙 Teacher(scispaCy + UMLS + PII NER)
+→ RedactFormer medterm-v4 규칙 Teacher(scispaCy + UMLS + PII NER)
 → 단어별 0/1 pseudo-label
 → 로컬 Transformer encoder + hidden 128 MLP
 → 단어별 redaction 확률
@@ -83,6 +83,19 @@ SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 - 성능은 우선 Teacher mask 모방 정도인 Token Precision/Recall/F1/F2로 측정한다.
 - 실제 개인정보 보호 성능을 주장하려면 별도의 human-gold 검증이 필요하다.
 - task 정확도 하락, RTM 복구율, Teacher mask 일치는 서로 다른 평가다.
+
+### 의료 Teacher 출처와 버전
+
+- Upstream 저장소: `hwang-yundo/Redactformer`
+- Upstream 파일: `scripts/dataset_builders/make_medterm_v4.py`
+- 로컬 원본: `/home/jovyan/Redactformer/scripts/dataset_builders/make_medterm_v4.py`
+- Student용 word-level adapter: `src/annotate_medterm4.py`
+- 사용한 규칙의 마지막 실질 변경 커밋: `f2c601e3` (2026-07-22)
+- adapter 메타데이터: `redactformer-medterm-v4-word-adapter@f2c601e3`
+
+이전 대시보드의 `medterm4-v2`는 upstream 버전이 아니라 잘못 붙인 내부 이름이었다.
+RedactFormer의 `make_medterm_v2.py`는 사용하지 않았으며, 현재 표기는 모두 실제 출처인
+`RedactFormer medterm-v4`로 정정했다.
 
 ## 환경
 
@@ -104,7 +117,7 @@ python src/prepare_lodo_splits.py
 ## 공통 JSONL 형식
 
 ```json
-{"id":"drug-0","text":"...","words":["..."],"labels":[0,1,0],"task_label":0,"source":"medterm4-reimplementation-v2-latest-aligned"}
+{"id":"drug-0","text":"...","words":["..."],"labels":[0,1,0],"task_label":0,"source":"redactformer-medterm-v4-word-adapter@f2c601e3"}
 ```
 
 `words`와 `labels` 길이는 반드시 같아야 한다. 의료 분류의 `task_label`은 Student가

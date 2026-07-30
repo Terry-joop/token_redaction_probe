@@ -79,7 +79,7 @@ def emit(task: str, rows: list[dict], output_root: Path) -> list[dict]:
             "task_label": row["task_label"],
             "source": row["source"],
             "source_split": row["source_split"],
-            "policy_version": "medical-sensitive-v2-medterm4-aligned",
+            "policy_version": "redactformer-medterm-v4-word-adapter@f2c601e3",
             "dataset_name": task,
         })
     write_jsonl(output_root / task / "input.jsonl", output)

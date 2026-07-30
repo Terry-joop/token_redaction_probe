@@ -72,7 +72,7 @@ def emit(task: str, rows: list[dict], output_root: Path) -> None:
             "source": row["source"],
             "source_split": row["source_split"],
             "desired_split": row["desired_split"],
-            "policy_version": "medical-sensitive-v2-medterm4-aligned",
+            "policy_version": "redactformer-medterm-v4-word-adapter@f2c601e3",
             "dataset_name": task,
         }
         for key in ("sentence1", "sentence2", "pair_id"):

@@ -146,7 +146,7 @@ def main() -> None:
                     "selected_words": [
                         word for word, label in zip(row["words"], labels) if label
                     ],
-                    "source": "medterm4-reimplementation-v2-latest-aligned",
+                    "source": "redactformer-medterm-v4-word-adapter@f2c601e3",
                 }
                 stream.write(json.dumps(record, ensure_ascii=False) + "\n")
                 annotated += 1
