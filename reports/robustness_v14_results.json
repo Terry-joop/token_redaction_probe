@@ -283,6 +283,87 @@
           "sample_std": 0.005189658447344469
         }
       }
+    },
+    "absolute_target_evaluation": {
+      "dataset_count": 1,
+      "dataset": "Drug Reviews",
+      "source_examples": 49974,
+      "clean_train_examples": 39980,
+      "validation_examples": 500,
+      "test_examples": 1000,
+      "augmented_train_examples": 30591,
+      "total_augmented_train_rows": 70571,
+      "unseen_target_pairs": 457,
+      "reference": "clean MASKING_FRAMEWORK v1.4 medterm5 target spans projected through deterministic edits",
+      "runs": [
+        {
+          "seed": 42,
+          "rule_clean_target_recall": 1.0,
+          "rule_noisy_target_recall": 0.5995623632385121,
+          "rule_drop": 0.4004376367614879,
+          "student_clean_target_recall": 0.8971553610503282,
+          "student_noisy_target_recall": 0.6761487964989059,
+          "student_drop": 0.2210065645514223,
+          "student_noisy_advantage": 0.07658643326039383,
+          "student_drop_advantage": 0.1794310722100656
+        },
+        {
+          "seed": 43,
+          "rule_clean_target_recall": 1.0,
+          "rule_noisy_target_recall": 0.5995623632385121,
+          "rule_drop": 0.4004376367614879,
+          "student_clean_target_recall": 0.8971553610503282,
+          "student_noisy_target_recall": 0.6761487964989059,
+          "student_drop": 0.2210065645514223,
+          "student_noisy_advantage": 0.07658643326039383,
+          "student_drop_advantage": 0.1794310722100656
+        },
+        {
+          "seed": 44,
+          "rule_clean_target_recall": 1.0,
+          "rule_noisy_target_recall": 0.5995623632385121,
+          "rule_drop": 0.4004376367614879,
+          "student_clean_target_recall": 0.9080962800875274,
+          "student_noisy_target_recall": 0.6892778993435449,
+          "student_drop": 0.21881838074398252,
+          "student_noisy_advantage": 0.0897155361050328,
+          "student_drop_advantage": 0.1816192560175054
+        }
+      ],
+      "summary": {
+        "rule_clean_target_recall": {
+          "mean": 1.0,
+          "sample_std": 0.0
+        },
+        "rule_noisy_target_recall": {
+          "mean": 0.5995623632385121,
+          "sample_std": 0.0
+        },
+        "rule_drop": {
+          "mean": 0.4004376367614879,
+          "sample_std": 0.0
+        },
+        "student_clean_target_recall": {
+          "mean": 0.9008023340627279,
+          "sample_std": 0.006316742551308849
+        },
+        "student_noisy_target_recall": {
+          "mean": 0.6805251641137856,
+          "sample_std": 0.007580091061570593
+        },
+        "student_drop": {
+          "mean": 0.2202771699489424,
+          "sample_std": 0.0012633485102617442
+        },
+        "student_noisy_advantage": {
+          "mean": 0.08096280087527348,
+          "sample_std": 0.007580091061570593
+        },
+        "student_drop_advantage": {
+          "mean": 0.18016046681254552,
+          "sample_std": 0.0012633485102617442
+        }
+      }
     }
   }
 }

@@ -6,10 +6,11 @@ RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student red
 라벨링했다. 데이터셋 성격에 맞는 규칙을 Transformer+MLP Student가 얼마나 모방하는지
 확인하며, 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
 
-최신 Drug Reviews 확장 실험에서는 train 39,980문장과 seen-noise 증강 30,591문장을 사용했다.
-ELECTRA-small의 동일예산 clean 3-seed 평균은 F1 0.921, F2 0.922, Recall 0.923이다.
-미관측 표면 교란의 공통 clean-correct span 생존율은 Student 73.9%, 규칙 59.5%였지만,
-전체 noisy F2는 Student 0.882, 규칙 0.941이므로 현재 결론은 완전 대체가 아닌 규칙 보완 후보이다.
+최신 확장 실험은 Drug Reviews 1개 데이터셋으로 진행했다. 원본 49,974문장 중 clean train
+39,980문장을 사용하고 seen-noise 30,591행을 추가해 최종 학습 입력은 70,571행이다.
+Clean 규칙의 전체 미관측 target 457개를 같은 분모로 두면 오염 후 정확한 span 탐지율은
+Student 68.1%, 규칙 60.0%였고, clean→오염 하락은 Student 22.0%p, 규칙 40.0%p였다.
+다만 전체 noisy token F2는 Student 0.882, 규칙 0.941이므로 완전 대체가 아닌 규칙 보완 후보이다.
 상세 설계와 신뢰구간은 ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
 
 
