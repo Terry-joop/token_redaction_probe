@@ -2,3 +2,11 @@
 # spaCy model packages are installed separately; see README.md.
 spacy>=3.7,<3.8
 scispacy==0.5.4
+wordfreq==3.1.1
+empath==0.89
+
+# The v1.4 rule baseline also requires model packages installed separately:
+#   python -m spacy download en_core_web_md
+#   python -m pip install using the official SciSpaCy v0.5.4 model URL below.
+#   https://s3-us-west-2.amazonaws.com/ai2-s2-scispacy/releases/v0.5.4/
+#   en_core_sci_lg-0.5.4.tar.gz

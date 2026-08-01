@@ -1,0 +1,288 @@
+{
+  "experiment": "surface_perturbation_v1.4",
+  "redactformer_commit": "39b56279c6c58fdc6732df8d5ee98868e323d344",
+  "student": "google/electra-small-discriminator + hidden-128 MLP",
+  "seed": 42,
+  "train_validation_test": [
+    5000,
+    500,
+    1000
+  ],
+  "bootstrap_repeats": 2000,
+  "datasets": {
+    "drug": {
+      "name": "Drug Reviews",
+      "pairs": 711,
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.89,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9977105062,
+        "noisy_recall": 0.9415436322,
+        "noisy_f1": 0.9688136849,
+        "noisy_f2": 0.9522653329,
+        "noisy_mask_rate": 0.095976366,
+        "f2_drop": 0.0477346671,
+        "newly_leaked_span_rate": 0.3220815752
+      },
+      "student_result": {
+        "clean_precision": 0.8634164496,
+        "clean_recall": 0.8571428571,
+        "clean_f1": 0.8602682158,
+        "clean_f2": 0.8583902716,
+        "noisy_precision": 0.8635399775,
+        "noisy_recall": 0.8309926779,
+        "noisy_f1": 0.8469537558,
+        "noisy_f2": 0.837304371,
+        "noisy_mask_rate": 0.0978685483,
+        "f2_drop": 0.0210859006,
+        "newly_leaked_span_rate": 0.2445193929
+      },
+      "bootstrap_delta_f2": {
+        "mean": -0.115009041,
+        "ci95": [
+          -0.1242589526,
+          -0.1058997239
+        ]
+      }
+    },
+    "bios": {
+      "name": "BIOS",
+      "pairs": 900,
+      "teacher": "piiclean2 v1.4",
+      "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+      "threshold": 0.87,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9984749757,
+        "noisy_recall": 0.9593073593,
+        "noisy_f1": 0.9784993716,
+        "noisy_f2": 0.9668931074,
+        "noisy_mask_rate": 0.1979255275,
+        "f2_drop": 0.0331068926,
+        "newly_leaked_span_rate": 0.2633333333
+      },
+      "student_result": {
+        "clean_precision": 0.884269271,
+        "clean_recall": 0.8733034792,
+        "clean_f1": 0.8787521664,
+        "clean_f2": 0.8754748256,
+        "noisy_precision": 0.8853644964,
+        "noisy_recall": 0.8476856477,
+        "noisy_f1": 0.8661154775,
+        "noisy_f2": 0.8549626525,
+        "noisy_mask_rate": 0.1972395247,
+        "f2_drop": 0.0205121731,
+        "newly_leaked_span_rate": 0.237008872
+      },
+      "bootstrap_delta_f2": {
+        "mean": -0.1119912305,
+        "ci95": [
+          -0.1208530296,
+          -0.1036222488
+        ]
+      }
+    }
+  },
+  "gates": {
+    "pilot": "clean F2 >= 0.80 and Recall >= 0.85",
+    "replacement": "clean F1 >= 0.85, F2 >= 0.90, Recall >= 0.90",
+    "matched_budget": "absolute noisy mask-rate gap <= 0.01",
+    "robustness": "absolute noisy F2 superiority or predeclared 0.02 non-inferiority plus paired CI"
+  },
+  "augmentation_ablation": {
+    "dataset": "Drug Reviews",
+    "teacher": "MASKING_FRAMEWORK v1.4 (medical implementation: medterm5)",
+    "train_clean_examples": 39980,
+    "train_augmented_examples": 30591,
+    "held_out_unseen_pairs": 457,
+    "runs": [
+      {
+        "name": "5k clean",
+        "train_rows": 5000,
+        "augmentation": false,
+        "clean_precision": 0.8667181978798587,
+        "clean_recall": 0.8634763476347634,
+        "clean_f1": 0.8650942356442191,
+        "clean_f2": 0.8641227761141448,
+        "teacher_mask_rate": 0.1035944658445969,
+        "student_mask_rate": 0.10320698379413307,
+        "unseen_noisy_f2": 0.8353575223925914,
+        "rule_unseen_noisy_f2": 0.9413427022072863,
+        "shared_targets": 388,
+        "rule_span_survival": 0.5927835051546392,
+        "student_span_survival": 0.7010309278350515,
+        "survival_delta": 0.10824742268041238,
+        "survival_ci95": [
+          0.06958762886597938,
+          0.14690721649484537
+        ]
+      },
+      {
+        "name": "5k + seen-noise",
+        "train_rows": 8831,
+        "augmentation": true,
+        "clean_precision": 0.8789340936506196,
+        "clean_recall": 0.8817381738173817,
+        "clean_f1": 0.8803339008182767,
+        "clean_f2": 0.8811759273510851,
+        "teacher_mask_rate": 0.1035944658445969,
+        "student_mask_rate": 0.10392496524058077,
+        "unseen_noisy_f2": 0.8563514949157687,
+        "rule_unseen_noisy_f2": 0.9413427022072863,
+        "shared_targets": 396,
+        "rule_span_survival": 0.6060606060606061,
+        "student_span_survival": 0.7525252525252525,
+        "survival_delta": 0.14646464646464646,
+        "survival_ci95": [
+          0.1111111111111111,
+          0.18434343434343434
+        ]
+      },
+      {
+        "name": "39,980 clean",
+        "train_rows": 39980,
+        "augmentation": false,
+        "clean_precision": 0.9017808368840817,
+        "clean_recall": 0.908030803080308,
+        "clean_f1": 0.904895028230006,
+        "clean_f2": 0.9067738887790302,
+        "teacher_mask_rate": 0.1035944658445969,
+        "student_mask_rate": 0.10431244729104461,
+        "unseen_noisy_f2": 0.8739118865701144,
+        "rule_unseen_noisy_f2": 0.9413427022072863,
+        "shared_targets": 413,
+        "rule_span_survival": 0.6004842615012107,
+        "student_span_survival": 0.7215496368038741,
+        "survival_delta": 0.12106537530266344,
+        "survival_ci95": [
+          0.0847457627118644,
+          0.15738498789346247
+        ]
+      },
+      {
+        "name": "39,980 + seen-noise",
+        "train_rows": 70571,
+        "augmentation": true,
+        "clean_precision": 0.9165759093879329,
+        "clean_recall": 0.9258525852585259,
+        "clean_f1": 0.9211908931698775,
+        "clean_f2": 0.9239822581353476,
+        "teacher_mask_rate": 0.1035944658445969,
+        "student_mask_rate": 0.10464294668702846,
+        "unseen_noisy_f2": 0.8868547988909568,
+        "rule_unseen_noisy_f2": 0.9413427022072863,
+        "shared_targets": 410,
+        "rule_span_survival": 0.6,
+        "student_span_survival": 0.7439024390243902,
+        "survival_delta": 0.14390243902439023,
+        "survival_ci95": [
+          0.10975609756097561,
+          0.18048780487804877
+        ]
+      }
+    ],
+    "full_aug_seed_repeats": {
+      "seeds": [
+        42,
+        43,
+        44
+      ],
+      "runs": [
+        {
+          "seed": 42,
+          "threshold": 0.9199999999999999,
+          "clean_precision": 0.9165759093879329,
+          "clean_recall": 0.9258525852585259,
+          "clean_f1": 0.9211908931698775,
+          "clean_f2": 0.9239822581353476,
+          "student_mask_rate": 0.10464294668702846,
+          "unseen_noisy_f2": 0.8868547988909568,
+          "shared_targets": 410,
+          "rule_span_survival": 0.6,
+          "student_span_survival": 0.7439024390243902,
+          "survival_delta": 0.14390243902439023,
+          "survival_ci95": [
+            0.10975609756097561,
+            0.18048780487804877
+          ]
+        },
+        {
+          "seed": 43,
+          "threshold": 0.94,
+          "clean_precision": 0.9204795424549054,
+          "clean_recall": 0.9206820682068206,
+          "clean_f1": 0.9205807941920581,
+          "clean_f2": 0.9206415559271319,
+          "student_mask_rate": 0.1036172589063889,
+          "unseen_noisy_f2": 0.877029544849614,
+          "shared_targets": 410,
+          "rule_span_survival": 0.5926829268292683,
+          "student_span_survival": 0.7317073170731707,
+          "survival_delta": 0.13902439024390245,
+          "survival_ci95": [
+            0.1024390243902439,
+            0.17804878048780487
+          ]
+        },
+        {
+          "seed": 44,
+          "threshold": 0.8999999999999999,
+          "clean_precision": 0.9200394866732478,
+          "clean_recall": 0.9227722772277228,
+          "clean_f1": 0.921403855659911,
+          "clean_f2": 0.9222244211359588,
+          "student_mask_rate": 0.10390217217878878,
+          "unseen_noisy_f2": 0.8828784307762487,
+          "shared_targets": 415,
+          "rule_span_survival": 0.5927710843373494,
+          "student_span_survival": 0.7421686746987952,
+          "survival_delta": 0.1493975903614458,
+          "survival_ci95": [
+            0.11325301204819277,
+            0.1855421686746988
+          ]
+        }
+      ],
+      "summary": {
+        "clean_precision": {
+          "mean": 0.9190316461720287,
+          "sample_std": 0.002138081999670133
+        },
+        "clean_recall": {
+          "mean": 0.9231023102310231,
+          "sample_std": 0.002601009992857431
+        },
+        "clean_f1": {
+          "mean": 0.9210585143406155,
+          "sample_std": 0.00042720096066562157
+        },
+        "clean_f2": {
+          "mean": 0.9222827450661462,
+          "sample_std": 0.0016711146195335245
+        },
+        "student_mask_rate": {
+          "mean": 0.10405412592406871,
+          "sample_std": 0.0005294585076913756
+        },
+        "unseen_noisy_f2": {
+          "mean": 0.8822542581722732,
+          "sample_std": 0.004942276583103736
+        },
+        "rule_span_survival": {
+          "mean": 0.5951513370555392,
+          "sample_std": 0.004199296631377453
+        },
+        "student_span_survival": {
+          "mean": 0.7392594769321187,
+          "sample_std": 0.006597561942528898
+        },
+        "survival_delta": {
+          "mean": 0.1441081398765795,
+          "sample_std": 0.005189658447344469
+        }
+      }
+    }
+  }
+}

@@ -1,9 +1,16 @@
 # Token Redaction Probe
 
 RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student redactor**를 실험하는
-독립 프로젝트다. 의료 실험은 RedactFormer의 규칙 기반 `medterm-v4`를, 비의료 실험은
-데이터셋 성격에 맞는 PII/엔티티 규칙을 Transformer+MLP Student가 얼마나 모방하는지
-확인한다. 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
+독립 프로젝트다. 기존 의료 실험은 RedactFormer의 `medterm-v4`를 사용했고,
+최신 입력 교란 실험은 현재 `medterm5/piiclean2 v1.4` 규칙으로 원문을 다시
+라벨링했다. 데이터셋 성격에 맞는 규칙을 Transformer+MLP Student가 얼마나 모방하는지
+확인하며, 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
+
+최신 Drug Reviews 확장 실험에서는 train 39,980문장과 seen-noise 증강 30,591문장을 사용했다.
+ELECTRA-small의 동일예산 clean 3-seed 평균은 F1 0.921, F2 0.922, Recall 0.923이다.
+미관측 표면 교란의 공통 clean-correct span 생존율은 Student 73.9%, 규칙 59.5%였지만,
+전체 noisy F2는 Student 0.882, 규칙 0.941이므로 현재 결론은 완전 대체가 아닌 규칙 보완 후보이다.
+상세 설계와 신뢰구간은 ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
 
 
 ## 결과 대시보드
@@ -60,10 +67,11 @@ python src/build_results_dashboard.py
 
 ## 먼저 읽을 문서
 
-루트 문서는 두 개만 사용한다.
+루트 문서는 세 개만 사용한다.
 
 - `README.md`: 연구 구조와 실행 방법(현재 문서)
 - `MEDICAL_REDACTOR_ALL_RESULTS.md`: 날짜·실험 순서별 전체 결과와 해석
+- `ROBUSTNESS_EXPERIMENT_V14.md`: 최신 v1.4 규칙 대 Student 입력 교란 결과와 합격선
 
 SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 
@@ -88,7 +96,7 @@ SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 
 - Upstream 저장소: `hwang-yundo/Redactformer`
 - Upstream 파일: `scripts/dataset_builders/make_medterm_v4.py`
-- 로컬 원본: `/home/jovyan/Redactformer/scripts/dataset_builders/make_medterm_v4.py`
+- 로컬 원본: `../Redactformer/scripts/dataset_builders/make_medterm_v4.py`
 - Student용 word-level adapter: `src/annotate_medterm4.py`
 - 사용한 규칙의 마지막 실질 변경 커밋: `f2c601e3` (2026-07-22)
 - adapter 메타데이터: `redactformer-medterm-v4-word-adapter@f2c601e3`
