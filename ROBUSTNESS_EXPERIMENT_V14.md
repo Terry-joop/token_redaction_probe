@@ -133,6 +133,19 @@ paired source-cluster bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 �
 통과는 **9/30개**다. 모델별 결과는 각각 BERT-tiny clean 1/10·예산 8/10; ELECTRA-small clean 2/10·예산 9/10; DistilRoBERTa clean 6/10·예산 9/10이다.
 DistilRoBERTa는 10개 데이터셋 모두에서 세 Student 중 noisy F2가 가장 높았다.
 
+## 모델 크기별 결과 분석
+
+| Student | Params | 모델 크기 | 처리량 | 의료 Clean→Noisy F2 | 일반 Clean→Noisy F2 | Clean gate |
+|---|---:|---:|---:|---:|---:|---:|
+| BERT-tiny | 4.4M | 17.6 MB | 264.3/s | 0.781 → 0.752 (−0.028) | 0.858 → 0.835 (−0.023) | 1/10 |
+| ELECTRA-small | 13.5M | 54.1 MB | 21.7/s | 0.834 → 0.794 (−0.040) | 0.910 → 0.881 (−0.028) | 2/10 |
+| DistilRoBERTa | 82.2M | 328.9 MB | 6.5/s | 0.861 → 0.821 (−0.040) | 0.934 → 0.906 (−0.027) | 6/10 |
+
+- 모델이 커질수록 절대 noisy F2가 높아지는 순서가 **10/10개 데이터셋**에서 동일했다. 의료는 BERT 0.752 → ELECTRA 0.794 → DistilRoBERTa 0.821, 일반은 0.835 → 0.881 → 0.906였다.
+- 반면 평균 F2 하락폭은 의료에서 BERT 0.028, ELECTRA 0.040, DistilRoBERTa 0.040였다. BERT의 하락이 작지만 clean F2 자체가 낮아 생긴 효과이므로 **하락폭만으로 강건성을 판정하면 안 된다**.
+- 가장 큰 DistilRoBERTa도 규칙 noisy F2보다 의료 0.109, 일반 0.043 낮았다. 모델 크기 증가는 규칙 모방력을 높였지만 규칙 대체까지 만들지는 못했다.
+- ELECTRA→DistilRoBERTa의 noisy F2 증가는 의료 +0.027, 일반 +0.025인 반면 파라미터는 6.1배, 모델 파일은 6.1배다. 품질 최우선이면 DistilRoBERTa, 속도·메모리까지 보면 ELECTRA-small이 현실적인 절충점이다.
+
 ## 동일 마스킹 예산과 Recall 중심 F2
 
 | 데이터셋 | Student | 예산 Th. | 예산 P | 예산 R | 예산 F2 | 예산 mask | F2 Th. | F2 P | F2 R | F2 | F2 mask |

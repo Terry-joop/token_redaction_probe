@@ -3446,5 +3446,98 @@
     "prajjwal1/bert-tiny + hidden-128 MLP",
     "google/electra-small-discriminator + hidden-128 MLP",
     "distilroberta-base + hidden-128 MLP"
-  ]
+  ],
+  "matrix_analysis": {
+    "models": {
+      "bert_tiny": {
+        "name": "BERT-tiny",
+        "parameters": 4402690,
+        "model_state_mb": 17.62592,
+        "sentences_per_second": 264.26742094618527,
+        "clean_gate_passes": 1,
+        "budget_gate_passes": 8,
+        "best_noisy_f2_datasets": 0,
+        "groups": {
+          "medical": {
+            "datasets": 6,
+            "clean_f2": 0.7806510719860831,
+            "noisy_f2": 0.7523161892146512,
+            "f2_drop": 0.028334882771431907,
+            "retention": 0.9641958814632807,
+            "rule_noisy_f2": 0.9300414059409131,
+            "rule_gap": -0.17772521672626196
+          },
+          "general": {
+            "datasets": 4,
+            "clean_f2": 0.8580701903832804,
+            "noisy_f2": 0.8351721847995975,
+            "f2_drop": 0.022898005583682768,
+            "retention": 0.9732500580516938,
+            "rule_noisy_f2": 0.9493957834377426,
+            "rule_gap": -0.11422359863814502
+          }
+        }
+      },
+      "electra_small": {
+        "name": "ELECTRA-small",
+        "parameters": 13516162,
+        "model_state_mb": 54.135239,
+        "sentences_per_second": 21.669262677591583,
+        "clean_gate_passes": 2,
+        "budget_gate_passes": 9,
+        "best_noisy_f2_datasets": 0,
+        "groups": {
+          "medical": {
+            "datasets": 6,
+            "clean_f2": 0.8342245123191113,
+            "noisy_f2": 0.7939779817906016,
+            "f2_drop": 0.04024653052850955,
+            "retention": 0.9528949244456041,
+            "rule_noisy_f2": 0.9300414059409131,
+            "rule_gap": -0.13606342415031147
+          },
+          "general": {
+            "datasets": 4,
+            "clean_f2": 0.9096416763978498,
+            "noisy_f2": 0.8814359412932128,
+            "f2_drop": 0.028205735104637003,
+            "retention": 0.9688826812290167,
+            "rule_noisy_f2": 0.9493957834377426,
+            "rule_gap": -0.06795984214452977
+          }
+        }
+      },
+      "distilroberta": {
+        "name": "DistilRoBERTa",
+        "parameters": 82217090,
+        "model_state_mb": 328.905671,
+        "sentences_per_second": 6.542959261575605,
+        "clean_gate_passes": 6,
+        "budget_gate_passes": 9,
+        "best_noisy_f2_datasets": 10,
+        "groups": {
+          "medical": {
+            "datasets": 6,
+            "clean_f2": 0.8606607041742264,
+            "noisy_f2": 0.8210268151610176,
+            "f2_drop": 0.039633889013208634,
+            "retention": 0.9547828105799266,
+            "rule_noisy_f2": 0.9300414059409131,
+            "rule_gap": -0.1090145907798955
+          },
+          "general": {
+            "datasets": 4,
+            "clean_f2": 0.9335541276935014,
+            "noisy_f2": 0.90642206258393,
+            "f2_drop": 0.027132065109571446,
+            "retention": 0.9710163797254274,
+            "rule_noisy_f2": 0.9493957834377426,
+            "rule_gap": -0.04297372085381257
+          }
+        }
+      }
+    },
+    "monotonic_noisy_f2_datasets": 10,
+    "privacy_tradeoff_runs": 30
+  }
 }

@@ -192,6 +192,13 @@ def robustness_table():
   and model['operating_points']['f2_optimized']['predicted_mask_rate']>=model['operating_points']['budget_matched']['predicted_mask_rate']
   for model in all_models
  )
+ analysis=source['matrix_analysis']; analysis_rows=[]
+ for model in analysis['models'].values():
+  medical=model['groups']['medical']; general=model['groups']['general']
+  analysis_rows.append(
+   f"<tr><td class='left meta dataset'>{model['name']}</td><td>{model['parameters']/1_000_000:.1f}M</td><td>{model['model_state_mb']:.1f} MB</td><td>{model['sentences_per_second']:.1f}/s</td><td>{medical['clean_f2']:.3f} → {medical['noisy_f2']:.3f}<span class='task'>−{medical['f2_drop']:.3f}</span></td><td>{general['clean_f2']:.3f} → {general['noisy_f2']:.3f}<span class='task'>−{general['f2_drop']:.3f}</span></td><td>{model['clean_gate_passes']}/10</td></tr>"
+  )
+ bert=analysis['models']['bert_tiny']; electra=analysis['models']['electra_small']; distil=analysis['models']['distilroberta']
  return (
   "<h2>4-1. 최신 v1.4 입력 교란 강건성 — 10개 데이터셋 × 3모델</h2>"
   "<p class='lede'>clean v1.4 라벨을 결정적 편집으로 noisy 문장에 이동한 pseudo-gold 기준이다. BERT-tiny, ELECTRA-small, DistilRoBERTa를 같은 split·학습 조건·동일 마스킹 예산으로 비교한다. Noisy P/R은 이동된 token 정답에 대한 Precision/Recall이다.</p>"
@@ -203,6 +210,16 @@ def robustness_table():
   f"<details><summary>동일 마스킹 예산 vs Recall 중심 F2 · clean 운용점 30개 보기</summary><div><p><strong>동일 예산</strong>은 Teacher와 비슷한 비율을 가려 모델 간 공정 비교에 적합하다. <strong>Recall 중심 F2</strong>는 민감 누락을 더 비싸게 보므로 privacy-first 배포 후보에 적합하지만 더 많이 가릴 수 있다. 실제로 {privacy_tradeoff_runs}/30개 run 모두 Recall·F2·마스킹률이 함께 증가했다. 따라서 논문 메인은 동일 예산, F2는 보조 운용점으로 제시한다.</p><div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>Student</th><th>예산 Th.</th><th>예산 P</th><th>예산 R</th><th>예산 F2</th><th>예산 mask</th><th>F2 Th.</th><th>F2 P</th><th>F2 R</th><th>F2</th><th>F2 mask</th></tr></thead><tbody>"
   + ''.join(operating_rows)
   + "</tbody></table></div></div></details>"
+  "<h3>4-1-1. 모델 크기별 결과 분석</h3>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>Student</th><th>Params</th><th>모델 크기</th><th>처리량</th><th>의료 Clean→Noisy F2</th><th>일반 Clean→Noisy F2</th><th>Clean gate</th></tr></thead><tbody>"
+  + ''.join(analysis_rows)
+  + "</tbody></table></div>"
+  "<div class='analysis-grid' style='margin-top:12px'>"
+  f"<article class='analysis-card'><h3>크기가 커질수록 절대 성능 상승</h3><p><strong>{analysis['monotonic_noisy_f2_datasets']}/10개 데이터셋</strong>에서 BERT &lt; ELECTRA &lt; DistilRoBERTa 순으로 noisy F2가 올랐다. 의료는 {bert['groups']['medical']['noisy_f2']:.3f} → {electra['groups']['medical']['noisy_f2']:.3f} → {distil['groups']['medical']['noisy_f2']:.3f}, 일반은 {bert['groups']['general']['noisy_f2']:.3f} → {electra['groups']['general']['noisy_f2']:.3f} → {distil['groups']['general']['noisy_f2']:.3f}다.</p></article>"
+  f"<article class='analysis-card'><h3>F2 하락만 보면 안 되는 이유</h3><p>의료 평균 하락은 BERT {bert['groups']['medical']['f2_drop']:.3f}, ELECTRA {electra['groups']['medical']['f2_drop']:.3f}, Distil {distil['groups']['medical']['f2_drop']:.3f}다. BERT가 덜 하락하지만 clean 출발점이 {bert['groups']['medical']['clean_f2']:.3f}로 낮다. 따라서 <strong>절대 noisy F2와 규칙 격차</strong>를 함께 봐야 한다.</p></article>"
+  f"<article class='analysis-card'><h3>규칙 대체에는 아직 부족</h3><p>가장 좋은 DistilRoBERTa도 규칙보다 noisy F2가 의료 <strong>{abs(distil['groups']['medical']['rule_gap']):.3f}</strong>, 일반 <strong>{abs(distil['groups']['general']['rule_gap']):.3f}</strong> 낮다. Clean gate는 모델이 커지며 {bert['clean_gate_passes']} → {electra['clean_gate_passes']} → {distil['clean_gate_passes']}/10으로 늘었지만 noisy 규칙 우세는 유지됐다.</p></article>"
+  f"<article class='analysis-card'><h3>품질과 비용의 절충</h3><p>ELECTRA→Distil의 noisy F2 이득은 의료 {distil['groups']['medical']['noisy_f2']-electra['groups']['medical']['noisy_f2']:+.3f}, 일반 {distil['groups']['general']['noisy_f2']-electra['groups']['general']['noisy_f2']:+.3f}지만 파라미터·파일은 약 {distil['parameters']/electra['parameters']:.1f}배다. <strong>품질 최우선은 DistilRoBERTa, 경량 절충은 ELECTRA-small, 속도 최우선은 BERT-tiny</strong>로 해석한다.</p></article>"
+  "</div>"
   "<h2>4-2. 전체 데이터·표면 교란 증강 비교</h2>"
   f"<p class='lede'>전체 test에서 생성 가능한 unseen target {absolute['unseen_target_pairs']:,}개를 고정 pseudo-gold로 둔 비교다. 같은 원문에서 파생된 여러 오염은 원문 단위로 묶어 통계 처리했다.</p>"
   f"<div class='notice'><strong>데이터 규모:</strong> Drug Reviews 원본 {absolute['source_examples']:,}문장, clean train {absolute['clean_train_examples']:,}, validation {absolute['validation_examples']:,}, test {absolute['test_examples']:,}문장 전체를 사용했다. seen-noise {absolute['augmented_train_examples']:,}행을 추가해 학습 입력은 {absolute['total_augmented_train_rows']:,}행이다. 전체 test에서 unseen target-pair {absolute['unseen_target_pairs']:,}개가 생성됐고 고유 원문은 {absolute['unique_source_examples']:,}개다.</div>"

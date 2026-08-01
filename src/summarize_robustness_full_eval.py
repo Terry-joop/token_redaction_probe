@@ -170,6 +170,89 @@ def sync_dataset_results(summary: dict) -> None:
             "clean v1.4 character spans projected through deterministic edits"
         ),
     }
+    efficiency = load(
+        ROOT
+        / "artifacts"
+        / "medical_redactor"
+        / "core_matrix"
+        / "complete_rule_student_comparison.json"
+    )["efficiency"]
+    model_analysis = {}
+    for model_key, (model_name, _) in MODELS.items():
+        values = [item["models"][model_key] for item in datasets.values()]
+        group_metrics = {}
+        for group_key in ("medical", "general"):
+            group_items = [
+                item for item in datasets.values() if item["group"] == group_key
+            ]
+            group_values = [item["models"][model_key] for item in group_items]
+            clean_f2 = statistics.fmean(
+                value["robustness"]["clean_f2"] for value in group_values
+            )
+            noisy_f2 = statistics.fmean(
+                value["robustness"]["noisy_f2"] for value in group_values
+            )
+            rule_noisy_f2 = statistics.fmean(
+                item["rule"]["noisy_f2"] for item in group_items
+            )
+            group_metrics[group_key] = {
+                "datasets": len(group_items),
+                "clean_f2": clean_f2,
+                "noisy_f2": noisy_f2,
+                "f2_drop": statistics.fmean(
+                    value["robustness"]["f2_drop"] for value in group_values
+                ),
+                "retention": statistics.fmean(
+                    value["robustness"]["noisy_f2"]
+                    / value["robustness"]["clean_f2"]
+                    for value in group_values
+                ),
+                "rule_noisy_f2": rule_noisy_f2,
+                "rule_gap": noisy_f2 - rule_noisy_f2,
+            }
+        source = efficiency[model_key]
+        model_analysis[model_key] = {
+            "name": model_name,
+            "parameters": source["parameters"],
+            "model_state_mb": source["model_state_mb"],
+            "sentences_per_second": source["latency"]["sentences_per_second"],
+            "clean_gate_passes": sum(
+                value["acceptance"]["final_student_quality_gate"]["pass"]
+                for value in values
+            ),
+            "budget_gate_passes": sum(
+                value["acceptance"]["matched_budget_gate"]["pass"]
+                for value in values
+            ),
+            "best_noisy_f2_datasets": sum(
+                item["models"][model_key]["robustness"]["noisy_f2"]
+                == max(
+                    value["robustness"]["noisy_f2"]
+                    for value in item["models"].values()
+                )
+                for item in datasets.values()
+            ),
+            "groups": group_metrics,
+        }
+    summary["matrix_analysis"] = {
+        "models": model_analysis,
+        "monotonic_noisy_f2_datasets": sum(
+            item["models"]["bert_tiny"]["robustness"]["noisy_f2"]
+            < item["models"]["electra_small"]["robustness"]["noisy_f2"]
+            < item["models"]["distilroberta"]["robustness"]["noisy_f2"]
+            for item in datasets.values()
+        ),
+        "privacy_tradeoff_runs": sum(
+            model["operating_points"]["f2_optimized"]["recall"]
+            >= model["operating_points"]["budget_matched"]["recall"]
+            and model["operating_points"]["f2_optimized"]["f2"]
+            >= model["operating_points"]["budget_matched"]["f2"]
+            and model["operating_points"]["f2_optimized"]["predicted_mask_rate"]
+            >= model["operating_points"]["budget_matched"]["predicted_mask_rate"]
+            for item in datasets.values()
+            for model in item["models"].values()
+        ),
+    }
 
 
 def write_dataset_report(summary: dict) -> None:
@@ -266,6 +349,23 @@ def write_dataset_report(summary: dict) -> None:
         >= model["operating_points"]["budget_matched"]["predicted_mask_rate"]
         for model in all_models
     )
+    analysis = summary["matrix_analysis"]
+    analysis_rows = []
+    for model in analysis["models"].values():
+        medical = model["groups"]["medical"]
+        general = model["groups"]["general"]
+        analysis_rows.append(
+            f"| {model['name']} | {model['parameters'] / 1_000_000:.1f}M | "
+            f"{model['model_state_mb']:.1f} MB | {model['sentences_per_second']:.1f}/s | "
+            f"{medical['clean_f2']:.3f} → {medical['noisy_f2']:.3f} "
+            f"(−{medical['f2_drop']:.3f}) | "
+            f"{general['clean_f2']:.3f} → {general['noisy_f2']:.3f} "
+            f"(−{general['f2_drop']:.3f}) | "
+            f"{model['clean_gate_passes']}/10 |"
+        )
+    bert = analysis["models"]["bert_tiny"]
+    electra = analysis["models"]["electra_small"]
+    distil = analysis["models"]["distilroberta"]
     section = f"""## 10개 데이터셋 × 3모델 공통 비교
 
 기존 4-1을 BERT-tiny, ELECTRA-small, DistilRoBERTa 세 Student로 확장했다.
@@ -307,6 +407,17 @@ paired source-cluster bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 �
 동일 마스킹 예산 통과는 **{budget_passes}/30개**, 사전 정의 clean 대체 최소선
 통과는 **{clean_passes}/30개**다. 모델별 결과는 각각 {"; ".join(model_gate_summary)}이다.
 DistilRoBERTa는 10개 데이터셋 모두에서 세 Student 중 noisy F2가 가장 높았다.
+
+## 모델 크기별 결과 분석
+
+| Student | Params | 모델 크기 | 처리량 | 의료 Clean→Noisy F2 | 일반 Clean→Noisy F2 | Clean gate |
+|---|---:|---:|---:|---:|---:|---:|
+{chr(10).join(analysis_rows)}
+
+- 모델이 커질수록 절대 noisy F2가 높아지는 순서가 **{analysis['monotonic_noisy_f2_datasets']}/10개 데이터셋**에서 동일했다. 의료는 BERT {bert['groups']['medical']['noisy_f2']:.3f} → ELECTRA {electra['groups']['medical']['noisy_f2']:.3f} → DistilRoBERTa {distil['groups']['medical']['noisy_f2']:.3f}, 일반은 {bert['groups']['general']['noisy_f2']:.3f} → {electra['groups']['general']['noisy_f2']:.3f} → {distil['groups']['general']['noisy_f2']:.3f}였다.
+- 반면 평균 F2 하락폭은 의료에서 BERT {bert['groups']['medical']['f2_drop']:.3f}, ELECTRA {electra['groups']['medical']['f2_drop']:.3f}, DistilRoBERTa {distil['groups']['medical']['f2_drop']:.3f}였다. BERT의 하락이 작지만 clean F2 자체가 낮아 생긴 효과이므로 **하락폭만으로 강건성을 판정하면 안 된다**.
+- 가장 큰 DistilRoBERTa도 규칙 noisy F2보다 의료 {abs(distil['groups']['medical']['rule_gap']):.3f}, 일반 {abs(distil['groups']['general']['rule_gap']):.3f} 낮았다. 모델 크기 증가는 규칙 모방력을 높였지만 규칙 대체까지 만들지는 못했다.
+- ELECTRA→DistilRoBERTa의 noisy F2 증가는 의료 {distil['groups']['medical']['noisy_f2'] - electra['groups']['medical']['noisy_f2']:+.3f}, 일반 {distil['groups']['general']['noisy_f2'] - electra['groups']['general']['noisy_f2']:+.3f}인 반면 파라미터는 {distil['parameters'] / electra['parameters']:.1f}배, 모델 파일은 {distil['model_state_mb'] / electra['model_state_mb']:.1f}배다. 품질 최우선이면 DistilRoBERTa, 속도·메모리까지 보면 ELECTRA-small이 현실적인 절충점이다.
 
 ## 동일 마스킹 예산과 Recall 중심 F2
 
