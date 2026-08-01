@@ -129,6 +129,13 @@ def robustness_table():
  ablation=source['augmentation_ablation']
  absolute=ablation['absolute_target_evaluation']
  target=absolute['summary']
+ repeated=ablation['full_aug_seed_repeats']['summary']
+ noisy_ci_lows=[
+  run['student_noisy_advantage_ci95'][0] for run in absolute['runs']
+ ]
+ noisy_ci_highs=[
+  run['student_noisy_advantage_ci95'][1] for run in absolute['runs']
+ ]
  ablation_rows=[]
  for run in ablation['runs']:
   ci=run['survival_ci95']
@@ -156,22 +163,23 @@ def robustness_table():
   "<div class='notice'><strong>결과:</strong> Student는 자기 기준 하락폭은 작았지만 절대 noisy F2가 Drug 0.837, BIOS 0.855로 규칙보다 낮아 대체 합격선에 미달했다. *Student 신규 누출은 clean에서 먼저 맞힌 span만 분모로 한 조건부 값이다.</div>"
   "<div class='notice warn'><strong>합격선:</strong> clean F1/F2/Recall ≥ 0.85/0.90/0.90, 마스킹률 차이 ≤ 1%p를 먼저 만족한 뒤 noisy 비열등성 또는 우월성을 판정한다. 상세 설계는 ROBUSTNESS_EXPERIMENT_V14.md에 있다.</div>"
   "<h2>4-2. 전체 데이터·표면 교란 증강 비교</h2>"
-  "<p class='lede'>clean 규칙의 전체 457개 target span을 고정 pseudo-gold로 둔 비교를 메인으로 하고, 공통 clean-correct span 비교는 보조 분석으로 분리했다.</p>"
-  f"<div class='notice'><strong>데이터 규모:</strong> 데이터셋 {absolute['dataset_count']}개(Drug Reviews), 원본 {absolute['source_examples']:,}문장, clean train {absolute['clean_train_examples']:,}문장, validation {absolute['validation_examples']:,}문장, test {absolute['test_examples']:,}문장이다. seen-noise {absolute['augmented_train_examples']:,}행을 추가해 최종 학습 입력은 {absolute['total_augmented_train_rows']:,}행이며, 미관측 오염 target은 {absolute['unseen_target_pairs']}개다.</div>"
-  "<h3>4-2-1. 메인 비교 — clean 규칙 전체 target 457개를 동일 분모로 사용</h3>"
+  f"<p class='lede'>전체 test에서 생성 가능한 unseen target {absolute['unseen_target_pairs']:,}개를 고정 pseudo-gold로 둔 비교다. 같은 원문에서 파생된 여러 오염은 원문 단위로 묶어 통계 처리했다.</p>"
+  f"<div class='notice'><strong>데이터 규모:</strong> Drug Reviews 원본 {absolute['source_examples']:,}문장, clean train {absolute['clean_train_examples']:,}, validation {absolute['validation_examples']:,}, test {absolute['test_examples']:,}문장 전체를 사용했다. seen-noise {absolute['augmented_train_examples']:,}행을 추가해 학습 입력은 {absolute['total_augmented_train_rows']:,}행이다. 전체 test에서 unseen target-pair {absolute['unseen_target_pairs']:,}개가 생성됐고 고유 원문은 {absolute['unique_source_examples']:,}개다.</div>"
+  f"<h3>4-2-1. 메인 비교 — 전체 unseen target {absolute['unseen_target_pairs']:,}개를 동일 분모로 사용</h3>"
   "<p class='lede'>정확한 target span 전체를 가렸을 때만 성공이다. Student는 seed 42·43·44 평균이다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>방식</th><th>동일 분모</th><th>Clean target 탐지율</th><th>오염 후 target 탐지율</th><th>Clean→오염 하락</th><th>오염 후 Student−규칙</th></tr></thead><tbody>"
-  f"<tr><td class='left meta dataset'>규칙 v1.4</td><td>{absolute['unseen_target_pairs']}</td><td>{target['rule_clean_target_recall']['mean']*100:.1f}%</td><td>{target['rule_noisy_target_recall']['mean']*100:.1f}%</td><td>−{target['rule_drop']['mean']*100:.1f}%p</td><td>—</td></tr>"
-  f"<tr><td class='left meta dataset'>전체+증강 Student<span class='task'>3-seed 평균±표준편차</span></td><td>{absolute['unseen_target_pairs']}</td><td>{target['student_clean_target_recall']['mean']*100:.1f}%<span class='task'>±{target['student_clean_target_recall']['sample_std']*100:.1f}%p</span></td><td class='best'>{target['student_noisy_target_recall']['mean']*100:.1f}%<span class='task'>±{target['student_noisy_target_recall']['sample_std']*100:.1f}%p</span></td><td>−{target['student_drop']['mean']*100:.1f}%p<span class='task'>±{target['student_drop']['sample_std']*100:.1f}%p</span></td><td class='best'>+{target['student_noisy_advantage']['mean']*100:.1f}%p</td></tr>"
+  f"<tr><td class='left meta dataset'>규칙 v1.4</td><td>{absolute['unseen_target_pairs']:,}</td><td>{target['rule_clean_target_recall']['mean']*100:.1f}%</td><td>{target['rule_noisy_target_recall']['mean']*100:.1f}%</td><td>−{target['rule_drop']['mean']*100:.1f}%p</td><td>—</td></tr>"
+  f"<tr><td class='left meta dataset'>전체+증강 Student<span class='task'>3-seed 평균±표준편차</span></td><td>{absolute['unseen_target_pairs']:,}</td><td>{target['student_clean_target_recall']['mean']*100:.1f}%<span class='task'>±{target['student_clean_target_recall']['sample_std']*100:.1f}%p</span></td><td class='best'>{target['student_noisy_target_recall']['mean']*100:.1f}%<span class='task'>±{target['student_noisy_target_recall']['sample_std']*100:.1f}%p</span></td><td>−{target['student_drop']['mean']*100:.1f}%p<span class='task'>±{target['student_drop']['sample_std']*100:.1f}%p</span></td><td class='best'>+{target['student_noisy_advantage']['mean']*100:.1f}%p<span class='task'>±{target['student_noisy_advantage']['sample_std']*100:.1f}%p · seed별 CI 모두 &gt;0</span></td></tr>"
   "</tbody></table></div>"
-  f"<div class='notice'><strong>메인 결론:</strong> clean 규칙이 선택한 전체 {absolute['unseen_target_pairs']}개 target을 같은 분모로 사용하면, 오염 후 정확한 span 탐지율은 규칙 {target['rule_noisy_target_recall']['mean']*100:.1f}%, Student {target['student_noisy_target_recall']['mean']*100:.1f}%다. 규칙은 {target['rule_drop']['mean']*100:.1f}%p, Student는 {target['student_drop']['mean']*100:.1f}%p 하락해 Student가 {target['student_drop_advantage']['mean']*100:.1f}%p 덜 하락했고, 오염 후 절대 탐지율도 +{target['student_noisy_advantage']['mean']*100:.1f}%p 높았다.</div>"
-  "<h3>4-2-2. 데이터 규모·증강 ablation과 공통-span 보조 분석</h3>"
-  "<p class='lede'>아래 네 행은 seed 42다. 공통 span은 각 Student가 clean에서 맞힌 대상만 남긴 조건부 분모이므로 메인 457개 비교와 구분한다.</p>"
+  f"<div class='notice'><strong>메인 결론:</strong> 전체 {absolute['unseen_target_pairs']:,}개 target에서 오염 후 정확한 span 탐지율은 규칙 {target['rule_noisy_target_recall']['mean']*100:.1f}%, Student {target['student_noisy_target_recall']['mean']*100:.1f}%다. 규칙은 {target['rule_drop']['mean']*100:.1f}%p, Student는 {target['student_drop']['mean']*100:.1f}%p 하락해 Student가 {target['student_drop_advantage']['mean']*100:.1f}%p 덜 하락했다. 오염 후 절대 탐지율 차이는 +{target['student_noisy_advantage']['mean']*100:.1f}%p이고, 세 seed의 원문-cluster 95% CI는 모두 0보다 컸다(하한 {min(noisy_ci_lows)*100:.1f}%p 이상).</div>"
+  f"<div class='notice'><strong>전체 clean 성능:</strong> 전체 validation에서 threshold를 선택해 전체 test에 적용한 3-seed 평균은 Precision {repeated['clean_precision']['mean']:.3f}, Recall {repeated['clean_recall']['mean']:.3f}, F1 {repeated['clean_f1']['mean']:.3f}, F2 {repeated['clean_f2']['mean']:.3f}다.</div>"
+  "<h3>4-2-2. 이전 제한본 ablation과 공통-span 보조 분석</h3>"
+  f"<p class='lede'>아래 네 행은 모델 선택을 위한 이전 500 validation/1,000 test·457 unseen-pair 제한본(seed 42)이다. 전체 {absolute['unseen_target_pairs']:,}개 메인 결과와 분모가 다르므로 참고 ablation으로만 본다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>조건</th><th>학습 행</th><th class='left'>학습 입력</th><th>Clean P</th><th>Clean R</th><th>Clean F1</th><th>Clean F2</th><th>Teacher mask</th><th>Student mask</th><th>Unseen F2</th><th>공통 span<br>(보조 분모)</th><th>조건부<br>규칙 생존</th><th>조건부<br>Student 생존</th><th>조건부 차이<br>95% CI</th></tr></thead><tbody>"
   + ''.join(ablation_rows)
   + "</tbody></table></div>"
-  "<div class='notice'><strong>seed 42 ablation:</strong> 전체+증강 모델은 clean F2 0.924, Recall 0.926, unseen token F2 0.887로 네 조건 중 가장 높았다. 공통 clean-correct 410개만 보면 조건부 생존율은 Student 74.4%, 규칙 60.0%였다.</div>"
-  "<div class='notice warn'><strong>지표 구분:</strong> 메인 68.1%는 clean 규칙의 전체 457개 target이 분모이고, 보조 74.4%는 seed 42 Student도 clean에서 맞힌 410개만 분모다. 전체 noisy token F2는 규칙 0.941, Student 3-seed 평균 0.882로 규칙이 높으므로 정확한 target-span 강건성과 전체 token 성능을 구분해 해석한다.</div>"
+  f"<div class='notice'><strong>제한본 ablation:</strong> 데이터 확대와 seen-noise 증강이 모두 성능을 높여 전체+증강 모델을 최종 조건으로 선택했다. 이 선택 뒤의 최종 주장은 위 전체 validation/test 및 {absolute['unseen_target_pairs']:,} pair 평가를 기준으로 한다.</div>"
+  f"<div class='notice warn'><strong>해석:</strong> 전체 고정 target 기준 Student의 오염 탐지율 우위는 학습형 redactor의 표면 강건성 근거다. 그러나 Student의 전체 noisy token F2 평균 {repeated['unseen_noisy_f2']['mean']:.3f}는 규칙 {repeated['rule_unseen_noisy_f2']['mean']:.3f}보다 낮다. 따라서 현재 결론은 완전 대체가 아니라 표면 결함 보완 후보이며 human-gold 검증이 필요하다.</div>"
 
  )
 

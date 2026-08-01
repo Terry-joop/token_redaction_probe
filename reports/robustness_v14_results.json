@@ -189,98 +189,106 @@
         43,
         44
       ],
+      "evaluation_scope": "full validation/test and all eligible unseen pairs",
       "runs": [
         {
           "seed": 42,
-          "threshold": 0.9199999999999999,
-          "clean_precision": 0.9165759093879329,
-          "clean_recall": 0.9258525852585259,
-          "clean_f1": 0.9211908931698775,
-          "clean_f2": 0.9239822581353476,
-          "student_mask_rate": 0.10464294668702846,
-          "unseen_noisy_f2": 0.8868547988909568,
-          "shared_targets": 410,
-          "rule_span_survival": 0.6,
-          "student_span_survival": 0.7439024390243902,
-          "survival_delta": 0.14390243902439023,
+          "threshold": 0.9299999999999999,
+          "clean_precision": 0.9250512889126751,
+          "clean_recall": 0.9251338090990188,
+          "clean_f1": 0.9250925471656036,
+          "clean_f2": 0.9251173038839628,
+          "student_mask_rate": 0.10278625849217482,
+          "unseen_noisy_f2": 0.8764887225969646,
+          "rule_unseen_noisy_f2": 0.9269705979517674,
+          "shared_targets": 12600,
+          "rule_span_survival": 0.5197619047619048,
+          "student_span_survival": 0.6257142857142857,
+          "survival_delta": 0.10595238095238095,
           "survival_ci95": [
-            0.10975609756097561,
-            0.18048780487804877
+            0.10020578211929146,
+            0.11201795079755403
           ]
         },
         {
           "seed": 43,
           "threshold": 0.94,
-          "clean_precision": 0.9204795424549054,
-          "clean_recall": 0.9206820682068206,
-          "clean_f1": 0.9205807941920581,
-          "clean_f2": 0.9206415559271319,
-          "student_mask_rate": 0.1036172589063889,
-          "unseen_noisy_f2": 0.877029544849614,
-          "shared_targets": 410,
-          "rule_span_survival": 0.5926829268292683,
-          "student_span_survival": 0.7317073170731707,
-          "survival_delta": 0.13902439024390245,
+          "clean_precision": 0.9224964943129966,
+          "clean_recall": 0.9242863514719001,
+          "clean_f1": 0.9233905555493667,
+          "clean_f2": 0.9239278246175658,
+          "student_mask_rate": 0.10297650154486528,
+          "unseen_noisy_f2": 0.8718222196440649,
+          "rule_unseen_noisy_f2": 0.9269705979517674,
+          "shared_targets": 12473,
+          "rule_span_survival": 0.5158342018760522,
+          "student_span_survival": 0.6220636575002004,
+          "survival_delta": 0.10622945562414816,
           "survival_ci95": [
-            0.1024390243902439,
-            0.17804878048780487
+            0.10060279189280276,
+            0.11184970347965457
           ]
         },
         {
           "seed": 44,
           "threshold": 0.8999999999999999,
-          "clean_precision": 0.9200394866732478,
-          "clean_recall": 0.9227722772277228,
-          "clean_f1": 0.921403855659911,
-          "clean_f2": 0.9222244211359588,
-          "student_mask_rate": 0.10390217217878878,
-          "unseen_noisy_f2": 0.8828784307762487,
-          "shared_targets": 415,
-          "rule_span_survival": 0.5927710843373494,
-          "student_span_survival": 0.7421686746987952,
-          "survival_delta": 0.1493975903614458,
+          "clean_precision": 0.9219006249722973,
+          "clean_recall": 0.9276984834968778,
+          "clean_f1": 0.924790467086103,
+          "clean_f2": 0.9265330850580448,
+          "student_mask_rate": 0.10342345811443922,
+          "unseen_noisy_f2": 0.8748419388830347,
+          "rule_unseen_noisy_f2": 0.9269705979517674,
+          "shared_targets": 12684,
+          "rule_span_survival": 0.5225480920845159,
+          "student_span_survival": 0.63040050457269,
+          "survival_delta": 0.10785241248817408,
           "survival_ci95": [
-            0.11325301204819277,
-            0.1855421686746988
+            0.10173556926779213,
+            0.1133753119805586
           ]
         }
       ],
       "summary": {
         "clean_precision": {
-          "mean": 0.9190316461720287,
-          "sample_std": 0.002138081999670133
+          "mean": 0.923149469399323,
+          "sample_std": 0.0016737542124880224
         },
         "clean_recall": {
-          "mean": 0.9231023102310231,
-          "sample_std": 0.002601009992857431
+          "mean": 0.9257062146892655,
+          "sample_std": 0.0017766252724699496
         },
         "clean_f1": {
-          "mean": 0.9210585143406155,
-          "sample_std": 0.00042720096066562157
+          "mean": 0.9244245232670245,
+          "sample_std": 0.0009080914185678617
         },
         "clean_f2": {
-          "mean": 0.9222827450661462,
-          "sample_std": 0.0016711146195335245
+          "mean": 0.9251927378531911,
+          "sample_std": 0.001304267305220164
         },
         "student_mask_rate": {
-          "mean": 0.10405412592406871,
-          "sample_std": 0.0005294585076913756
+          "mean": 0.10306207271715977,
+          "sample_std": 0.0003271049660267533
         },
         "unseen_noisy_f2": {
-          "mean": 0.8822542581722732,
-          "sample_std": 0.004942276583103736
+          "mean": 0.8743842937080215,
+          "sample_std": 0.0023666731464262597
+        },
+        "rule_unseen_noisy_f2": {
+          "mean": 0.9269705979517674,
+          "sample_std": 0.0
         },
         "rule_span_survival": {
-          "mean": 0.5951513370555392,
-          "sample_std": 0.004199296631377453
+          "mean": 0.5193813995741576,
+          "sample_std": 0.0033730799844138015
         },
         "student_span_survival": {
-          "mean": 0.7392594769321187,
-          "sample_std": 0.006597561942528898
+          "mean": 0.6260594825957254,
+          "sample_std": 0.004179129747056964
         },
         "survival_delta": {
-          "mean": 0.1441081398765795,
-          "sample_std": 0.005189658447344469
+          "mean": 0.10667808302156773,
+          "sample_std": 0.0010263916725785967
         }
       }
     },
@@ -289,45 +297,71 @@
       "dataset": "Drug Reviews",
       "source_examples": 49974,
       "clean_train_examples": 39980,
-      "validation_examples": 500,
-      "test_examples": 1000,
+      "validation_examples": 4997,
+      "test_examples": 4997,
       "augmented_train_examples": 30591,
       "total_augmented_train_rows": 70571,
-      "unseen_target_pairs": 457,
+      "unseen_target_pairs": 13901,
+      "unique_source_examples": 4866,
       "reference": "clean MASKING_FRAMEWORK v1.4 medterm5 target spans projected through deterministic edits",
+      "bootstrap_unit": "source-cluster bootstrap; all perturbations from one source sentence stay together",
       "runs": [
         {
           "seed": 42,
           "rule_clean_target_recall": 1.0,
-          "rule_noisy_target_recall": 0.5995623632385121,
-          "rule_drop": 0.4004376367614879,
-          "student_clean_target_recall": 0.8971553610503282,
-          "student_noisy_target_recall": 0.6761487964989059,
-          "student_drop": 0.2210065645514223,
-          "student_noisy_advantage": 0.07658643326039383,
-          "student_drop_advantage": 0.1794310722100656
+          "rule_noisy_target_recall": 0.5276598805841306,
+          "rule_drop": 0.4723401194158694,
+          "student_clean_target_recall": 0.9064096108193656,
+          "student_noisy_target_recall": 0.5716854902524998,
+          "student_drop": 0.33472412056686573,
+          "student_noisy_advantage": 0.04402560966836918,
+          "student_noisy_advantage_ci95": [
+            0.0359774862376106,
+            0.051732794219467915
+          ],
+          "student_drop_advantage": 0.13761599884900366,
+          "student_drop_advantage_ci95": [
+            0.1317267666201085,
+            0.14380059585291535
+          ]
         },
         {
           "seed": 43,
           "rule_clean_target_recall": 1.0,
-          "rule_noisy_target_recall": 0.5995623632385121,
-          "rule_drop": 0.4004376367614879,
-          "student_clean_target_recall": 0.8971553610503282,
-          "student_noisy_target_recall": 0.6761487964989059,
-          "student_drop": 0.2210065645514223,
-          "student_noisy_advantage": 0.07658643326039383,
-          "student_drop_advantage": 0.1794310722100656
+          "rule_noisy_target_recall": 0.5276598805841306,
+          "rule_drop": 0.4723401194158694,
+          "student_clean_target_recall": 0.8972735774404719,
+          "student_noisy_target_recall": 0.5662901949500035,
+          "student_drop": 0.3309833824904683,
+          "student_noisy_advantage": 0.038630314365872956,
+          "student_noisy_advantage_ci95": [
+            0.030766460647379413,
+            0.04635997470171925
+          ],
+          "student_drop_advantage": 0.14135673692540104,
+          "student_drop_advantage_ci95": [
+            0.13506051088111493,
+            0.14749865223007477
+          ]
         },
         {
           "seed": 44,
           "rule_clean_target_recall": 1.0,
-          "rule_noisy_target_recall": 0.5995623632385121,
-          "rule_drop": 0.4004376367614879,
-          "student_clean_target_recall": 0.9080962800875274,
-          "student_noisy_target_recall": 0.6892778993435449,
-          "student_drop": 0.21881838074398252,
-          "student_noisy_advantage": 0.0897155361050328,
-          "student_drop_advantage": 0.1816192560175054
+          "rule_noisy_target_recall": 0.5276598805841306,
+          "rule_drop": 0.4723401194158694,
+          "student_clean_target_recall": 0.9124523415581612,
+          "student_noisy_target_recall": 0.5821163945039926,
+          "student_drop": 0.3303359470541687,
+          "student_noisy_advantage": 0.05445651391986188,
+          "student_noisy_advantage_ci95": [
+            0.046718204304692666,
+            0.061889298654193306
+          ],
+          "student_drop_advantage": 0.1420041723617006,
+          "student_drop_advantage_ci95": [
+            0.13593465045040945,
+            0.14845174032333572
+          ]
         }
       ],
       "summary": {
@@ -336,34 +370,42 @@
           "sample_std": 0.0
         },
         "rule_noisy_target_recall": {
-          "mean": 0.5995623632385121,
+          "mean": 0.5276598805841306,
           "sample_std": 0.0
         },
         "rule_drop": {
-          "mean": 0.4004376367614879,
+          "mean": 0.4723401194158694,
           "sample_std": 0.0
         },
         "student_clean_target_recall": {
-          "mean": 0.9008023340627279,
-          "sample_std": 0.006316742551308849
+          "mean": 0.9053785099393329,
+          "sample_std": 0.007641733887261234
         },
         "student_noisy_target_recall": {
-          "mean": 0.6805251641137856,
-          "sample_std": 0.007580091061570593
+          "mean": 0.5733640265688319,
+          "sample_std": 0.008045511867159533
         },
         "student_drop": {
-          "mean": 0.2202771699489424,
-          "sample_std": 0.0012633485102617442
+          "mean": 0.33201448337050093,
+          "sample_std": 0.0023688379984682303
         },
         "student_noisy_advantage": {
-          "mean": 0.08096280087527348,
-          "sample_std": 0.007580091061570593
+          "mean": 0.04570414598470134,
+          "sample_std": 0.008045511867159493
         },
         "student_drop_advantage": {
-          "mean": 0.18016046681254552,
-          "sample_std": 0.0012633485102617442
+          "mean": 0.14032563604536843,
+          "sample_std": 0.0023688379984681852
         }
       }
+    },
+    "full_eval": {
+      "validation_examples": 4997,
+      "test_examples": 4997,
+      "unseen_target_pairs": 13901,
+      "unique_source_examples": 4866,
+      "threshold_selection": "full validation split",
+      "bootstrap_unit": "source-cluster bootstrap; all perturbations from one source sentence stay together"
     }
   }
 }

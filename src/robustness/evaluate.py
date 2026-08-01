@@ -17,7 +17,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 from medical_common import word_offsets  # noqa: E402
 from train import RedactionModel  # noqa: E402
-from v14_rule_adapter import V14RuleAdapter, read_jsonl  # noqa: E402
+from v14_rule_adapter import V14RuleAdapter, read_jsonl, write_jsonl  # noqa: E402
 
 
 def metric(gold: list[int], predicted: list[int]) -> dict:
@@ -76,6 +76,100 @@ def target_detected(
     )
 
 
+
+
+
+def detection_flags(
+    pairs: list[dict], predictions: list[list[int]], clean: bool
+) -> np.ndarray:
+    return np.asarray(
+        [
+            target_detected(
+                row["clean_text"] if clean else row["text"],
+                row["clean_words"] if clean else row["words"],
+                row["clean_labels"] if clean else row["labels"],
+                predicted,
+                row["clean_target"] if clean else row["noisy_target"],
+            )
+            for row, predicted in zip(pairs, predictions)
+        ],
+        dtype=np.float64,
+    )
+
+
+def cluster_bootstrap_indices(
+    pairs: list[dict], rng: np.random.Generator
+) -> np.ndarray:
+    """Resample source sentences, keeping all perturbations of each source."""
+    by_source: dict[str, list[int]] = defaultdict(list)
+    for index, row in enumerate(pairs):
+        by_source[row["source_id"]].append(index)
+    clusters = list(by_source.values())
+    chosen = rng.integers(0, len(clusters), size=len(clusters))
+    return np.asarray(
+        [index for cluster in chosen for index in clusters[cluster]],
+        dtype=np.int64,
+    )
+
+
+def absolute_target_robustness(
+    pairs: list[dict],
+    rule_clean: list[list[int]],
+    rule_noisy: list[list[int]],
+    student_clean: list[list[int]],
+    student_noisy: list[list[int]],
+    repeats: int,
+    seed: int,
+) -> dict:
+    """Compare both systems on every fixed clean-rule target."""
+    rule_clean_values = detection_flags(pairs, rule_clean, True)
+    rule_noisy_values = detection_flags(pairs, rule_noisy, False)
+    student_clean_values = detection_flags(pairs, student_clean, True)
+    student_noisy_values = detection_flags(pairs, student_noisy, False)
+    noisy_delta = student_noisy_values - rule_noisy_values
+    drop_advantage = (
+        rule_clean_values
+        - rule_noisy_values
+        - student_clean_values
+        + student_noisy_values
+    )
+    rng = np.random.default_rng(seed)
+    noisy_bootstrap = np.empty(repeats, dtype=np.float64)
+    drop_bootstrap = np.empty(repeats, dtype=np.float64)
+    for repeat in range(repeats):
+        indices = cluster_bootstrap_indices(pairs, rng)
+        noisy_bootstrap[repeat] = float(np.mean(noisy_delta[indices]))
+        drop_bootstrap[repeat] = float(np.mean(drop_advantage[indices]))
+    noisy_ci = np.percentile(noisy_bootstrap, [2.5, 97.5])
+    drop_ci = np.percentile(drop_bootstrap, [2.5, 97.5])
+    return {
+        "target_pairs": len(pairs),
+        "unique_source_rows": len({row["source_id"] for row in pairs}),
+        "rule_clean_target_detection": float(np.mean(rule_clean_values)),
+        "rule_noisy_target_detection": float(np.mean(rule_noisy_values)),
+        "rule_detection_drop": float(
+            np.mean(rule_clean_values) - np.mean(rule_noisy_values)
+        ),
+        "student_clean_target_detection": float(np.mean(student_clean_values)),
+        "student_noisy_target_detection": float(np.mean(student_noisy_values)),
+        "student_detection_drop": float(
+            np.mean(student_clean_values) - np.mean(student_noisy_values)
+        ),
+        "student_minus_rule_noisy": float(np.mean(noisy_delta)),
+        "student_minus_rule_noisy_ci95": [
+            float(noisy_ci[0]),
+            float(noisy_ci[1]),
+        ],
+        "student_drop_advantage": float(np.mean(drop_advantage)),
+        "student_drop_advantage_ci95": [
+            float(drop_ci[0]),
+            float(drop_ci[1]),
+        ],
+        "repeats": repeats,
+        "unit": "source-cluster bootstrap over fixed target pairs",
+    }
+
+
 class StudentPredictor:
     def __init__(
         self,
@@ -119,32 +213,48 @@ class StudentPredictor:
             threshold = evaluation["budget_matched"]["test"]["threshold"]
         self.threshold = float(threshold)
 
-    def predict(self, words: list[str]) -> list[int]:
-        encoded = self.tokenizer(
-            words,
-            is_split_into_words=True,
-            truncation=True,
-            max_length=self.config["max_length"],
-            return_tensors="pt",
-        )
-        word_ids = encoded.word_ids(batch_index=0)
-        with torch.no_grad():
-            logits = self.model(
-                **{
-                    key: value.to(self.device)
-                    for key, value in encoded.items()
-                }
+    def predict_many(
+        self, rows: list[list[str]], batch_size: int = 128
+    ) -> list[list[int]]:
+        predictions = []
+        for start in range(0, len(rows), batch_size):
+            batch = rows[start : start + batch_size]
+            encoded = self.tokenizer(
+                batch,
+                is_split_into_words=True,
+                padding=True,
+                truncation=True,
+                max_length=self.config["max_length"],
+                return_tensors="pt",
             )
-        scores = logits.softmax(-1)[0, :, 1].cpu().numpy()
-        output = [0] * len(words)
-        seen = set()
-        for token_index, word_id in enumerate(word_ids):
-            if word_id is None or word_id in seen:
-                continue
-            seen.add(word_id)
-            if word_id < len(output):
-                output[word_id] = int(scores[token_index] >= self.threshold)
-        return output
+            word_ids = [
+                encoded.word_ids(batch_index=index)
+                for index in range(len(batch))
+            ]
+            with torch.no_grad():
+                logits = self.model(
+                    **{
+                        key: value.to(self.device)
+                        for key, value in encoded.items()
+                    }
+                )
+            scores = logits.softmax(-1)[:, :, 1].cpu().numpy()
+            for batch_index, words in enumerate(batch):
+                output = [0] * len(words)
+                seen = set()
+                for token_index, word_id in enumerate(word_ids[batch_index]):
+                    if word_id is None or word_id in seen:
+                        continue
+                    seen.add(word_id)
+                    if word_id < len(output):
+                        output[word_id] = int(
+                            scores[batch_index, token_index] >= self.threshold
+                        )
+                predictions.append(output)
+        return predictions
+
+    def predict(self, words: list[str]) -> list[int]:
+        return self.predict_many([words], batch_size=1)[0]
 
 
 def evaluate_system(
@@ -220,22 +330,10 @@ def shared_target_robustness(
     repeats: int,
     seed: int,
 ) -> dict:
-    def flags(predictions: list[list[int]], clean: bool) -> list[bool]:
-        return [
-            target_detected(
-                row["clean_text"] if clean else row["text"],
-                row["clean_words"] if clean else row["words"],
-                row["clean_labels"] if clean else row["labels"],
-                predicted,
-                row["clean_target"] if clean else row["noisy_target"],
-            )
-            for row, predicted in zip(pairs, predictions)
-        ]
-
-    rule_clean_flags = flags(rule_clean, True)
-    student_clean_flags = flags(student_clean, True)
-    rule_noisy_flags = flags(rule_noisy, False)
-    student_noisy_flags = flags(student_noisy, False)
+    rule_clean_flags = detection_flags(pairs, rule_clean, True)
+    student_clean_flags = detection_flags(pairs, student_clean, True)
+    rule_noisy_flags = detection_flags(pairs, rule_noisy, False)
+    student_noisy_flags = detection_flags(pairs, student_noisy, False)
     eligible = [
         index
         for index, (rule_ok, student_ok) in enumerate(
@@ -264,8 +362,9 @@ def shared_target_robustness(
     differences = student_values - rule_values
     rng = np.random.default_rng(seed)
     bootstrap = np.empty(repeats, dtype=np.float64)
+    eligible_pairs = [pairs[index] for index in eligible]
     for repeat in range(repeats):
-        indices = rng.integers(0, len(eligible), size=len(eligible))
+        indices = cluster_bootstrap_indices(eligible_pairs, rng)
         bootstrap[repeat] = float(np.mean(differences[indices]))
     low, high = np.percentile(bootstrap, [2.5, 97.5])
     return {
@@ -275,7 +374,7 @@ def shared_target_robustness(
         "student_minus_rule": float(np.mean(differences)),
         "ci95": [float(low), float(high)],
         "repeats": repeats,
-        "unit": "shared clean-correct target span",
+        "unit": "source-cluster bootstrap over shared clean-correct targets",
     }
 def shared_target_by_noise(
     pairs: list[dict],
@@ -342,7 +441,7 @@ def bootstrap_delta(
     student_counts = pair_counts(student_predictions)
     deltas = []
     for _ in range(repeats):
-        indices = rng.integers(0, len(pairs), size=len(pairs))
+        indices = cluster_bootstrap_indices(pairs, rng)
         deltas.append(
             f2_from_counts(student_counts[indices])
             - f2_from_counts(rule_counts[indices])
@@ -353,7 +452,7 @@ def bootstrap_delta(
         "mean": float(np.mean(deltas)),
         "ci95": [float(low), float(high)],
         "repeats": repeats,
-        "unit": "paired sentence",
+        "unit": "source-clustered paired sentence",
     }
 
 
@@ -381,6 +480,11 @@ def acceptance(result: dict) -> dict:
     conditional_win = (
         shared["ci95"][0] > 0 and shared["student_minus_rule"] >= 0.05
     )
+    absolute = result["absolute_target_robustness"]
+    absolute_win = (
+        absolute["student_minus_rule_noisy_ci95"][0] > 0
+        and absolute["student_drop_advantage_ci95"][0] > 0
+    )
     return {
         "final_student_quality_gate": {
             "pass": final_quality,
@@ -396,6 +500,26 @@ def acceptance(result: dict) -> dict:
             "criteria": (
                 "noisy F2 higher, newly leaked span rate lower, and paired "
                 "bootstrap 95% CI for delta F2 entirely above zero"
+            ),
+        },
+        "absolute_target_robustness_gate": {
+            "pass": absolute_win,
+            "student_minus_rule_noisy": absolute[
+                "student_minus_rule_noisy"
+            ],
+            "student_minus_rule_noisy_ci95": absolute[
+                "student_minus_rule_noisy_ci95"
+            ],
+            "student_drop_advantage": absolute[
+                "student_drop_advantage"
+            ],
+            "student_drop_advantage_ci95": absolute[
+                "student_drop_advantage_ci95"
+            ],
+            "criteria": (
+                "on all fixed clean-rule targets, both noisy detection "
+                "advantage and smaller-drop advantage have source-cluster "
+                "95% CIs entirely above zero"
             ),
         },
         "conditional_surface_robustness_gate": {
@@ -458,6 +582,35 @@ def render_markdown(result: dict) -> str:
             + " | ".join(f"{value:.3f}" for value in values)
             + " |"
         )
+    absolute = result["absolute_target_robustness"]
+    lines.extend(
+        [
+            "",
+            "## 전체 고정 target 비교",
+            "",
+            "| 분모 | 규칙 clean | 규칙 noisy | Student clean | Student noisy | Noisy 차이 | 하락폭 이점 |",
+            "|---:|---:|---:|---:|---:|---:|---:|",
+            (
+                f"| {absolute['target_pairs']} pair / "
+                f"{absolute['unique_source_rows']} 원문 | "
+                f"{absolute['rule_clean_target_detection']:.3f} | "
+                f"{absolute['rule_noisy_target_detection']:.3f} | "
+                f"{absolute['student_clean_target_detection']:.3f} | "
+                f"{absolute['student_noisy_target_detection']:.3f} | "
+                f"{absolute['student_minus_rule_noisy']:+.3f} | "
+                f"{absolute['student_drop_advantage']:+.3f} |"
+            ),
+            "",
+            (
+                "Noisy 차이 95% CI: "
+                f"[{absolute['student_minus_rule_noisy_ci95'][0]:+.3f}, "
+                f"{absolute['student_minus_rule_noisy_ci95'][1]:+.3f}]. "
+                "하락폭 이점 95% CI: "
+                f"[{absolute['student_drop_advantage_ci95'][0]:+.3f}, "
+                f"{absolute['student_drop_advantage_ci95'][1]:+.3f}]."
+            ),
+        ]
+    )
     shared = result["shared_clean_target_robustness"]
     lines.extend(
         [
@@ -522,6 +675,11 @@ def main() -> None:
         default="all",
     )
     parser.add_argument("--bootstrap-repeats", type=int, default=2000)
+    parser.add_argument("--student-batch-size", type=int, default=128)
+    parser.add_argument(
+        "--rule-cache",
+        help="Optional JSONL cache for rule predictions keyed by pair_id",
+    )
     parser.add_argument("--seed", type=int, default=42)
     args = parser.parse_args()
 
@@ -536,33 +694,78 @@ def main() -> None:
     student = StudentPredictor(
         args.model_dir, args.device, args.threshold
     )
-    rule = V14RuleAdapter(
-        args.masker,
-        args.task,
-        args.redactformer_root,
+    cached_rule = {}
+    if args.rule_cache and Path(args.rule_cache).exists():
+        cached_rule = {
+            row["pair_id"]: row["labels"]
+            for row in read_jsonl(args.rule_cache)
+        }
+        print(
+            f"loaded {len(cached_rule)} cached rule predictions",
+            flush=True,
+        )
+    missing_rule = [
+        row for row in pairs if row["pair_id"] not in cached_rule
+    ]
+    rule = None
+    if missing_rule:
+        rule = V14RuleAdapter(
+            args.masker,
+            args.task,
+            args.redactformer_root,
+        )
+
+    clean_by_source = {}
+    for row in pairs:
+        clean_by_source.setdefault(row["source_id"], row["clean_words"])
+    source_ids = list(clean_by_source)
+    clean_values = student.predict_many(
+        [clean_by_source[source_id] for source_id in source_ids],
+        batch_size=args.student_batch_size,
+    )
+    clean_cache = dict(zip(source_ids, clean_values))
+    student_clean = [clean_cache[row["source_id"]] for row in pairs]
+    student_noisy = student.predict_many(
+        [row["words"] for row in pairs],
+        batch_size=args.student_batch_size,
+    )
+    print(
+        f"student predicted {len(source_ids)} clean sources and "
+        f"{len(pairs)} noisy pairs",
+        flush=True,
     )
 
-    student_clean = []
-    student_noisy = []
-    rule_clean = []
+    rule_clean = [row["clean_labels"] for row in pairs]
     rule_noisy = []
-    clean_cache = {}
     for index, row in enumerate(pairs, start=1):
-        if row["source_id"] not in clean_cache:
-            clean_cache[row["source_id"]] = student.predict(
-                row["clean_words"]
-            )
-        student_clean.append(clean_cache[row["source_id"]])
-        student_noisy.append(student.predict(row["words"]))
-        rule_clean.append(row["clean_labels"])
-        rule_noisy.append(rule.predict(row["text"]).labels)
-        if index % 100 == 0 or index == len(pairs):
-            print(f"[{index}/{len(pairs)}] evaluated", flush=True)
+        if row["pair_id"] in cached_rule:
+            labels = cached_rule[row["pair_id"]]
+        else:
+            labels = rule.predict(row["text"]).labels
+            cached_rule[row["pair_id"]] = labels
+        rule_noisy.append(labels)
+        if index % 1000 == 0 or index == len(pairs):
+            print(f"[{index}/{len(pairs)}] rule predictions ready", flush=True)
+
+    if args.rule_cache:
+        write_jsonl(
+            args.rule_cache,
+            [
+                {"pair_id": row["pair_id"], "labels": cached_rule[row["pair_id"]]}
+                for row in pairs
+            ],
+        )
+    rule_policy = (
+        rule.policy_id
+        if rule is not None
+        else pairs[0].get("teacher_policy", "cached-rule")
+    )
 
     result = {
         "pairs": len(pairs),
+        "unique_source_rows": len({row["source_id"] for row in pairs}),
         "noise_group": args.noise_group,
-        "rule_policy": rule.policy_id,
+        "rule_policy": rule_policy,
         "student_model_dir": str(Path(args.model_dir)),
         "student_threshold": student.threshold,
         "rule_v1_4": evaluate_system(
@@ -570,6 +773,15 @@ def main() -> None:
         ),
         "student": evaluate_system(
             pairs, student_clean, student_noisy
+        ),
+        "absolute_target_robustness": absolute_target_robustness(
+            pairs,
+            rule_clean,
+            rule_noisy,
+            student_clean,
+            student_noisy,
+            args.bootstrap_repeats,
+            args.seed,
         ),
         "paired_bootstrap": bootstrap_delta(
             pairs,

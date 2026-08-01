@@ -8,9 +8,13 @@ from build_pairs import (  # noqa: E402
     apostrophe_variant,
     dosage_variant,
     labels_from_char_mask,
+    limit_reached,
     space_variant,
 )
-from evaluate import shared_target_robustness  # noqa: E402
+from evaluate import (  # noqa: E402
+    absolute_target_robustness,
+    shared_target_robustness,
+)
 
 
 def row(text, words, labels):
@@ -73,8 +77,16 @@ def test_c1_training_transform_uses_one_control_character():
     assert len(variant.text) == len(source["text"])
 
 
+def test_zero_per_noise_means_unlimited():
+    assert not limit_reached(0, 0)
+    assert not limit_reached(10_000, 0)
+    assert not limit_reached(2, 3)
+    assert limit_reached(3, 3)
+
+
 def test_shared_clean_correct_span_survival_is_paired():
     pair = {
+        "source_id": "x",
         "clean_text": "Andrew chart",
         "clean_words": ["Andrew", "chart"],
         "clean_labels": [1, 0],
@@ -98,3 +110,38 @@ def test_shared_clean_correct_span_survival_is_paired():
     assert result["student_span_survival_rate"] == 1.0
     assert result["student_minus_rule"] == 1.0
     assert result["ci95"] == [1.0, 1.0]
+
+
+
+def test_absolute_target_robustness_uses_all_fixed_targets():
+    pairs = []
+    for source_id in ["a", "a", "b"]:
+        pairs.append(
+            {
+                "source_id": source_id,
+                "clean_text": "Andrew chart",
+                "clean_words": ["Andrew", "chart"],
+                "clean_labels": [1, 0],
+                "clean_target": [0, 6],
+                "text": "Andrew chart",
+                "words": ["Andrew", "chart"],
+                "labels": [1, 0],
+                "noisy_target": [0, 6],
+            }
+        )
+    result = absolute_target_robustness(
+        pairs,
+        rule_clean=[[1, 0], [1, 0], [1, 0]],
+        rule_noisy=[[0, 0], [0, 0], [1, 0]],
+        student_clean=[[1, 0], [1, 0], [0, 0]],
+        student_noisy=[[1, 0], [0, 0], [1, 0]],
+        repeats=20,
+        seed=42,
+    )
+    assert result["target_pairs"] == 3
+    assert result["unique_source_rows"] == 2
+    assert result["rule_clean_target_detection"] == 1.0
+    assert result["rule_noisy_target_detection"] == 1 / 3
+    assert result["student_clean_target_detection"] == 2 / 3
+    assert result["student_noisy_target_detection"] == 2 / 3
+    assert result["student_minus_rule_noisy"] == 1 / 3

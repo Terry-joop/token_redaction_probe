@@ -6,10 +6,11 @@
 
 - 최신 MASKING_FRAMEWORK.md v1.4의 의료 구현(medterm5)으로 train 39,980문장을 다시 라벨링했다.
 - clean 39,980문장에 문서화된 seen 교란 30,591문장을 더해 총 70,571행으로 학습했다.
-- 동일 마스킹 예산의 held-out clean 3-seed 평균은 Precision 0.919, Recall 0.923, F1 0.921, F2 0.922다.
-- Clean 규칙의 전체 target 457개를 동일 분모로 두면 오염 후 정확한 span 탐지율은 Student 68.1%, 규칙 60.0%다. clean→오염 하락은 Student 22.0%p, 규칙 40.0%p다.
-- 457개 미관측 교란쌍의 전체-token F2는 Student 0.882±0.0049, 규칙 v1.4 0.941로 token 단위 절대 성능은 규칙이 높다.
-- 규칙과 Student가 clean에서 모두 맞힌 공통 span만 보는 보조 분석에서는 Student 생존율 73.9%, 규칙 59.5%, 차이 +14.4%p였다.
+- 전체 validation 4,997문장에서 threshold를 선택하고 전체 test 4,997문장에 적용한 clean 3-seed 평균은 Precision 0.923, Recall 0.926, F1 0.924, F2 0.925다.
+- 전체 test에서 만들 수 있는 unseen target-pair는 13,901개이며 고유 원문은 4,866개다.
+- 이 전체 target을 동일 분모로 두면 오염 후 정확한 span 탐지율은 Student 57.3%, 규칙 52.8%다. clean→오염 하락은 Student 33.2%p, 규칙 47.2%p다.
+- 세 seed의 오염 후 Student−규칙 차이는 +3.9~+5.4%p였고, 원문 단위 cluster bootstrap 95% CI가 모두 0보다 컸다.
+- 전체-token noisy F2는 Student 0.874, 규칙 v1.4 0.927로 token 단위 절대 성능은 여전히 규칙이 높다.
 - 따라서 현재 근거가 지지하는 주장은 “규칙 전체를 능가한다”가 아니라, **규칙의 표면 이음매 실패를 보완하거나 장기적으로 일부 대체할 수 있는 학습형 redactor**다.
 
 ## 초기 5k 비교에서 무엇을 사용했는가
@@ -41,8 +42,10 @@ RedactFormer 기준 커밋은 `39b56279c6c58fdc6732df8d5ee98868e323d344`이며, 
 
 - 문서화된 계열: 이중 공백, 곱슬/C1 아포스트로피, `25 mg→25mg`, 숫자 뒤 쉼표
 - 미관측 변형: 삼중 공백, NBSP, modifier apostrophe, `25-mg`, thin space, 세미콜론, 단어 내부 zero-width 문자
-- Drug 711쌍, BIOS 900쌍
-- Drug의 아포스트로피 17쌍과 dosage 계열 20쌍은 표본이 작아 탐색 결과로만 해석한다.
+- 초기 제한 실험: Drug 711쌍, BIOS 900쌍
+- 최종 전체 Drug unseen 평가: 13,901 target-pair, 4,866개 고유 원문
+- 전체 Drug의 unseen 유형별 수: triple space 3,704, NBSP 3,704, modifier apostrophe 91, dosage hyphen 124, dosage thin space 124, 세미콜론 1,304, zero-width 4,850
+- 아포스트로피와 dosage 계열은 전체 평가에서도 상대적으로 표본이 작아 유형별 결론은 주의한다.
 
 사람이 noisy 문장을 다시 라벨링하지 않은 이유는 의미와 민감 span을 바꾸지 않는 결정적 표면 편집만 사용하고, clean 라벨을 문자 좌표로 그대로 전달했기 때문이다.
 
@@ -88,44 +91,70 @@ paired sentence bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 다음�
 
 ## 전체 데이터 및 증강 ablation
 
-메인 확장 실험은 Drug Reviews 1개 데이터셋에만 수행했다. 원본은 49,974문장이고, clean train 39,980문장에 seen-noise 30,591행을 추가한 최종 학습 입력은 70,571행이다. validation 500문장과 test 1,000문장은 모든 조건에서 고정했고, threshold는 validation에서 선택한 뒤 test에 한 번 적용했다. 학습에는 이중 공백·C1/곱슬 아포스트로피·25mg·숫자 뒤 쉼표 같은 seen 변형만 넣었다. 평가는 삼중 공백·NBSP·modifier apostrophe·25-mg·thin space·세미콜론·zero-width 문자로 구성된 457개 unseen 쌍만 사용했다.
+최종 확장 실험은 Drug Reviews 1개 데이터셋에 수행했다. 원본 49,974문장을
+train 39,980 / validation 4,997 / test 4,997로 나누고, clean train에 seen-noise
+30,591행을 추가해 총 70,571행으로 학습했다. threshold는 전체 validation에서
+선택한 뒤 전체 test에 한 번 적용했다.
 
-### 메인: clean 규칙 전체 target 457개 동일 분모
+전체 test의 모든 문장을 훑어 unseen 변형을 적용할 수 있는 경우를 제한 없이 생성했다.
+그 결과 target-pair는 13,901개, 고유 원문은 4,866개였다. 한 원문에 여러 오염이
+적용될 수 있으므로 pair 수가 고유 원문 수보다 크다. 신뢰구간은 pair를 독립 표본으로
+취급하지 않고 같은 source_id의 모든 변형을 묶는 원문-cluster bootstrap 2,000회로
+계산했다.
+
+### 메인: clean 규칙 전체 target 13,901개 동일 분모
 
 | 방식 | 분모 | Clean 정확 span 탐지율 | 오염 후 정확 span 탐지율 | Clean→오염 하락 | 오염 후 Student−규칙 |
 |---|---:|---:|---:|---:|---:|
-| 규칙 v1.4 | 457 | 100.0% | 60.0% | −40.0%p | — |
-| 전체+증강 Student, 3-seed 평균 | 457 | 90.1% | **68.1%** | −22.0%p | **+8.1%p** |
+| 규칙 v1.4 | 13,901 | 100.0% | 52.8% | −47.2%p | — |
+| 전체+증강 Student, 3-seed 평균 | 13,901 | 90.5%±0.8%p | **57.3%±0.8%p** | −33.2%±0.2%p | **+4.6%±0.8%p** |
 
-정확한 target span 전체를 가렸을 때만 성공으로 계산했다. Student는 규칙보다 18.0%p 덜 하락했고, 오염 후 절대 target 탐지율도 8.1%p 높았다. 아래 공통-span 표와 달리 Student가 clean에서 놓친 target도 분모에서 제외하지 않는다.
+정확한 target span 전체를 가렸을 때만 성공으로 계산했다. Student는 규칙보다
+14.0%p 덜 하락했고, 오염 후 절대 target 탐지율도 4.6%p 높았다. Student가 clean에서
+놓친 target도 분모에서 제외하지 않았다.
 
-### 보조: 데이터 규모·증강 ablation과 공통 clean-correct span
+### Seed별 원문-cluster 신뢰구간
 
-| 조건(seed 42) | 실제 학습 행 | Clean P | Clean R | Clean F1 | Clean F2 | Student mask | Unseen F2 | 공통 span | 조건부 규칙 생존 | 조건부 Student 생존 | 조건부 차이 (95% CI) |
-|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| 5k clean | 5,000 | 0.867 | 0.863 | 0.865 | 0.864 | 10.32% | 0.835 | 388 | 59.3% | 70.1% | +10.8%p [+7.0, +14.7] |
-| 5k + seen-noise | 8,831 | 0.879 | 0.882 | 0.880 | 0.881 | 10.39% | 0.856 | 396 | 60.6% | 75.3% | +14.6%p [+11.1, +18.4] |
-| 39,980 clean | 39,980 | 0.902 | 0.908 | 0.905 | 0.907 | 10.43% | 0.874 | 413 | 60.0% | 72.2% | +12.1%p [+8.5, +15.7] |
-| 39,980 + seen-noise | 70,571 | 0.917 | 0.926 | 0.921 | 0.924 | 10.46% | 0.887 | 410 | 60.0% | 74.4% | +14.4%p [+11.0, +18.0] |
+| Seed | Student clean | Student noisy | Noisy Student−Rule (95% CI) | 하락폭 이점 (95% CI) |
+|---:|---:|---:|---:|---:|
+| 42 | 90.6% | 57.2% | +4.4%p [+3.6, +5.2] | +13.8%p [+13.2, +14.4] |
+| 43 | 89.7% | 56.6% | +3.9%p [+3.1, +4.6] | +14.1%p [+13.5, +14.7] |
+| 44 | 91.2% | 58.2% | +5.4%p [+4.7, +6.2] | +14.2%p [+13.6, +14.8] |
 
-Teacher clean mask는 10.36%다. 실제 학습 행은 증강 조건에서 clean과 오염 행을 합친 값이다.
+세 seed 모두 오염 후 절대 탐지율 차이의 95% CI가 0보다 컸다. 따라서 이 데이터와
+주입한 표면 결함 범위에서는 Student가 규칙보다 덜 흔들린다는 근거가 있다.
 
-데이터 확대는 clean F2를 0.864에서 0.907로, unseen F2를 0.835에서 0.874로 올렸다. 전체 데이터에 seen-noise를 더하면 clean F2 0.924, unseen F2 0.887로 다시 개선됐다. 다만 공통 span 분모는 Student가 clean에서 맞힌 대상에 따라 조건별로 다르므로, 70.1%와 75.3% 같은 조건 간 생존율을 직접 유의성 검정한 것으로 해석하지 않는다. 각 행 내부의 Student−규칙 paired 차이가 주 검정이다.
+### 전체 clean 및 noisy token 성능
 
-### 전체+증강 3-seed 반복
-
-| 지표 | 평균 | 표본 표준편차 |
+| 지표 | Student 3-seed 평균 | 규칙 |
 |---|---:|---:|
-| Clean Precision | 0.919 | 0.0021 |
-| Clean Recall | 0.923 | 0.0026 |
-| Clean F1 | 0.921 | 0.0004 |
-| Clean F2 | 0.922 | 0.0017 |
-| Unseen noisy F2 | 0.882 | 0.0049 |
-| 규칙 공통-span 생존율 | 59.5% | 0.4%p |
-| Student 공통-span 생존율 | 73.9% | 0.7%p |
-| Student−규칙 생존율 차이 | +14.4%p | 0.5%p |
+| 전체 clean Precision | 0.923 | — |
+| 전체 clean Recall | 0.926 | 1.000* |
+| 전체 clean F1 | 0.924 | 1.000* |
+| 전체 clean F2 | 0.925 | 1.000* |
+| Unseen noisy token F2 | 0.874 | 0.927 |
 
-공통-span 차이의 개별 paired 95% CI는 seed 42 [+11.0,+18.0], seed 43 [+10.2,+17.8], seed 44 [+11.3,+18.6]%p로 모두 0보다 컸다.
+규칙의 clean 1.000은 규칙이 만든 pseudo-gold와 규칙 자신을 비교한 정의상 값이지
+human-gold 개인정보 정확도가 아니다. Student가 target-span 강건성에서는 앞섰지만
+전체 noisy token F2는 규칙보다 낮으므로 완전 대체 우월성은 성립하지 않는다.
+
+### 이전 제한본 ablation
+
+최종 조건을 고르는 과정에서는 validation 500 / test 1,000 및 unseen 457-pair 제한본을
+사용했다. 이 표는 데이터 확대와 증강의 방향성을 비교한 참고 ablation이며, 최종 수치의
+분모는 위 13,901-pair 전체 평가다.
+
+| 조건(seed 42) | 학습 행 | Clean F2 | Unseen F2 | 조건부 Student−규칙 생존 차이 |
+|---|---:|---:|---:|---:|
+| 5k clean | 5,000 | 0.864 | 0.835 | +10.8%p |
+| 5k + seen-noise | 8,831 | 0.881 | 0.856 | +14.6%p |
+| 39,980 clean | 39,980 | 0.907 | 0.874 | +12.1%p |
+| 39,980 + seen-noise | 70,571 | 0.924 | 0.887 | +14.4%p |
+
+데이터 확대와 seen-noise 증강이 모두 성능을 높였기 때문에 마지막 조건을 최종 모델로
+선택했다. 하지만 제한본의 74.4% 같은 조건부 생존율을 전체 결과 57.3%와 직접 비교하면
+안 된다. 전자는 Student도 clean에서 맞힌 410개만 분모이고, 후자는 전체 clean-rule
+target 13,901개를 고정 분모로 사용한다.
 
 ## 합격선
 

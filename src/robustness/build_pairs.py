@@ -261,6 +261,11 @@ def labels_from_char_mask(text: str, char_mask: list[int]):
     return words, offsets, labels
 
 
+def limit_reached(count: int, per_noise: int) -> bool:
+    """Treat zero as an unlimited per-noise cap."""
+    return per_noise > 0 and count >= per_noise
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build paired clean/noisy robustness cases"
@@ -283,7 +288,7 @@ def main() -> None:
     for noise_name, group, transform in TRANSFORMS:
         count = 0
         for row in rows:
-            if count >= args.per_noise:
+            if limit_reached(count, args.per_noise):
                 break
             variant = transform(row)
             if variant is None:
@@ -321,6 +326,7 @@ def main() -> None:
         "inputs": args.input,
         "output": args.output,
         "pairs": len(pairs),
+        "unique_source_rows": len({row["source_id"] for row in pairs}),
         "per_noise_requested": args.per_noise,
         "counts": counts,
         "note": (

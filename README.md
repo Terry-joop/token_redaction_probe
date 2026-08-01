@@ -8,10 +8,12 @@ RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student red
 
 최신 확장 실험은 Drug Reviews 1개 데이터셋으로 진행했다. 원본 49,974문장 중 clean train
 39,980문장을 사용하고 seen-noise 30,591행을 추가해 최종 학습 입력은 70,571행이다.
-Clean 규칙의 전체 미관측 target 457개를 같은 분모로 두면 오염 후 정확한 span 탐지율은
-Student 68.1%, 규칙 60.0%였고, clean→오염 하락은 Student 22.0%p, 규칙 40.0%p였다.
-다만 전체 noisy token F2는 Student 0.882, 규칙 0.941이므로 완전 대체가 아닌 규칙 보완 후보이다.
-상세 설계와 신뢰구간은 ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
+Validation 4,997문장과 test 4,997문장을 모두 사용했고, 전체 test에서 생성 가능한 미관측
+오염 target-pair 13,901개(고유 원문 4,866개)를 평가했다. 같은 분모에서 오염 후 정확한
+span 탐지율은 Student 3-seed 평균 57.3%, 규칙 52.8%였고, clean→오염 하락은 Student
+33.2%p, 규칙 47.2%p였다. 다만 전체 noisy token F2는 Student 0.874, 규칙 0.927이므로
+완전 대체가 아닌 규칙 보완 후보이다. 상세 설계와 원문-cluster 신뢰구간은
+ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
 
 
 ## 결과 대시보드
