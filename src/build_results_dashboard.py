@@ -148,30 +148,61 @@ def robustness_table():
    f"<td>{run['survival_delta']*100:+.1f}%p<span class='task'>[{ci[0]*100:+.1f}, {ci[1]*100:+.1f}]</span></td></tr>"
   )
  group_counts={}
+ operating_rows=[]
+ all_models=[]
  for item in source['datasets'].values():
-  group_counts[item['group']]=group_counts.get(item['group'],0)+1
+  group_counts[item['group']]=group_counts.get(item['group'],0)+1+len(item['models'])
+  all_models.extend(item['models'].values())
  seen_groups=set()
  for item in source['datasets'].values():
-  rule=item['rule']; student=item['student_result']; ci=item['bootstrap_delta_f2']['ci95']
-  group=item['group']; group_cell=''
+  rule=item['rule']; group=item['group']; group_cell=''
+  row_count=1+len(item['models'])
   if group not in seen_groups:
    css_group='medical' if group=='medical' else 'pii'
-   group_cell=f"<td rowspan='{group_counts[group]*2}' class='meta merge'><span class='pill g-{css_group}'>{item['group_name']}</span></td>"
+   group_cell=f"<td rowspan='{group_counts[group]}' class='meta merge'><span class='pill g-{css_group}'>{item['group_name']}</span></td>"
    seen_groups.add(group)
   split=item['splits']
+  dataset_cell=f"<td rowspan='{row_count}' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['teacher']} · {split['train']:,}/{split['validation']:,}/{split['test']:,} · {item['pairs']:,}쌍</span></td>"
   rows.append(
-   f"<tr>{group_cell}<td rowspan='2' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['teacher']} · {split['train']:,}/{split['validation']:,}/{split['test']:,} · {item['pairs']:,}쌍</span></td>"
-   f"<td class='left meta dataset'>규칙 v1.4</td><td>{rule['clean_f2']:.3f}</td><td>{rule['noisy_precision']:.3f}</td><td>{rule['noisy_recall']:.3f}</td><td>{rule['noisy_f1']:.3f}</td><td>{rule['noisy_f2']:.3f}</td><td>{rule['f2_drop']:.3f}</td><td>{rule['noisy_mask_rate']*100:.2f}%</td><td>{rule['newly_leaked_span_rate']*100:.2f}%</td><td rowspan='2'>{item['bootstrap_delta_f2']['mean']:.3f}<span class='task'>[{ci[0]:.3f}, {ci[1]:.3f}]</span></td></tr>"
-   f"<tr><td class='left meta dataset'>ELECTRA-small</td><td>{student['clean_f2']:.3f}</td><td>{student['noisy_precision']:.3f}</td><td>{student['noisy_recall']:.3f}</td><td>{student['noisy_f1']:.3f}</td><td>{student['noisy_f2']:.3f}</td><td>{student['f2_drop']:.3f}</td><td>{student['noisy_mask_rate']*100:.2f}%</td><td>{student['newly_leaked_span_rate']*100:.2f}%*</td></tr>"
+   f"<tr>{group_cell}{dataset_cell}<td class='left meta dataset'>규칙 v1.4</td><td>—</td><td>{rule['clean_f2']:.3f}</td><td>{rule['noisy_precision']:.3f}</td><td>{rule['noisy_recall']:.3f}</td><td>{rule['noisy_f1']:.3f}</td><td>{rule['noisy_f2']:.3f}</td><td>{rule['f2_drop']:.3f}</td><td>{rule['noisy_mask_rate']*100:.2f}%</td><td>{rule['newly_leaked_span_rate']*100:.2f}%</td><td>—</td></tr>"
   )
+  best_noisy=max(model['robustness']['noisy_f2'] for model in item['models'].values())
+  for model in item['models'].values():
+   robust=model['robustness']; boot=model['bootstrap_delta_f2']; ci=boot['ci95']
+   best_class=" class='best'" if robust['noisy_f2']==best_noisy else ''
+   rows.append(
+    f"<tr><td class='left meta dataset'>{model['name']}</td><td>{model['threshold']:.2f}</td><td>{robust['clean_f2']:.3f}</td><td>{robust['noisy_precision']:.3f}</td><td>{robust['noisy_recall']:.3f}</td><td>{robust['noisy_f1']:.3f}</td><td{best_class}>{robust['noisy_f2']:.3f}</td><td>{robust['f2_drop']:.3f}</td><td>{robust['noisy_mask_rate']*100:.2f}%</td><td>{robust['newly_leaked_span_rate']*100:.2f}%*</td><td>{boot['mean']:.3f}<span class='task'>[{ci[0]:.3f}, {ci[1]:.3f}]</span></td></tr>"
+   )
+   budget=model['operating_points']['budget_matched']; privacy=model['operating_points']['f2_optimized']
+   operating_rows.append(
+    f"<tr><td class='left meta dataset'>{item['name']}</td><td class='left meta'>{model['name']}</td><td>{budget['threshold']:.2f}</td><td>{budget['precision']:.3f}</td><td>{budget['recall']:.3f}</td><td>{budget['f2']:.3f}</td><td>{budget['predicted_mask_rate']*100:.2f}%</td><td>{privacy['threshold']:.2f}</td><td>{privacy['precision']:.3f}</td><td>{privacy['recall']:.3f}</td><td>{privacy['f2']:.3f}</td><td>{privacy['predicted_mask_rate']*100:.2f}%</td></tr>"
+   )
+ model_best_counts={key:0 for key in next(iter(source['datasets'].values()))['models']}
+ for item in source['datasets'].values():
+  winner=max(item['models'],key=lambda key:item['models'][key]['robustness']['noisy_f2'])
+  model_best_counts[winner]+=1
+ best_model=max(model_best_counts,key=model_best_counts.get)
+ best_model_name=next(iter(source['datasets'].values()))['models'][best_model]['name']
+ student_wins=sum(model['robustness']['noisy_f2']>item['rule']['noisy_f2'] for item in source['datasets'].values() for model in item['models'].values())
+ clean_passes=sum(model['acceptance']['final_student_quality_gate']['pass'] for model in all_models)
+ budget_passes=sum(model['acceptance']['matched_budget_gate']['pass'] for model in all_models)
+ privacy_tradeoff_runs=sum(
+  model['operating_points']['f2_optimized']['recall']>=model['operating_points']['budget_matched']['recall']
+  and model['operating_points']['f2_optimized']['f2']>=model['operating_points']['budget_matched']['f2']
+  and model['operating_points']['f2_optimized']['predicted_mask_rate']>=model['operating_points']['budget_matched']['predicted_mask_rate']
+  for model in all_models
+ )
  return (
-  "<h2>4-1. 최신 v1.4 입력 교란 강건성 — 10개 데이터셋</h2>"
-  "<p class='lede'>각 clean v1.4 규칙 라벨을 결정적 편집으로 noisy 문장에 이동한 pseudo-gold 기준이다. 데이터셋별 최대 train/validation/test 5,000/500/1,000, ELECTRA-small, seed 42, 동일 마스킹 예산을 사용했다. Noisy P/R은 이 이동된 token 정답에 대한 Precision/Recall이다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>그룹</th><th class='left'>데이터셋</th><th class='left'>방식</th><th>Clean F2</th><th>Noisy P</th><th>Noisy R</th><th>Noisy F1</th><th>Noisy F2</th><th>F2 하락</th><th>Noisy mask</th><th>신규 누출</th><th>Student−Rule ΔF2<br>95% CI</th></tr></thead><tbody>"
+  "<h2>4-1. 최신 v1.4 입력 교란 강건성 — 10개 데이터셋 × 3모델</h2>"
+  "<p class='lede'>clean v1.4 라벨을 결정적 편집으로 noisy 문장에 이동한 pseudo-gold 기준이다. BERT-tiny, ELECTRA-small, DistilRoBERTa를 같은 split·학습 조건·동일 마스킹 예산으로 비교한다. Noisy P/R은 이동된 token 정답에 대한 Precision/Recall이다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>그룹</th><th class='left'>데이터셋</th><th class='left'>방식</th><th>Budget Th.</th><th>Clean F2</th><th>Noisy P</th><th>Noisy R</th><th>Noisy F1</th><th>Noisy F2</th><th>F2 하락</th><th>Noisy mask</th><th>신규 누출</th><th>Student−Rule ΔF2<br>95% CI</th></tr></thead><tbody>"
   + ''.join(rows)
   + "</tbody></table></div>"
-  f"<div class='notice'><strong>결과:</strong> 10개 데이터셋 모두 같은 프로토콜로 비교했다. Noisy F2에서 Student가 규칙을 이긴 데이터셋은 {sum(1 for item in source['datasets'].values() if item['student_result']['noisy_f2'] > item['rule']['noisy_f2'])}/10개, clean 대체 최소선 통과는 {sum(1 for item in source['datasets'].values() if item['acceptance']['final_student_quality_gate']['pass'])}/10개, 마스킹 예산 ±1%p 통과는 {sum(1 for item in source['datasets'].values() if item['acceptance']['matched_budget_gate']['pass'])}/10개다. 이 표는 규칙의 clean 라벨을 pseudo-gold로 사용하므로 규칙 모방·표면 강건성 결과이지 human-gold 개인정보 정답률은 아니다. *Student 신규 누출은 clean에서 먼저 맞힌 span만 분모로 한 조건부 값이다.</div>"
-  "<div class='notice warn'><strong>합격선:</strong> clean F1/F2/Recall ≥ 0.85/0.90/0.90, 마스킹률 차이 ≤ 1%p를 먼저 만족한 뒤 noisy 비열등성 또는 우월성을 판정한다. 상세 설계는 ROBUSTNESS_EXPERIMENT_V14.md에 있다.</div>"
+  f"<div class='notice'><strong>3모델 결과:</strong> 30개 Student run 중 규칙보다 noisy F2가 높은 경우는 {student_wins}개, clean 대체 최소선 통과는 {clean_passes}/30개, 마스킹 예산 ±1%p 통과는 {budget_passes}/30개다. 데이터셋별 noisy F2 최고 Student는 <strong>{best_model_name} {model_best_counts[best_model]}/10개</strong>다. *Student 신규 누출은 clean에서 먼저 맞힌 span만 분모로 한 조건부 값이다.</div>"
+  "<div class='notice warn'><strong>0.85의 의미:</strong> clean F1 0.85는 보편적 표준이 아니라 기존 전체 Drug ELECTRA의 F1 0.892보다 낮게 사전 고정한 pilot screening floor다. Recall만 높이려고 과도하게 가리는 모델을 거르는 보조선이며, privacy 핵심선은 F2·Recall 0.90이다. 최종 대체 판정에는 noisy 신뢰구간과 human-gold 검증도 필요하다.</div>"
+  f"<details><summary>동일 마스킹 예산 vs Recall 중심 F2 · clean 운용점 30개 보기</summary><div><p><strong>동일 예산</strong>은 Teacher와 비슷한 비율을 가려 모델 간 공정 비교에 적합하다. <strong>Recall 중심 F2</strong>는 민감 누락을 더 비싸게 보므로 privacy-first 배포 후보에 적합하지만 더 많이 가릴 수 있다. 실제로 {privacy_tradeoff_runs}/30개 run 모두 Recall·F2·마스킹률이 함께 증가했다. 따라서 논문 메인은 동일 예산, F2는 보조 운용점으로 제시한다.</p><div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>Student</th><th>예산 Th.</th><th>예산 P</th><th>예산 R</th><th>예산 F2</th><th>예산 mask</th><th>F2 Th.</th><th>F2 P</th><th>F2 R</th><th>F2</th><th>F2 mask</th></tr></thead><tbody>"
+  + ''.join(operating_rows)
+  + "</tbody></table></div></div></details>"
   "<h2>4-2. 전체 데이터·표면 교란 증강 비교</h2>"
   f"<p class='lede'>전체 test에서 생성 가능한 unseen target {absolute['unseen_target_pairs']:,}개를 고정 pseudo-gold로 둔 비교다. 같은 원문에서 파생된 여러 오염은 원문 단위로 묶어 통계 처리했다.</p>"
   f"<div class='notice'><strong>데이터 규모:</strong> Drug Reviews 원본 {absolute['source_examples']:,}문장, clean train {absolute['clean_train_examples']:,}, validation {absolute['validation_examples']:,}, test {absolute['test_examples']:,}문장 전체를 사용했다. seen-noise {absolute['augmented_train_examples']:,}행을 추가해 학습 입력은 {absolute['total_augmented_train_rows']:,}행이다. 전체 test에서 unseen target-pair {absolute['unseen_target_pairs']:,}개가 생성됐고 고유 원문은 {absolute['unique_source_examples']:,}개다.</div>"

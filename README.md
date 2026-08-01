@@ -7,7 +7,8 @@ RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student red
 확인하며, 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
 
 최신 4-1 표면 교란 비교는 기존 메인 표의 10개 데이터셋 모두에 같은 제한
-프로토콜(데이터셋별 최대 5,000/500/1,000, ELECTRA-small, seed 42)을 적용했다.
+프로토콜(데이터셋별 최대 5,000/500/1,000, seed 42)을 적용하고 BERT-tiny,
+ELECTRA-small, DistilRoBERTa를 비교했다.
 의료 6개는 `medterm5 v1.4`, 일반 4개는 `piiclean2 v1.4`를 clean pseudo-gold로
 사용했으며, 각 데이터셋에서 가능한 12종 paired 교란을 최대 유형당 100개 평가했다.
 세부 P/R/F1/F2와 split·pair 수는 대시보드 4-1 및

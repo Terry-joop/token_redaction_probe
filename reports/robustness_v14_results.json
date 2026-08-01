@@ -1,13 +1,7 @@
 {
   "experiment": "surface_perturbation_v1.4",
   "redactformer_commit": "39b56279c6c58fdc6732df8d5ee98868e323d344",
-  "student": "google/electra-small-discriminator + hidden-128 MLP",
   "seed": 42,
-  "train_validation_test": [
-    5000,
-    500,
-    1000
-  ],
   "bootstrap_repeats": 2000,
   "datasets": {
     "drug": {
@@ -23,7 +17,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.8899999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9977105062325108,
@@ -34,46 +27,271 @@
         "f2_drop": 0.04773466711989516,
         "newly_leaked_span_rate": 0.32208157524613223
       },
-      "student_result": {
-        "clean_precision": 0.8634164495720134,
-        "clean_recall": 0.8571428571428571,
-        "clean_f1": 0.8602682158086645,
-        "clean_f2": 0.8583902715769222,
-        "noisy_precision": 0.8635399775477112,
-        "noisy_recall": 0.8309926779498259,
-        "noisy_f1": 0.8469537558111084,
-        "noisy_f2": 0.8373043709634503,
-        "noisy_mask_rate": 0.09786854826895844,
-        "f2_drop": 0.02108590061347182,
-        "newly_leaked_span_rate": 0.24451939291736935
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.11500904101560315,
-        "ci95": [
-          -0.12425895263797934,
-          -0.10589972393571553
-        ],
-        "repeats": 2000,
-        "unit": "paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.8899999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.963816014405215,
+              "precision": 0.8250357182107924,
+              "recall": 0.8258525852585259,
+              "f1": 0.8254439496398922,
+              "f2": 0.8256890824699179,
+              "gold_mask_rate": 0.1035944658445969,
+              "predicted_mask_rate": 0.10369703462266086,
+              "residual_sensitive_rate": 0.1741474147414741,
+              "evaluated_tokens": 87746
+            },
+            "f2_optimized": {
+              "threshold": 0.72,
+              "accuracy_secondary": 0.9528183620905796,
+              "precision": 0.7108177172061328,
+              "recall": 0.918041804180418,
+              "f1": 0.8012481997119539,
+              "f2": 0.8674636174636174,
+              "gold_mask_rate": 0.1035944658445969,
+              "predicted_mask_rate": 0.13379527271898434,
+              "residual_sensitive_rate": 0.08195819581958197,
+              "evaluated_tokens": 87746
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8201124297314178,
+            "clean_recall": 0.8084975369458128,
+            "clean_f1": 0.8142635658914729,
+            "clean_f2": 0.8107941212794862,
+            "noisy_precision": 0.8208150470219435,
+            "noisy_recall": 0.7857400072020165,
+            "noisy_f1": 0.8028946400098124,
+            "noisy_f2": 0.7925131359112811,
+            "noisy_mask_rate": 0.09735582792128522,
+            "f2_drop": 0.018280985368205105,
+            "newly_leaked_span_rate": 0.27157894736842103
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.1595906543341154,
+            "ci95": [
+              -0.17813302349597598,
+              -0.142296363121339
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0013794618877874948,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.1729957805907173,
+              "student_minus_rule_noisy_ci95": [
+                -0.2345039166554687,
+                -0.1195867606924061
+              ],
+              "student_drop_advantage": 0.1589310829817159,
+              "student_drop_advantage_ci95": [
+                0.11773042065663475,
+                0.2
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.04842105263157895,
+              "ci95": [
+                0.013099723149813055,
+                0.08317276907251413
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0018921822354607126,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.8899999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9721012923666036,
+              "precision": 0.8667181978798587,
+              "recall": 0.8634763476347634,
+              "f1": 0.8650942356442191,
+              "f2": 0.8641227761141448,
+              "gold_mask_rate": 0.1035944658445969,
+              "predicted_mask_rate": 0.10320698379413307,
+              "residual_sensitive_rate": 0.13652365236523656,
+              "evaluated_tokens": 87746
+            },
+            "f2_optimized": {
+              "threshold": 0.63,
+              "accuracy_secondary": 0.9590066783671051,
+              "precision": 0.7355286853614613,
+              "recall": 0.9435643564356435,
+              "f1": 0.8266589561948822,
+              "f2": 0.8930467920284876,
+              "gold_mask_rate": 0.1035944658445969,
+              "predicted_mask_rate": 0.1328949467782007,
+              "residual_sensitive_rate": 0.056435643564356486,
+              "evaluated_tokens": 87746
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8634164495720134,
+            "clean_recall": 0.8571428571428571,
+            "clean_f1": 0.8602682158086645,
+            "clean_f2": 0.8583902715769222,
+            "noisy_precision": 0.8635399775477112,
+            "noisy_recall": 0.8309926779498259,
+            "noisy_f1": 0.8469537558111084,
+            "noisy_f2": 0.8373043709634503,
+            "noisy_mask_rate": 0.09786854826895844,
+            "f2_drop": 0.02108590061347182,
+            "newly_leaked_span_rate": 0.24451939291736935
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.11500904101560315,
+            "ci95": [
+              -0.12425895263797934,
+              -0.10589972393571553
+            ],
+            "repeats": 2000,
+            "unit": "paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0018921822354607126,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.8899999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8899999999999999,
+              "accuracy_secondary": 0.9762094377082094,
+              "precision": 0.8884868421052632,
+              "recall": 0.8800912349299446,
+              "f1": 0.8842691111474873,
+              "f2": 0.8817576390702533,
+              "gold_mask_rate": 0.10327190335715007,
+              "predicted_mask_rate": 0.10229605285296064,
+              "residual_sensitive_rate": 0.11990876507005543,
+              "evaluated_tokens": 89153
+            },
+            "f2_optimized": {
+              "threshold": 0.5099999999999999,
+              "accuracy_secondary": 0.9641963815014638,
+              "precision": 0.7595133316075589,
+              "recall": 0.9560117302052786,
+              "f1": 0.8465089440276976,
+              "f2": 0.9089782514406097,
+              "gold_mask_rate": 0.10327190335715007,
+              "predicted_mask_rate": 0.12999001716150888,
+              "residual_sensitive_rate": 0.04398826979472137,
+              "evaluated_tokens": 89153
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8891774891774892,
+            "clean_recall": 0.8853448275862069,
+            "clean_f1": 0.8872570194384449,
+            "clean_f2": 0.8861087144089732,
+            "noisy_precision": 0.8891252659241646,
+            "noisy_recall": 0.8528387948625615,
+            "noisy_f1": 0.8706040926357064,
+            "noisy_f2": 0.859857194723466,
+            "noisy_mask_rate": 0.09755114995849407,
+            "f2_drop": 0.026251519685507207,
+            "newly_leaked_span_rate": 0.22390572390572394
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.09228381498816333,
+            "ci95": [
+              -0.1077350752137615,
+              -0.07756349216606938
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0015747839249963397,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.015471167369901548,
+              "student_minus_rule_noisy_ci95": [
+                -0.06233119806094183,
+                0.02887175210388935
+              ],
+              "student_drop_advantage": 0.1490857946554149,
+              "student_drop_advantage_ci95": [
+                0.11192497931945511,
+                0.18732024336283185
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.08922558922558922,
+              "ci95": [
+                0.056797097203403285,
+                0.12235974030277756
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -90,7 +308,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.8999999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9992774566473989,
@@ -101,69 +318,294 @@
         "f2_drop": 0.1260111223458038,
         "newly_leaked_span_rate": 0.4552238805970149
       },
-      "student_result": {
-        "clean_precision": 0.8811333794056669,
-        "clean_recall": 0.8903631284916201,
-        "clean_f1": 0.8857242097950677,
-        "clean_f2": 0.8885017421602788,
-        "noisy_precision": 0.8770014556040757,
-        "noisy_recall": 0.7383578431372549,
-        "noisy_f1": 0.801729873586161,
-        "noisy_f2": 0.7624651986838775,
-        "noisy_mask_rate": 0.1564207650273224,
-        "f2_drop": 0.12603654347640125,
-        "newly_leaked_span_rate": 0.40506329113924056
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.11216229412363371,
-        "ci95": [
-          -0.14114178847368003,
-          -0.0853865586500529
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.8599999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8599999999999999,
+              "accuracy_secondary": 0.9553119730185498,
+              "precision": 0.8356713426853707,
+              "recall": 0.8441295546558705,
+              "f1": 0.8398791540785498,
+              "f2": 0.8424242424242424,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.14024732996065206,
+              "residual_sensitive_rate": 0.15587044534412953,
+              "evaluated_tokens": 3558
+            },
+            "f2_optimized": {
+              "threshold": 0.5499999999999999,
+              "accuracy_secondary": 0.9263631253513209,
+              "precision": 0.6629213483146067,
+              "recall": 0.9554655870445344,
+              "f1": 0.7827529021558872,
+              "f2": 0.8779761904761905,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.20011242270938728,
+              "residual_sensitive_rate": 0.04453441295546556,
+              "evaluated_tokens": 3558
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8509719222462203,
+            "clean_recall": 0.8254189944134078,
+            "clean_f1": 0.8380007089684509,
+            "clean_f2": 0.8304060699733034,
+            "noisy_precision": 0.8541666666666666,
+            "noisy_recall": 0.7285539215686274,
+            "noisy_f1": 0.7863756613756614,
+            "noisy_f2": 0.7506313131313131,
+            "noisy_mask_rate": 0.15846994535519127,
+            "f2_drop": 0.0797747568419902,
+            "newly_leaked_span_rate": 0.43842364532019706
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.12387884460419503,
+            "ci95": [
+              -0.15274274201703822,
+              -0.09372781639256568
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0009107468123861762,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.11940298507462686,
+              "student_minus_rule_noisy_ci95": [
+                -0.2007171729063653,
+                -0.03292410714285738
+              ],
+              "student_drop_advantage": 0.12313432835820895,
+              "student_drop_advantage_ci95": [
+                0.08171206225680934,
+                0.16728624535315986
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.06896551724137931,
+              "ci95": [
+                0.03570975344452502,
+                0.10628276287388219
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0011384335154826786,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.8999999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8999999999999999,
+              "accuracy_secondary": 0.9699269252388982,
+              "precision": 0.8757281553398059,
+              "recall": 0.9129554655870445,
+              "f1": 0.8939544103072349,
+              "f2": 0.9052589321557607,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.1447442383361439,
+              "residual_sensitive_rate": 0.08704453441295545,
+              "evaluated_tokens": 3558
+            },
+            "f2_optimized": {
+              "threshold": 0.71,
+              "accuracy_secondary": 0.9659921304103429,
+              "precision": 0.8289241622574955,
+              "recall": 0.951417004048583,
+              "f1": 0.885956644674835,
+              "f2": 0.92410538733779,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.15935919055649242,
+              "residual_sensitive_rate": 0.04858299595141702,
+              "evaluated_tokens": 3558
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8811333794056669,
+            "clean_recall": 0.8903631284916201,
+            "clean_f1": 0.8857242097950677,
+            "clean_f2": 0.8885017421602788,
+            "noisy_precision": 0.8770014556040757,
+            "noisy_recall": 0.7383578431372549,
+            "noisy_f1": 0.801729873586161,
+            "noisy_f2": 0.7624651986838775,
+            "noisy_mask_rate": 0.1564207650273224,
+            "f2_drop": 0.12603654347640125,
+            "newly_leaked_span_rate": 0.40506329113924056
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.11216229412363371,
+            "ci95": [
+              -0.14114178847368003,
+              -0.0853865586500529
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0011384335154826786,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.018656716417910446,
+              "student_minus_rule_noisy_ci95": [
+                -0.08835611677479148,
+                0.0434825741890959
+              ],
+              "student_drop_advantage": 0.09701492537313433,
+              "student_drop_advantage_ci95": [
+                0.06036969131275419,
+                0.13438735177865613
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.07172995780590717,
+              "ci95": [
+                0.04098174366616989,
+                0.10600058829296985
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.018656716417910446,
-          "student_minus_rule_noisy_ci95": [
-            -0.08835611677479148,
-            0.0434825741890959
-          ],
-          "student_drop_advantage": 0.09701492537313433,
-          "student_drop_advantage_ci95": [
-            0.06036969131275419,
-            0.13438735177865613
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.07172995780590717,
-          "ci95": [
-            0.04098174366616989,
-            0.10600058829296985
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.7799999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7799999999999999,
+              "accuracy_secondary": 0.9775154581225407,
+              "precision": 0.9027237354085603,
+              "recall": 0.9392712550607287,
+              "f1": 0.9206349206349206,
+              "f2": 0.9317269076305221,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.14446318156267565,
+              "residual_sensitive_rate": 0.06072874493927127,
+              "evaluated_tokens": 3558
+            },
+            "f2_optimized": {
+              "threshold": 0.4599999999999999,
+              "accuracy_secondary": 0.9707700955593029,
+              "precision": 0.8433098591549296,
+              "recall": 0.9696356275303644,
+              "f1": 0.9020715630885122,
+              "f2": 0.9414308176100629,
+              "gold_mask_rate": 0.13884204609331086,
+              "predicted_mask_rate": 0.15964024732996066,
+              "residual_sensitive_rate": 0.030364372469635637,
+              "evaluated_tokens": 3558
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9179310344827586,
+            "clean_recall": 0.9294692737430168,
+            "clean_f1": 0.9236641221374046,
+            "clean_f2": 0.9271384786848704,
+            "noisy_precision": 0.9165507649513213,
+            "noisy_recall": 0.8075980392156863,
+            "noisy_f1": 0.8586319218241042,
+            "noisy_f2": 0.8272658799899573,
+            "noisy_mask_rate": 0.16370673952641165,
+            "f2_drop": 0.09987259869491316,
+            "newly_leaked_span_rate": 0.3663793103448276
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.04716444414539859,
+            "ci95": [
+              -0.07015446902953794,
+              -0.023459850388989734
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.006147540983606564,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": 0.0037313432835820895,
+              "student_minus_rule_noisy_ci95": [
+                -0.07266961321323004,
+                0.07600909090909086
+              ],
+              "student_drop_advantage": 0.13805970149253732,
+              "student_drop_advantage_ci95": [
+                0.09448254162901769,
+                0.18440261865793778
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.10775862068965517,
+              "ci95": [
+                0.06718847514042021,
+                0.15289256198347106
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -180,7 +622,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.7599999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.99814083197769,
@@ -191,69 +632,294 @@
         "f2_drop": 0.05458947831829186,
         "newly_leaked_span_rate": 0.27710843373493976
       },
-      "student_result": {
-        "clean_precision": 0.9171852561033987,
-        "clean_recall": 0.8726941471191073,
-        "clean_f1": 0.8943867429104914,
-        "clean_f2": 0.8812436758347898,
-        "noisy_precision": 0.9199621122424817,
-        "noisy_recall": 0.8440147729741473,
-        "noisy_f1": 0.8803535010197144,
-        "noisy_f2": 0.8581842279655401,
-        "noisy_mask_rate": 0.26061466304616143,
-        "f2_drop": 0.02305944786924974,
-        "newly_leaked_span_rate": 0.21575984990619135
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.08718950218529713,
-        "ci95": [
-          -0.10647433369036918,
-          -0.06937342000153411
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.7799999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7799999999999999,
+              "accuracy_secondary": 0.9284275679127573,
+              "precision": 0.8667313288069836,
+              "recall": 0.8529973272241314,
+              "f1": 0.8598094871548158,
+              "f2": 0.8557091967671506,
+              "gold_mask_rate": 0.2573070688215356,
+              "predicted_mask_rate": 0.2532298472269981,
+              "residual_sensitive_rate": 0.14700267277586865,
+              "evaluated_tokens": 20357
+            },
+            "f2_optimized": {
+              "threshold": 0.37999999999999995,
+              "accuracy_secondary": 0.9099081397062435,
+              "precision": 0.7547904191616767,
+              "recall": 0.9625811378388698,
+              "f1": 0.846115119986575,
+              "f2": 0.9123480023161552,
+              "gold_mask_rate": 0.2573070688215356,
+              "predicted_mask_rate": 0.32814265363265704,
+              "residual_sensitive_rate": 0.03741886216113022,
+              "evaluated_tokens": 20357
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.885401096163428,
+            "clean_recall": 0.8093828285128672,
+            "clean_f1": 0.8456870910172516,
+            "clean_f2": 0.8235239595884697,
+            "noisy_precision": 0.886119257086999,
+            "noisy_recall": 0.7877471214425374,
+            "noisy_f1": 0.8340425531914893,
+            "noisy_f2": 0.805634553857092,
+            "noisy_mask_rate": 0.2525302394470501,
+            "f2_drop": 0.01788940573137765,
+            "newly_leaked_span_rate": 0.28510638297872337
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.1400056176476375,
+            "ci95": [
+              -0.16344142630006553,
+              -0.1178739798867858
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": false,
+              "mask_rate_gap": 0.013021476178721292,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.1897590361445783,
+              "student_minus_rule_noisy_ci95": [
+                -0.24105581812372126,
+                -0.14005873493975904
+              ],
+              "student_drop_advantage": 0.10240963855421686,
+              "student_drop_advantage_ci95": [
+                0.06037016561010369,
+                0.144364182989663
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.0,
+              "ci95": [
+                -0.03099471992653811,
+                0.030001072961373384
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0049370525796099685,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.7599999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.9497961389202731,
+              "precision": 0.9061657032755298,
+              "recall": 0.8978617793050783,
+              "f1": 0.9019946298427312,
+              "f2": 0.8995103664601025,
+              "gold_mask_rate": 0.2573070688215356,
+              "predicted_mask_rate": 0.2549491575379476,
+              "residual_sensitive_rate": 0.10213822069492173,
+              "evaluated_tokens": 20357
+            },
+            "f2_optimized": {
+              "threshold": 0.3499999999999999,
+              "accuracy_secondary": 0.9344697155769515,
+              "precision": 0.814635718891038,
+              "recall": 0.9648720885834288,
+              "f1": 0.8834119909106799,
+              "f2": 0.930549418176462,
+              "gold_mask_rate": 0.2573070688215356,
+              "predicted_mask_rate": 0.3047600334037432,
+              "residual_sensitive_rate": 0.035127911416571234,
+              "evaluated_tokens": 20357
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9171852561033987,
+            "clean_recall": 0.8726941471191073,
+            "clean_f1": 0.8943867429104914,
+            "clean_f2": 0.8812436758347898,
+            "noisy_precision": 0.9199621122424817,
+            "noisy_recall": 0.8440147729741473,
+            "noisy_f1": 0.8803535010197144,
+            "noisy_f2": 0.8581842279655401,
+            "noisy_mask_rate": 0.26061466304616143,
+            "f2_drop": 0.02305944786924974,
+            "newly_leaked_span_rate": 0.21575984990619135
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.08718950218529713,
+            "ci95": [
+              -0.10647433369036918,
+              -0.06937342000153411
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0049370525796099685,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.0677710843373494,
+              "student_minus_rule_noisy_ci95": [
+                -0.1111111111111111,
+                -0.023957857903544825
+              ],
+              "student_drop_advantage": 0.12951807228915663,
+              "student_drop_advantage_ci95": [
+                0.09130773503174273,
+                0.1719019721298037
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.054409005628517824,
+              "ci95": [
+                0.028214162092666764,
+                0.08190938166311298
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.0677710843373494,
-          "student_minus_rule_noisy_ci95": [
-            -0.1111111111111111,
-            -0.023957857903544825
-          ],
-          "student_drop_advantage": 0.12951807228915663,
-          "student_drop_advantage_ci95": [
-            0.09130773503174273,
-            0.1719019721298037
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.054409005628517824,
-          "ci95": [
-            0.028214162092666764,
-            0.08190938166311298
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.6399999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.6399999999999999,
+              "accuracy_secondary": 0.9528065609193145,
+              "precision": 0.9071537290715372,
+              "recall": 0.9097500477008205,
+              "f1": 0.9084500333428599,
+              "f2": 0.9092295957284515,
+              "gold_mask_rate": 0.2573785787948731,
+              "predicted_mask_rate": 0.2581152089574228,
+              "residual_sensitive_rate": 0.09024995229917954,
+              "evaluated_tokens": 20363
+            },
+            "f2_optimized": {
+              "threshold": 0.13999999999999999,
+              "accuracy_secondary": 0.93792663163581,
+              "precision": 0.8211920529801324,
+              "recall": 0.9700438847548177,
+              "f1": 0.8894331700489853,
+              "f2": 0.9361075308414657,
+              "gold_mask_rate": 0.2573785787948731,
+              "predicted_mask_rate": 0.3040318224230221,
+              "residual_sensitive_rate": 0.02995611524518227,
+              "evaluated_tokens": 20363
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9246980819322757,
+            "clean_recall": 0.8893190617171487,
+            "clean_f1": 0.9066635709310424,
+            "clean_f2": 0.8961766190847753,
+            "noisy_precision": 0.9264844486333648,
+            "noisy_recall": 0.8542255051053661,
+            "noisy_f1": 0.8888888888888888,
+            "noisy_f2": 0.8677612994350282,
+            "noisy_mask_rate": 0.26191063934830905,
+            "f2_drop": 0.028415319649747084,
+            "newly_leaked_span_rate": 0.19424460431654678
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.07776161964821855,
+            "ci95": [
+              -0.09841900318110698,
+              -0.05820767160844876
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0036410762774623517,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.03162650602409638,
+              "student_minus_rule_noisy_ci95": [
+                -0.08058053718576028,
+                0.014104981256905494
+              ],
+              "student_drop_advantage": 0.13102409638554216,
+              "student_drop_advantage_ci95": [
+                0.09206251825883728,
+                0.1731044901858031
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.07913669064748201,
+              "ci95": [
+                0.04716981132075472,
+                0.11275862010915491
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -270,7 +936,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.94,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9969547011800532,
@@ -281,69 +946,294 @@
         "f2_drop": 0.06737411865251763,
         "newly_leaked_span_rate": 0.3275862068965517
       },
-      "student_result": {
-        "clean_precision": 0.8227593152064451,
-        "clean_recall": 0.7516099356025759,
-        "clean_f1": 0.7855769230769231,
-        "clean_f2": 0.7648380453098671,
-        "noisy_precision": 0.8226324237560193,
-        "noisy_recall": 0.7184159803749781,
-        "noisy_f1": 0.7670002806098588,
-        "noisy_f2": 0.7370919027757802,
-        "noisy_mask_rate": 0.06133549927391765,
-        "f2_drop": 0.027746142534086915,
-        "newly_leaked_span_rate": 0.22271714922049002
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.19460252748025245,
-        "ci95": [
-          -0.2249748332823059,
-          -0.16701327273663497
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.8999999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8999999999999999,
+              "accuracy_secondary": 0.9673969682614875,
+              "precision": 0.7197730248799651,
+              "recall": 0.6918397314873086,
+              "f1": 0.7055300032088994,
+              "f2": 0.6972515856236786,
+              "gold_mask_rate": 0.05645428706774041,
+              "predicted_mask_rate": 0.05426338228327807,
+              "residual_sensitive_rate": 0.3081602685126914,
+              "evaluated_tokens": 84440
+            },
+            "f2_optimized": {
+              "threshold": 0.73,
+              "accuracy_secondary": 0.9481051634296542,
+              "precision": 0.5246953175112251,
+              "recall": 0.8579819593035453,
+              "f1": 0.6511701958286897,
+              "f2": 0.7612701485314373,
+              "gold_mask_rate": 0.05645428706774041,
+              "predicted_mask_rate": 0.09231406916153481,
+              "residual_sensitive_rate": 0.14201804069645474,
+              "evaluated_tokens": 84440
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.778972783143108,
+            "clean_recall": 0.6529898804047838,
+            "clean_f1": 0.7104393954559103,
+            "clean_f2": 0.6748174627319744,
+            "noisy_precision": 0.7781865397100195,
+            "noisy_recall": 0.63010338181181,
+            "noisy_f1": 0.6963594113090628,
+            "noisy_f2": 0.6550329702357098,
+            "noisy_mask_rate": 0.05686824681877477,
+            "f2_drop": 0.019784492496264572,
+            "newly_leaked_span_rate": 0.2584615384615384
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.27646737375772557,
+            "ci95": [
+              -0.31156207041043166,
+              -0.2445042553730767
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0077900022151665,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.3117816091954023,
+              "student_minus_rule_noisy_ci95": [
+                -0.3696947305506885,
+                -0.2456077783617389
+              ],
+              "student_drop_advantage": 0.22126436781609196,
+              "student_drop_advantage_ci95": [
+                0.18343007486166865,
+                0.26250315656565654
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.06769230769230769,
+              "ci95": [
+                0.02670302749489831,
+                0.1089184942385023
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0033227497600236203,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.94,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9744907626717195,
+              "precision": 0.7688824861082527,
+              "recall": 0.7837214180826516,
+              "f1": 0.7762310409308124,
+              "f2": 0.7807079867931626,
+              "gold_mask_rate": 0.05645428706774041,
+              "predicted_mask_rate": 0.057543818095689245,
+              "residual_sensitive_rate": 0.2162785819173484,
+              "evaluated_tokens": 84440
+            },
+            "f2_optimized": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.966046897205116,
+              "precision": 0.6507936507936508,
+              "recall": 0.8600797147052653,
+              "f1": 0.7409415379054848,
+              "f2": 0.8081046988331757,
+              "gold_mask_rate": 0.05645428706774041,
+              "predicted_mask_rate": 0.07460918995736618,
+              "residual_sensitive_rate": 0.13992028529473466,
+              "evaluated_tokens": 84440
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8227593152064451,
+            "clean_recall": 0.7516099356025759,
+            "clean_f1": 0.7855769230769231,
+            "clean_f2": 0.7648380453098671,
+            "noisy_precision": 0.8226324237560193,
+            "noisy_recall": 0.7184159803749781,
+            "noisy_f1": 0.7670002806098588,
+            "noisy_f2": 0.7370919027757802,
+            "noisy_mask_rate": 0.06133549927391765,
+            "f2_drop": 0.027746142534086915,
+            "newly_leaked_span_rate": 0.22271714922049002
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.19460252748025245,
+            "ci95": [
+              -0.2249748332823059,
+              -0.16701327273663497
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0033227497600236203,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.16379310344827586,
+              "student_minus_rule_noisy_ci95": [
+                -0.21866452282936472,
+                -0.10334328429929784
+              ],
+              "student_drop_advantage": 0.1910919540229885,
+              "student_drop_advantage_ci95": [
+                0.1567259780852014,
+                0.2279961266803372
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.09131403118040089,
+              "ci95": [
+                0.05664278531925591,
+                0.12799978454924266
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.16379310344827586,
-          "student_minus_rule_noisy_ci95": [
-            -0.21866452282936472,
-            -0.10334328429929784
-          ],
-          "student_drop_advantage": 0.1910919540229885,
-          "student_drop_advantage_ci95": [
-            0.1567259780852014,
-            0.2279961266803372
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.09131403118040089,
-          "ci95": [
-            0.05664278531925591,
-            0.12799978454924266
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": false,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.8799999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8799999999999999,
+              "accuracy_secondary": 0.976605504587156,
+              "precision": 0.7889776685105511,
+              "recall": 0.8006237006237006,
+              "f1": 0.7947580229078527,
+              "f2": 0.7982670701878032,
+              "gold_mask_rate": 0.05657492354740061,
+              "predicted_mask_rate": 0.057410021171489065,
+              "residual_sensitive_rate": 0.19937629937629942,
+              "evaluated_tokens": 85020
+            },
+            "f2_optimized": {
+              "threshold": 0.5599999999999999,
+              "accuracy_secondary": 0.9650788049870619,
+              "precision": 0.6361082359899453,
+              "recall": 0.8943866943866944,
+              "f1": 0.743454592586192,
+              "f2": 0.8272122447409914,
+              "gold_mask_rate": 0.05657492354740061,
+              "predicted_mask_rate": 0.0795459891790167,
+              "residual_sensitive_rate": 0.10561330561330562,
+              "evaluated_tokens": 85020
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8390532544378698,
+            "clean_recall": 0.7827046918123275,
+            "clean_f1": 0.8099000475963827,
+            "clean_f2": 0.7933606863110779,
+            "noisy_precision": 0.8422700587084149,
+            "noisy_recall": 0.7541615559838795,
+            "noisy_f1": 0.7957844134233152,
+            "noisy_f2": 0.7702770420216193,
+            "noisy_mask_rate": 0.06288611582859534,
+            "f2_drop": 0.023083644289458638,
+            "newly_leaked_span_rate": 0.21908893709327548
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.16164708816079573,
+            "ci95": [
+              -0.19090509115215207,
+              -0.134196898020334
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0017721332053459299,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.1336206896551724,
+              "student_minus_rule_noisy_ci95": [
+                -0.1928441151325164,
+                -0.07070365820365822
+              ],
+              "student_drop_advantage": 0.20402298850574713,
+              "student_drop_advantage_ci95": [
+                0.16641519641730035,
+                0.24343040417115275
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.11279826464208242,
+              "ci95": [
+                0.07494505183522153,
+                0.15320008596604337
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -360,7 +1250,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.7999999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.998613251155624,
@@ -371,69 +1260,294 @@
         "f2_drop": 0.0496510059241011,
         "newly_leaked_span_rate": 0.319672131147541
       },
-      "student_result": {
-        "clean_precision": 0.9028721432983323,
-        "clean_recall": 0.878191649143887,
-        "clean_f1": 0.890360895386021,
-        "clean_f2": 0.8830192098586445,
-        "noisy_precision": 0.9049682711654543,
-        "noisy_recall": 0.8471457548536656,
-        "noisy_f1": 0.8751028960562748,
-        "noisy_f2": 0.8581114796442514,
-        "noisy_mask_rate": 0.2589994387877816,
-        "f2_drop": 0.024907730214393076,
-        "newly_leaked_span_rate": 0.2524271844660194
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.09186743479465033,
-        "ci95": [
-          -0.10733550826299304,
-          -0.07573347338748175
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.84,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.84,
+              "accuracy_secondary": 0.9413302152830318,
+              "precision": 0.8582375478927203,
+              "recall": 0.8776053910045447,
+              "f1": 0.8678134201146753,
+              "f2": 0.8736622047489782,
+              "gold_mask_rate": 0.21944425338744067,
+              "predicted_mask_rate": 0.22439645092509802,
+              "residual_sensitive_rate": 0.12239460899545529,
+              "evaluated_tokens": 29078
+            },
+            "f2_optimized": {
+              "threshold": 0.36999999999999994,
+              "accuracy_secondary": 0.9138867872618475,
+              "precision": 0.7238194203902552,
+              "recall": 0.9824478921799091,
+              "f1": 0.8335327748969552,
+              "f2": 0.9169226268831359,
+              "gold_mask_rate": 0.21944425338744067,
+              "predicted_mask_rate": 0.29785404773368185,
+              "residual_sensitive_rate": 0.017552107820090868,
+              "evaluated_tokens": 29078
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8672765446910617,
+            "clean_recall": 0.8685791528987684,
+            "clean_f1": 0.8679273600480264,
+            "clean_f2": 0.8683183183183183,
+            "noisy_precision": 0.8689255461435578,
+            "noisy_recall": 0.8471457548536656,
+            "noisy_f1": 0.8578974396595994,
+            "noisy_f2": 0.8514139266680257,
+            "noisy_mask_rate": 0.26974264411128035,
+            "f2_drop": 0.01690439165029256,
+            "newly_leaked_span_rate": 0.24601769911504423
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.09896252569519993,
+            "ci95": [
+              -0.11478565625961973,
+              -0.08370305011519462
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.009580694299687331,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.07650273224043716,
+              "student_minus_rule_noisy_ci95": [
+                -0.12805844407443476,
+                -0.022282575054162805
+              ],
+              "student_drop_advantage": 0.15163934426229508,
+              "student_drop_advantage_ci95": [
+                0.11866610169491526,
+                0.18812211661753622
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.10088495575221239,
+              "ci95": [
+                0.0659870609823021,
+                0.13846746575342464
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.00116251102381143,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.7999999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7999999999999999,
+              "accuracy_secondary": 0.9551894903363367,
+              "precision": 0.8969668542839274,
+              "recall": 0.8990753800344774,
+              "f1": 0.8980198794709243,
+              "f2": 0.8986528822055138,
+              "gold_mask_rate": 0.21944425338744067,
+              "predicted_mask_rate": 0.2199601072976133,
+              "residual_sensitive_rate": 0.1009246199655226,
+              "evaluated_tokens": 29078
+            },
+            "f2_optimized": {
+              "threshold": 0.20999999999999996,
+              "accuracy_secondary": 0.9392324093816631,
+              "precision": 0.7940351771603364,
+              "recall": 0.9763359974925561,
+              "f1": 0.8757995360933436,
+              "f2": 0.9334731795025472,
+              "gold_mask_rate": 0.21944425338744067,
+              "predicted_mask_rate": 0.2698259852809684,
+              "residual_sensitive_rate": 0.023664002507443938,
+              "evaluated_tokens": 29078
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9028721432983323,
+            "clean_recall": 0.878191649143887,
+            "clean_f1": 0.890360895386021,
+            "clean_f2": 0.8830192098586445,
+            "noisy_precision": 0.9049682711654543,
+            "noisy_recall": 0.8471457548536656,
+            "noisy_f1": 0.8751028960562748,
+            "noisy_f2": 0.8581114796442514,
+            "noisy_mask_rate": 0.2589994387877816,
+            "f2_drop": 0.024907730214393076,
+            "newly_leaked_span_rate": 0.2524271844660194
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.09186743479465033,
+            "ci95": [
+              -0.10733550826299304,
+              -0.07573347338748175
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.00116251102381143,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.03278688524590164,
+              "student_minus_rule_noisy_ci95": [
+                -0.07979959544501049,
+                0.015050949377487138
+              ],
+              "student_drop_advantage": 0.12295081967213115,
+              "student_drop_advantage_ci95": [
+                0.08666643741403027,
+                0.1628790561421581
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.07928802588996764,
+              "ci95": [
+                0.042196132994152584,
+                0.11764936743928339
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.03278688524590164,
-          "student_minus_rule_noisy_ci95": [
-            -0.07979959544501049,
-            0.015050949377487138
-          ],
-          "student_drop_advantage": 0.12295081967213115,
-          "student_drop_advantage_ci95": [
-            0.08666643741403027,
-            0.1628790561421581
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.07928802588996764,
-          "ci95": [
-            0.042196132994152584,
-            0.11764936743928339
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.8699999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9569125214408233,
+              "precision": 0.8933374083129584,
+              "recall": 0.9128669581511555,
+              "f1": 0.9029966017917825,
+              "f2": 0.9088930348258707,
+              "gold_mask_rate": 0.21969125214408233,
+              "predicted_mask_rate": 0.22449399656946828,
+              "residual_sensitive_rate": 0.08713304184884452,
+              "evaluated_tokens": 29150
+            },
+            "f2_optimized": {
+              "threshold": 0.26999999999999996,
+              "accuracy_secondary": 0.9454202401372213,
+              "precision": 0.8142875799921641,
+              "recall": 0.9736102435977514,
+              "f1": 0.8868501529051988,
+              "f2": 0.9369458720283713,
+              "gold_mask_rate": 0.21969125214408233,
+              "predicted_mask_rate": 0.26267581475128643,
+              "residual_sensitive_rate": 0.02638975640224861,
+              "evaluated_tokens": 29150
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9107440521291105,
+            "clean_recall": 0.9026734755181737,
+            "clean_f1": 0.906690804857811,
+            "clean_f2": 0.9042761277120761,
+            "noisy_precision": 0.9123664122137405,
+            "noisy_recall": 0.865835989568241,
+            "noisy_f1": 0.8884924174843889,
+            "noisy_f2": 0.8747584753205692,
+            "noisy_mask_rate": 0.2625671450332719,
+            "f2_drop": 0.029517652391506943,
+            "newly_leaked_span_rate": 0.20414673046251997
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.07533445782568605,
+            "ci95": [
+              -0.09128827473713344,
+              -0.060661558898620765
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0024051952216788686,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": 0.001366120218579235,
+              "student_minus_rule_noisy_ci95": [
+                -0.04545768458061276,
+                0.05087615276663991
+              ],
+              "student_drop_advantage": 0.1448087431693989,
+              "student_drop_advantage_ci95": [
+                0.11218803407467477,
+                0.17893724392051572
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.12121212121212122,
+              "ci95": [
+                0.08702263475519935,
+                0.15600624024961
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -450,7 +1564,6 @@
       },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.94,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.997948717948718,
@@ -461,69 +1574,294 @@
         "f2_drop": 0.07439117199391176,
         "newly_leaked_span_rate": 0.29432013769363163
       },
-      "student_result": {
-        "clean_precision": 0.7678947368421053,
-        "clean_recall": 0.7203159713650951,
-        "clean_f1": 0.7433447968411667,
-        "clean_f2": 0.7293541291741652,
-        "noisy_precision": 0.7735408560311284,
-        "noisy_recall": 0.6965662228451296,
-        "noisy_f1": 0.7330383480825958,
-        "noisy_f2": 0.7107107107107107,
-        "noisy_mask_rate": 0.08858810552440481,
-        "f2_drop": 0.01864341846345452,
-        "newly_leaked_span_rate": 0.23636363636363633
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.21483027634162172,
-        "ci95": [
-          -0.24680442702607744,
-          -0.18452130105829437
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.9199999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.9199999999999999,
+              "accuracy_secondary": 0.9579105667488041,
+              "precision": 0.6457789382071366,
+              "recall": 0.6688701923076923,
+              "f1": 0.6571217712177122,
+              "f2": 0.6641207709290531,
+              "gold_mask_rate": 0.06029859399913031,
+              "predicted_mask_rate": 0.06245470358022902,
+              "residual_sensitive_rate": 0.3311298076923077,
+              "evaluated_tokens": 55192
+            },
+            "f2_optimized": {
+              "threshold": 0.69,
+              "accuracy_secondary": 0.9242281490071025,
+              "precision": 0.4375,
+              "recall": 0.8981370192307693,
+              "f1": 0.5883858267716535,
+              "f2": 0.7419082605242255,
+              "gold_mask_rate": 0.06029859399913031,
+              "predicted_mask_rate": 0.1237860559501377,
+              "residual_sensitive_rate": 0.10186298076923073,
+              "evaluated_tokens": 55192
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.7059129981766085,
+            "clean_recall": 0.6689706245371513,
+            "clean_f1": 0.6869455006337135,
+            "clean_f2": 0.6760465000249464,
+            "noisy_precision": 0.7119341563786008,
+            "noisy_recall": 0.6465779023592618,
+            "noisy_f1": 0.6776839270412535,
+            "noisy_f2": 0.658671235484485,
+            "noisy_mask_rate": 0.0893464472837577,
+            "f2_drop": 0.017375264540461344,
+            "newly_leaked_span_rate": 0.256140350877193
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.2669553188586027,
+            "ci95": [
+              -0.3004762107718683,
+              -0.23561120108433486
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.00027576063976468557,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.3304647160068847,
+              "student_minus_rule_noisy_ci95": [
+                -0.38860103626943004,
+                -0.2720957530865803
+              ],
+              "student_drop_advantage": 0.17900172117039587,
+              "student_drop_advantage_ci95": [
+                0.14183845955976923,
+                0.2195540308747856
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.02456140350877193,
+              "ci95": [
+                0.0,
+                0.05556010928961746
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0010341023991175674,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.94,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.94,
+              "accuracy_secondary": 0.9660276851717641,
+              "precision": 0.7110078419982573,
+              "recall": 0.7355769230769231,
+              "f1": 0.7230837394771821,
+              "f2": 0.7305282005371531,
+              "gold_mask_rate": 0.06029859399913031,
+              "predicted_mask_rate": 0.062382229308595445,
+              "residual_sensitive_rate": 0.26442307692307687,
+              "evaluated_tokens": 55192
+            },
+            "f2_optimized": {
+              "threshold": 0.7799999999999999,
+              "accuracy_secondary": 0.9506812581533556,
+              "precision": 0.5582020745293892,
+              "recall": 0.8731971153846154,
+              "f1": 0.6810405437075229,
+              "f2": 0.7846419699751593,
+              "gold_mask_rate": 0.06029859399913031,
+              "predicted_mask_rate": 0.09432526453109147,
+              "residual_sensitive_rate": 0.12680288461538458,
+              "evaluated_tokens": 55192
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.7678947368421053,
+            "clean_recall": 0.7203159713650951,
+            "clean_f1": 0.7433447968411667,
+            "clean_f2": 0.7293541291741652,
+            "noisy_precision": 0.7735408560311284,
+            "noisy_recall": 0.6965662228451296,
+            "noisy_f1": 0.7330383480825958,
+            "noisy_f2": 0.7107107107107107,
+            "noisy_mask_rate": 0.08858810552440481,
+            "f2_drop": 0.01864341846345452,
+            "newly_leaked_span_rate": 0.23636363636363633
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.21483027634162172,
+            "ci95": [
+              -0.24680442702607744,
+              -0.18452130105829437
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0010341023991175674,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.2667814113597246,
+              "student_minus_rule_noisy_ci95": [
+                -0.32848315900830954,
+                -0.20103878176154585
+              ],
+              "student_drop_advantage": 0.16523235800344235,
+              "student_drop_advantage_ci95": [
+                0.13050586845003087,
+                0.2035611247309255
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.06666666666666667,
+              "ci95": [
+                0.03343211752786221,
+                0.10638469457789979
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.2667814113597246,
-          "student_minus_rule_noisy_ci95": [
-            -0.32848315900830954,
-            -0.20103878176154585
-          ],
-          "student_drop_advantage": 0.16523235800344235,
-          "student_drop_advantage_ci95": [
-            0.13050586845003087,
-            0.2035611247309255
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.06666666666666667,
-          "ci95": [
-            0.03343211752786221,
-            0.10638469457789979
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": false,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.9299999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.9299999999999999,
+              "accuracy_secondary": 0.9684429190751445,
+              "precision": 0.7279495990836197,
+              "recall": 0.7613057801737046,
+              "f1": 0.7442541355584834,
+              "f2": 0.754392212725546,
+              "gold_mask_rate": 0.0603143063583815,
+              "predicted_mask_rate": 0.06307803468208092,
+              "residual_sensitive_rate": 0.23869421982629535,
+              "evaluated_tokens": 55360
+            },
+            "f2_optimized": {
+              "threshold": 0.7899999999999999,
+              "accuracy_secondary": 0.95625,
+              "precision": 0.5943998352892732,
+              "recall": 0.8646301287810721,
+              "f1": 0.7044899951195706,
+              "f2": 0.7925657497391972,
+              "gold_mask_rate": 0.0603143063583815,
+              "predicted_mask_rate": 0.08773482658959537,
+              "residual_sensitive_rate": 0.13536987121892785,
+              "evaluated_tokens": 55360
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.7871954380508035,
+            "clean_recall": 0.7496914342137744,
+            "clean_f1": 0.7679858389176887,
+            "clean_f2": 0.7569035988435849,
+            "noisy_precision": 0.7917858071224331,
+            "noisy_recall": 0.7115160009343612,
+            "noisy_f1": 0.749507874015748,
+            "noisy_f2": 0.7262409994754662,
+            "noisy_mask_rate": 0.08840426509789502,
+            "f2_drop": 0.03066259936811877,
+            "newly_leaked_span_rate": 0.2534059945504087
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.19902640337882116,
+            "ci95": [
+              -0.23468170452401843,
+              -0.16578159913689638
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0012179428256273578,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.23235800344234078,
+              "student_minus_rule_noisy_ci95": [
+                -0.2910652560167986,
+                -0.1684205957602339
+              ],
+              "student_drop_advantage": 0.1359724612736661,
+              "student_drop_advantage_ci95": [
+                0.10221210139885308,
+                0.17017732503301264
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.051771117166212535,
+              "ci95": [
+                0.02221915285451197,
+                0.08465956558061818
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -540,7 +1878,6 @@
       },
       "teacher": "piiclean2 v1.4",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
-      "threshold": 0.8699999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9984749757382504,
@@ -551,46 +1888,271 @@
         "f2_drop": 0.03310689257041588,
         "newly_leaked_span_rate": 0.2633333333333333
       },
-      "student_result": {
-        "clean_precision": 0.8842692710149983,
-        "clean_recall": 0.8733034791594901,
-        "clean_f1": 0.8787521663778163,
-        "clean_f2": 0.8754748256095034,
-        "noisy_precision": 0.8853644963828603,
-        "noisy_recall": 0.8476856476856477,
-        "noisy_f1": 0.8661154775271341,
-        "noisy_f2": 0.8549626524799828,
-        "noisy_mask_rate": 0.19723952473726092,
-        "f2_drop": 0.020512173129520583,
-        "newly_leaked_span_rate": 0.23700887198986054
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.11199123053935427,
-        "ci95": [
-          -0.12085302959572258,
-          -0.10362224875834554
-        ],
-        "repeats": 2000,
-        "unit": "paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.7799999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7799999999999999,
+              "accuracy_secondary": 0.9425844261343855,
+              "precision": 0.8428951070814444,
+              "recall": 0.8469996858309771,
+              "f1": 0.844942411658701,
+              "f2": 0.8461755751545776,
+              "gold_mask_rate": 0.18469304862481142,
+              "predicted_mask_rate": 0.18559243356156435,
+              "residual_sensitive_rate": 0.15300031416902293,
+              "evaluated_tokens": 68936
+            },
+            "f2_optimized": {
+              "threshold": 0.5099999999999999,
+              "accuracy_secondary": 0.9260908668910294,
+              "precision": 0.73427817657525,
+              "recall": 0.9399937166195413,
+              "f1": 0.8244979504667425,
+              "f2": 0.8901185535573505,
+              "gold_mask_rate": 0.18469304862481142,
+              "predicted_mask_rate": 0.23643669490541952,
+              "residual_sensitive_rate": 0.06000628338045866,
+              "evaluated_tokens": 68936
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8450337647720878,
+            "clean_recall": 0.8276265931794695,
+            "clean_f1": 0.836239601823814,
+            "clean_f2": 0.831050417842714,
+            "noisy_precision": 0.8467127785928876,
+            "noisy_recall": 0.8071262071262071,
+            "noisy_f1": 0.8264457174031642,
+            "noisy_f2": 0.8147445981740685,
+            "noisy_mask_rate": 0.19637516121065773,
+            "f2_drop": 0.016305819668645527,
+            "newly_leaked_span_rate": 0.23567708333333337
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.15226476073250866,
+            "ci95": [
+              -0.17359837261543476,
+              -0.13186744418291693
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.001550366325494601,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.08222222222222222,
+              "student_minus_rule_noisy_ci95": [
+                -0.1186278675635324,
+                -0.04687287472796519
+              ],
+              "student_drop_advantage": 0.06444444444444444,
+              "student_drop_advantage_ci95": [
+                0.047097480832420595,
+                0.0817886604284659
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.029947916666666668,
+              "ci95": [
+                0.016304347826086956,
+                0.04313887435533297
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0006860027988914164,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.8699999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9595857026807474,
+              "precision": 0.888880200187676,
+              "recall": 0.8927898209236569,
+              "f1": 0.8908307210031348,
+              "f2": 0.8920051478435558,
+              "gold_mask_rate": 0.18469304862481142,
+              "predicted_mask_rate": 0.1855053963096205,
+              "residual_sensitive_rate": 0.10721017907634312,
+              "evaluated_tokens": 68936
+            },
+            "f2_optimized": {
+              "threshold": 0.5299999999999999,
+              "accuracy_secondary": 0.9495183938725774,
+              "precision": 0.8066012725344645,
+              "recall": 0.9558592522777254,
+              "f1": 0.8749101365923796,
+              "f2": 0.9217462433349491,
+              "gold_mask_rate": 0.18469304862481142,
+              "predicted_mask_rate": 0.21886967622142278,
+              "residual_sensitive_rate": 0.04414074772227461,
+              "evaluated_tokens": 68936
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8842692710149983,
+            "clean_recall": 0.8733034791594901,
+            "clean_f1": 0.8787521663778163,
+            "clean_f2": 0.8754748256095034,
+            "noisy_precision": 0.8853644963828603,
+            "noisy_recall": 0.8476856476856477,
+            "noisy_f1": 0.8661154775271341,
+            "noisy_f2": 0.8549626524799828,
+            "noisy_mask_rate": 0.19723952473726092,
+            "f2_drop": 0.020512173129520583,
+            "newly_leaked_span_rate": 0.23700887198986054
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.11199123053935427,
+            "ci95": [
+              -0.12085302959572258,
+              -0.10362224875834554
+            ],
+            "repeats": 2000,
+            "unit": "paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0006860027988914164,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.9099999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.9099999999999999,
+              "accuracy_secondary": 0.9700594440235445,
+              "precision": 0.9203052474234915,
+              "recall": 0.918210361067504,
+              "f1": 0.9192566107422105,
+              "f2": 0.9186285750184543,
+              "gold_mask_rate": 0.18561687744041028,
+              "predicted_mask_rate": 0.1851943586456087,
+              "residual_sensitive_rate": 0.08178963893249602,
+              "evaluated_tokens": 68636
+            },
+            "f2_optimized": {
+              "threshold": 0.5199999999999999,
+              "accuracy_secondary": 0.9665773063698351,
+              "precision": 0.8609536973047685,
+              "recall": 0.9778649921507064,
+              "f1": 0.9156927600147005,
+              "f2": 0.9520097814458199,
+              "gold_mask_rate": 0.18561687744041028,
+              "predicted_mask_rate": 0.2108223089923655,
+              "residual_sensitive_rate": 0.022135007849293564,
+              "evaluated_tokens": 68636
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9241882319938285,
+            "clean_recall": 0.9078883913193249,
+            "clean_f1": 0.9159658024605547,
+            "clean_f2": 0.9111021999751103,
+            "noisy_precision": 0.9249299719887956,
+            "noisy_recall": 0.8796536796536797,
+            "noisy_f1": 0.9017238436593276,
+            "noisy_f2": 0.8883508205542103,
+            "noisy_mask_rate": 0.1959223993633894,
+            "f2_drop": 0.022751379420899998,
+            "newly_leaked_span_rate": 0.22506082725060828
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.0784683016356743,
+            "ci95": [
+              -0.09393369808519982,
+              -0.06399280646659292
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0020031281727629358,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.028888888888888888,
+              "student_minus_rule_noisy_ci95": [
+                -0.05405779119827793,
+                -0.002206843507839417
+              ],
+              "student_drop_advantage": 0.057777777777777775,
+              "student_drop_advantage_ci95": [
+                0.041106418328086744,
+                0.07339500566378546
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.030413625304136254,
+              "ci95": [
+                0.019347037484885126,
+                0.043532338308457715
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -607,7 +2169,6 @@
       },
       "teacher": "piiclean2 v1.4",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
-      "threshold": 0.83,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9976950938426078,
@@ -618,69 +2179,294 @@
         "f2_drop": 0.06325357076609162,
         "newly_leaked_span_rate": 0.2761904761904762
       },
-      "student_result": {
-        "clean_precision": 0.9261400128452152,
-        "clean_recall": 0.9351491569390402,
-        "clean_f1": 0.930622781542433,
-        "clean_f2": 0.9333333333333333,
-        "noisy_precision": 0.9275133942641034,
-        "noisy_recall": 0.896163215590743,
-        "noisy_f1": 0.9115688400185845,
-        "noisy_f2": 0.9022625544178061,
-        "noisy_mask_rate": 0.14988190836088805,
-        "f2_drop": 0.03107077891552723,
-        "newly_leaked_span_rate": 0.25
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.03467472183358375,
-        "ci95": [
-          -0.05755950836728251,
-          -0.012620328850476079
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": true,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.8699999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8699999999999999,
+              "accuracy_secondary": 0.9729891214768419,
+              "precision": 0.8496105452366687,
+              "recall": 0.8840399002493765,
+              "f1": 0.8664833486098381,
+              "f2": 0.8769325912183055,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.10316054062963573,
+              "residual_sensitive_rate": 0.11596009975062349,
+              "evaluated_tokens": 48536
+            },
+            "f2_optimized": {
+              "threshold": 0.6699999999999999,
+              "accuracy_secondary": 0.9640060985660128,
+              "precision": 0.7516007223772779,
+              "recall": 0.9513715710723192,
+              "f1": 0.8397688709529487,
+              "f2": 0.9033505663206914,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.12549447832536673,
+              "residual_sensitive_rate": 0.04862842892768082,
+              "evaluated_tokens": 48536
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8722311396468699,
+            "clean_recall": 0.8809987029831388,
+            "clean_f1": 0.8765929988707856,
+            "clean_f2": 0.879231117727008,
+            "noisy_precision": 0.8744875433617155,
+            "noisy_recall": 0.8443970767356882,
+            "noisy_f1": 0.8591789310611929,
+            "noisy_f2": 0.8502483596001718,
+            "noisy_mask_rate": 0.1497874350495985,
+            "f2_drop": 0.02898275812683626,
+            "newly_leaked_span_rate": 0.2577903682719547
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.08653351045483092,
+            "ci95": [
+              -0.11399349355333656,
+              -0.06115890976966706
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.006329711856400577,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.09523809523809523,
+              "student_minus_rule_noisy_ci95": [
+                -0.1523541047902997,
+                -0.04427436316896479
+              ],
+              "student_drop_advantage": 0.06428571428571428,
+              "student_drop_advantage_ci95": [
+                0.039624017957351286,
+                0.09330305185568342
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.0226628895184136,
+              "ci95": [
+                0.00806343798516474,
+                0.04204436177750784
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0064241851676901385,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.83,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.83,
+              "accuracy_secondary": 0.9864430525795286,
+              "precision": 0.9209566274827726,
+              "recall": 0.9443059019118869,
+              "f1": 0.9324851221013749,
+              "f2": 0.9395418079563311,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.10165650238997857,
+              "residual_sensitive_rate": 0.0556940980881131,
+              "evaluated_tokens": 48536
+            },
+            "f2_optimized": {
+              "threshold": 0.18,
+              "accuracy_secondary": 0.9818485248063293,
+              "precision": 0.862437765074682,
+              "recall": 0.9719451371571073,
+              "f1": 0.9139228138739619,
+              "f2": 0.9478740221312472,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.11173149826932587,
+              "residual_sensitive_rate": 0.028054862842892714,
+              "evaluated_tokens": 48536
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9261400128452152,
+            "clean_recall": 0.9351491569390402,
+            "clean_f1": 0.930622781542433,
+            "clean_f2": 0.9333333333333333,
+            "noisy_precision": 0.9275133942641034,
+            "noisy_recall": 0.896163215590743,
+            "noisy_f1": 0.9115688400185845,
+            "noisy_f2": 0.9022625544178061,
+            "noisy_mask_rate": 0.14988190836088805,
+            "f2_drop": 0.03107077891552723,
+            "newly_leaked_span_rate": 0.25
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.03467472183358375,
+            "ci95": [
+              -0.05755950836728251,
+              -0.012620328850476079
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0064241851676901385,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.023809523809523808,
+              "student_minus_rule_noisy_ci95": [
+                -0.06265737105726277,
+                0.013208430913348827
+              ],
+              "student_drop_advantage": 0.04285714285714286,
+              "student_drop_advantage_ci95": [
+                0.020830933179723503,
+                0.06888565812105822
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.025510204081632654,
+              "ci95": [
+                0.007462686567164179,
+                0.046274217819299
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.023809523809523808,
-          "student_minus_rule_noisy_ci95": [
-            -0.06265737105726277,
-            0.013208430913348827
-          ],
-          "student_drop_advantage": 0.04285714285714286,
-          "student_drop_advantage_ci95": [
-            0.020830933179723503,
-            0.06888565812105822
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": false,
-          "student_minus_rule": 0.025510204081632654,
-          "ci95": [
-            0.007462686567164179,
-            0.046274217819299
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.9299999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.9299999999999999,
+              "accuracy_secondary": 0.9913260260425252,
+              "precision": 0.9503589743589743,
+              "recall": 0.9628013300083126,
+              "f1": 0.9565396923712192,
+              "f2": 0.9602868631596402,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.10044090984011868,
+              "residual_sensitive_rate": 0.037198669991687416,
+              "evaluated_tokens": 48536
+            },
+            "f2_optimized": {
+              "threshold": 0.4799999999999999,
+              "accuracy_secondary": 0.9903782759189056,
+              "precision": 0.9248973205554469,
+              "recall": 0.9827514546965919,
+              "f1": 0.9529471032745592,
+              "f2": 0.9706087599031239,
+              "gold_mask_rate": 0.09914290423603099,
+              "predicted_mask_rate": 0.10534448656667215,
+              "residual_sensitive_rate": 0.017248545303408136,
+              "evaluated_tokens": 48536
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9556569938050212,
+            "clean_recall": 0.9503891050583657,
+            "clean_f1": 0.9530157697935295,
+            "clean_f2": 0.951438031552295,
+            "noisy_precision": 0.9567602452404002,
+            "noisy_recall": 0.9028623629719854,
+            "noisy_f1": 0.9290302365658781,
+            "noisy_f2": 0.9131506005543578,
+            "noisy_mask_rate": 0.1463863958431743,
+            "f2_drop": 0.03828743099793719,
+            "newly_leaked_span_rate": 0.24556962025316453
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.02378421814709063,
+            "ci95": [
+              -0.04259323062444152,
+              -0.007184480657670523
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0029286726499763993,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.014285714285714285,
+              "student_minus_rule_noisy_ci95": [
+                -0.04608378819739609,
+                0.014319809069212411
+              ],
+              "student_drop_advantage": 0.04523809523809524,
+              "student_drop_advantage_ci95": [
+                0.023917775913286015,
+                0.07144234300403958
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.020253164556962026,
+              "ci95": [
+                0.007334516071322082,
+                0.036766640866873056
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -697,7 +2483,6 @@
       },
       "teacher": "piiclean2 v1.4",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
-      "threshold": 0.8999999999999999,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.996380846325167,
@@ -708,69 +2493,294 @@
         "f2_drop": 0.05076384468491402,
         "newly_leaked_span_rate": 0.3045404208194906
       },
-      "student_result": {
-        "clean_precision": 0.9000141222991103,
-        "clean_recall": 0.8812223451327433,
-        "clean_f1": 0.8905191085027597,
-        "clean_f2": 0.8849176594740203,
-        "noisy_precision": 0.8980747451868629,
-        "noisy_recall": 0.8314547837483617,
-        "noisy_f1": 0.8634816932081122,
-        "noisy_f2": 0.843976160068114,
-        "noisy_mask_rate": 0.14742773661692582,
-        "f2_drop": 0.0409414994059063,
-        "newly_leaked_span_rate": 0.2666666666666667
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.10562620767169333,
-        "ci95": [
-          -0.12757404160839506,
-          -0.086290246614554
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": false,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.8599999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8599999999999999,
+              "accuracy_secondary": 0.9603595797682227,
+              "precision": 0.820079522862823,
+              "recall": 0.8168316831683168,
+              "f1": 0.8184523809523809,
+              "f2": 0.8174791914387634,
+              "gold_mask_rate": 0.10939023069424889,
+              "predicted_mask_rate": 0.10895700205783602,
+              "residual_sensitive_rate": 0.18316831683168322,
+              "evaluated_tokens": 46165
+            },
+            "f2_optimized": {
+              "threshold": 0.62,
+              "accuracy_secondary": 0.9447633488573595,
+              "precision": 0.6836075205640423,
+              "recall": 0.9215841584158416,
+              "f1": 0.784955304435824,
+              "f2": 0.8615965639810427,
+              "gold_mask_rate": 0.10939023069424889,
+              "predicted_mask_rate": 0.1474710278349399,
+              "residual_sensitive_rate": 0.07841584158415837,
+              "evaluated_tokens": 46165
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8207286778912504,
+            "clean_recall": 0.8223174778761062,
+            "clean_f1": 0.821522309711286,
+            "clean_f2": 0.8219992259633991,
+            "noisy_precision": 0.8235697626560571,
+            "noisy_recall": 0.7867627785058978,
+            "noisy_f1": 0.8047456263824653,
+            "noisy_f2": 0.7938586050940253,
+            "noisy_mask_rate": 0.15212355212355214,
+            "f2_drop": 0.028140620869373856,
+            "newly_leaked_span_rate": 0.25722145804676755
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.1557125812457689,
+            "ci95": [
+              -0.17849615746169348,
+              -0.13515104511965756
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.002191380569758955,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.08637873754152824,
+              "student_minus_rule_noisy_ci95": [
+                -0.12830430145751864,
+                -0.04449259302779974
+              ],
+              "student_drop_advantage": 0.10852713178294573,
+              "student_drop_advantage_ci95": [
+                0.0813005866695638,
+                0.13583921164752685
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.05089408528198074,
+              "ci95": [
+                0.025918231730826264,
+                0.07692307692307693
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": false,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": true,
-          "mask_rate_gap": 0.0025044349368673613,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.8999999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.8999999999999999,
+              "accuracy_secondary": 0.9730965016787609,
+              "precision": 0.879585326953748,
+              "recall": 0.8736633663366337,
+              "f1": 0.8766143453208822,
+              "f2": 0.8748413705583756,
+              "gold_mask_rate": 0.10939023069424889,
+              "predicted_mask_rate": 0.10865374201234701,
+              "residual_sensitive_rate": 0.12633663366336634,
+              "evaluated_tokens": 46165
+            },
+            "f2_optimized": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9621358171775154,
+              "precision": 0.7667205169628433,
+              "recall": 0.9398019801980197,
+              "f1": 0.8444839857651245,
+              "f2": 0.8992042440318302,
+              "gold_mask_rate": 0.10939023069424889,
+              "predicted_mask_rate": 0.1340842629697823,
+              "residual_sensitive_rate": 0.06019801980198025,
+              "evaluated_tokens": 46165
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9000141222991103,
+            "clean_recall": 0.8812223451327433,
+            "clean_f1": 0.8905191085027597,
+            "clean_f2": 0.8849176594740203,
+            "noisy_precision": 0.8980747451868629,
+            "noisy_recall": 0.8314547837483617,
+            "noisy_f1": 0.8634816932081122,
+            "noisy_f2": 0.843976160068114,
+            "noisy_mask_rate": 0.14742773661692582,
+            "f2_drop": 0.0409414994059063,
+            "newly_leaked_span_rate": 0.2666666666666667
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.10562620767169333,
+            "ci95": [
+              -0.12757404160839506,
+              -0.086290246614554
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": false,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.0025044349368673613,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": -0.06090808416389812,
+              "student_minus_rule_noisy_ci95": [
+                -0.09656821284944056,
+                -0.027025508654722148
+              ],
+              "student_drop_advantage": 0.0753045404208195,
+              "student_drop_advantage_ci95": [
+                0.04951506330815214,
+                0.10021120281046116
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": false,
+              "student_minus_rule": 0.02564102564102564,
+              "ci95": [
+                0.0026698723574770785,
+                0.04792261017670852
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": -0.06090808416389812,
-          "student_minus_rule_noisy_ci95": [
-            -0.09656821284944056,
-            -0.027025508654722148
-          ],
-          "student_drop_advantage": 0.0753045404208195,
-          "student_drop_advantage_ci95": [
-            0.04951506330815214,
-            0.10021120281046116
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": false,
-          "student_minus_rule": 0.02564102564102564,
-          "ci95": [
-            0.0026698723574770785,
-            0.04792261017670852
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.9299999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.9299999999999999,
+              "accuracy_secondary": 0.9814951245937161,
+              "precision": 0.9148221343873518,
+              "recall": 0.916270783847981,
+              "f1": 0.9155458860759493,
+              "f2": 0.9159806870349849,
+              "gold_mask_rate": 0.1094691224268689,
+              "predicted_mask_rate": 0.10964247020585048,
+              "residual_sensitive_rate": 0.083729216152019,
+              "evaluated_tokens": 46150
+            },
+            "f2_optimized": {
+              "threshold": 0.24999999999999994,
+              "accuracy_secondary": 0.9757313109425786,
+              "precision": 0.8374527978029522,
+              "recall": 0.9657561361836896,
+              "f1": 0.8970398970398971,
+              "f2": 0.9370438657140662,
+              "gold_mask_rate": 0.1094691224268689,
+              "predicted_mask_rate": 0.12624052004333694,
+              "residual_sensitive_rate": 0.034243863816310394,
+              "evaluated_tokens": 46150
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9231514815840487,
+            "clean_recall": 0.921875,
+            "clean_f1": 0.922512799225128,
+            "clean_f2": 0.9221300138312587,
+            "noisy_precision": 0.9250814332247557,
+            "noisy_recall": 0.8933158584534732,
+            "noisy_f1": 0.9089211894919322,
+            "noisy_f2": 0.8994932432432432,
+            "noisy_mask_rate": 0.15377230512365647,
+            "f2_drop": 0.022636770588015498,
+            "newly_leaked_span_rate": 0.23479318734793186
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.049942018122280954,
+            "ci95": [
+              -0.06322164992958727,
+              -0.0375830879576563
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": true,
+              "mask_rate_gap": 0.003840133569863291,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": 0.009966777408637873,
+              "student_minus_rule_noisy_ci95": [
+                -0.02285885839051778,
+                0.04166889721627408
+              ],
+              "student_drop_advantage": 0.09966777408637874,
+              "student_drop_advantage_ci95": [
+                0.07604912293067786,
+                0.12370118415805136
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.06934306569343066,
+              "ci95": [
+                0.04797004812153385,
+                0.09205753816409554
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     },
@@ -787,7 +2797,6 @@
       },
       "teacher": "piiclean2 v1.4",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
-      "threshold": 0.83,
       "rule": {
         "clean_f2": 1.0,
         "noisy_precision": 0.9976004799040192,
@@ -798,69 +2807,294 @@
         "f2_drop": 0.05529255822760837,
         "newly_leaked_span_rate": 0.29500000000000004
       },
-      "student_result": {
-        "clean_precision": 0.9206915993234355,
-        "clean_recall": 0.9510774606872452,
-        "clean_f1": 0.9356378915202445,
-        "clean_f2": 0.944840887174542,
-        "noisy_precision": 0.9224748415952292,
-        "noisy_recall": 0.92506073631097,
-        "noisy_f1": 0.9237659792852477,
-        "noisy_f2": 0.9245423982069481,
-        "noisy_mask_rate": 0.2951595159515952,
-        "f2_drop": 0.020298488967593897,
-        "newly_leaked_span_rate": 0.189873417721519
-      },
-      "bootstrap_delta_f2": {
-        "metric": "noisy_f2_student_minus_rule",
-        "mean": -0.020087462308381633,
-        "ci95": [
-          -0.03721663441504802,
-          -0.003929597814930587
-        ],
-        "repeats": 2000,
-        "unit": "source-clustered paired sentence"
-      },
-      "acceptance": {
-        "final_student_quality_gate": {
-          "pass": true,
-          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+      "models": {
+        "bert_tiny": {
+          "name": "BERT-tiny",
+          "encoder": "prajjwal1/bert-tiny",
+          "threshold": 0.7999999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7999999999999999,
+              "accuracy_secondary": 0.9387461828633016,
+              "precision": 0.8452743902439024,
+              "recall": 0.8893344025661588,
+              "f1": 0.8667448221961703,
+              "f2": 0.8801587301587301,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.23567451050835278,
+              "residual_sensitive_rate": 0.11066559743384119,
+              "evaluated_tokens": 5567
+            },
+            "f2_optimized": {
+              "threshold": 0.43999999999999995,
+              "accuracy_secondary": 0.9225794862583079,
+              "precision": 0.7527881040892194,
+              "recall": 0.9743384121892542,
+              "f1": 0.8493533729465222,
+              "f2": 0.9201757043320206,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.28992275911622056,
+              "residual_sensitive_rate": 0.02566158781074579,
+              "evaluated_tokens": 5567
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.8737373737373737,
+            "clean_recall": 0.906814210832848,
+            "clean_f1": 0.8899685624464133,
+            "clean_f2": 0.9,
+            "noisy_precision": 0.8756947017413858,
+            "noisy_recall": 0.8833862829377687,
+            "noisy_f1": 0.879523676621081,
+            "noisy_f2": 0.8818371763301246,
+            "noisy_mask_rate": 0.29691969196919693,
+            "f2_drop": 0.018162823669875428,
+            "newly_leaked_span_rate": 0.16634050880626228
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.06282964135975833,
+            "ci95": [
+              -0.08660917933228966,
+              -0.041441193113137736
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": false,
+              "mask_rate_gap": 0.021837183718371844,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": 0.006666666666666667,
+              "student_minus_rule_noisy_ci95": [
+                -0.047464976026370995,
+                0.06085526315789474
+              ],
+              "student_drop_advantage": 0.155,
+              "student_drop_advantage_ci95": [
+                0.12013377181012681,
+                0.19120319899158517
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.136986301369863,
+              "ci95": [
+                0.10266796791198013,
+                0.17255871943371942
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "matched_budget_gate": {
-          "pass": false,
-          "mask_rate_gap": 0.02007700770077009,
-          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        "electra_small": {
+          "name": "ELECTRA-small",
+          "encoder": "google/electra-small-discriminator",
+          "threshold": 0.83,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.83,
+              "accuracy_secondary": 0.9620980779594036,
+              "precision": 0.8954198473282443,
+              "recall": 0.9406575781876504,
+              "f1": 0.9174814235432147,
+              "f2": 0.9312480152429342,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.23531525058379738,
+              "residual_sensitive_rate": 0.05934242181234961,
+              "evaluated_tokens": 5567
+            },
+            "f2_optimized": {
+              "threshold": 0.3,
+              "accuracy_secondary": 0.9475480510149092,
+              "precision": 0.8176979374584165,
+              "recall": 0.9855653568564555,
+              "f1": 0.8938181818181818,
+              "f2": 0.9466954244338315,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.269983833303395,
+              "residual_sensitive_rate": 0.014434643143544479,
+              "evaluated_tokens": 5567
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9206915993234355,
+            "clean_recall": 0.9510774606872452,
+            "clean_f1": 0.9356378915202445,
+            "clean_f2": 0.944840887174542,
+            "noisy_precision": 0.9224748415952292,
+            "noisy_recall": 0.92506073631097,
+            "noisy_f1": 0.9237659792852477,
+            "noisy_f2": 0.9245423982069481,
+            "noisy_mask_rate": 0.2951595159515952,
+            "f2_drop": 0.020298488967593897,
+            "newly_leaked_span_rate": 0.189873417721519
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.020087462308381633,
+            "ci95": [
+              -0.03721663441504802,
+              -0.003929597814930587
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": false,
+              "mask_rate_gap": 0.02007700770077009,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": false,
+              "student_minus_rule_noisy": 0.041666666666666664,
+              "student_minus_rule_noisy_ci95": [
+                -0.0033066129499579188,
+                0.08747855917667238
+              ],
+              "student_drop_advantage": 0.12,
+              "student_drop_advantage_ci95": [
+                0.08734329436432353,
+                0.15332804923245577
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.11573236889692586,
+              "ci95": [
+                0.08363537794299877,
+                0.14933179994551624
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         },
-        "robustness_superiority_gate": {
-          "pass": false,
-          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
-        },
-        "absolute_target_robustness_gate": {
-          "pass": false,
-          "student_minus_rule_noisy": 0.041666666666666664,
-          "student_minus_rule_noisy_ci95": [
-            -0.0033066129499579188,
-            0.08747855917667238
-          ],
-          "student_drop_advantage": 0.12,
-          "student_drop_advantage_ci95": [
-            0.08734329436432353,
-            0.15332804923245577
-          ],
-          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
-        },
-        "conditional_surface_robustness_gate": {
-          "pass": true,
-          "student_minus_rule": 0.11573236889692586,
-          "ci95": [
-            0.08363537794299877,
-            0.14933179994551624
-          ],
-          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
-        },
-        "pilot_quality_reference": {
-          "pass": true,
-          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        "distilroberta": {
+          "name": "DistilRoBERTa",
+          "encoder": "distilroberta-base",
+          "threshold": 0.7599999999999999,
+          "operating_points": {
+            "budget_matched": {
+              "threshold": 0.7599999999999999,
+              "accuracy_secondary": 0.9719777258846776,
+              "precision": 0.931908155186065,
+              "recall": 0.9438652766639936,
+              "f1": 0.9378486055776892,
+              "f2": 0.9414493681011038,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.22687264235674512,
+              "residual_sensitive_rate": 0.05613472333600644,
+              "evaluated_tokens": 5567
+            },
+            "f2_optimized": {
+              "threshold": 0.4599999999999999,
+              "accuracy_secondary": 0.9696425363750674,
+              "precision": 0.8963235294117647,
+              "recall": 0.9775461106655974,
+              "f1": 0.935174530111239,
+              "f2": 0.9601449275362319,
+              "gold_mask_rate": 0.22399856296030177,
+              "predicted_mask_rate": 0.24429674869768278,
+              "residual_sensitive_rate": 0.02245388933440262,
+              "evaluated_tokens": 5567
+            }
+          },
+          "robustness": {
+            "clean_precision": 0.9450019297568506,
+            "clean_recall": 0.9506891865657154,
+            "clean_f1": 0.947837027000871,
+            "clean_f2": 0.9495462654153417,
+            "noisy_precision": 0.9470542934154794,
+            "noisy_recall": 0.9192674266492245,
+            "noisy_f1": 0.9329540066382171,
+            "noisy_f2": 0.9246935859839086,
+            "noisy_mask_rate": 0.2856985698569857,
+            "f2_drop": 0.0248526794314331,
+            "newly_leaked_span_rate": 0.18374558303886923
+          },
+          "bootstrap_delta_f2": {
+            "metric": "noisy_f2_student_minus_rule",
+            "mean": -0.01999449726162068,
+            "ci95": [
+              -0.03711630279149896,
+              -0.004447656416714251
+            ],
+            "repeats": 2000,
+            "unit": "source-clustered paired sentence"
+          },
+          "acceptance": {
+            "final_student_quality_gate": {
+              "pass": true,
+              "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+            },
+            "matched_budget_gate": {
+              "pass": false,
+              "mask_rate_gap": 0.010616061606160632,
+              "criteria": "absolute noisy mask-rate gap <= 0.01"
+            },
+            "robustness_superiority_gate": {
+              "pass": false,
+              "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+            },
+            "absolute_target_robustness_gate": {
+              "pass": true,
+              "student_minus_rule_noisy": 0.065,
+              "student_minus_rule_noisy_ci95": [
+                0.02214462765695907,
+                0.10919084862759036
+              ],
+              "student_drop_advantage": 0.12166666666666667,
+              "student_drop_advantage_ci95": [
+                0.08928497638724911,
+                0.1566315853633759
+              ],
+              "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+            },
+            "conditional_surface_robustness_gate": {
+              "pass": true,
+              "student_minus_rule": 0.11484098939929328,
+              "ci95": [
+                0.08047601276197167,
+                0.14967062774476875
+              ],
+              "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+            },
+            "pilot_quality_reference": {
+              "pass": true,
+              "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+            }
+          }
         }
       }
     }
@@ -1189,9 +3423,14 @@
     }
   },
   "protocol": {
-    "student": "google/electra-small-discriminator + hidden-128 MLP",
+    "students": [
+      "prajjwal1/bert-tiny + hidden-128 MLP",
+      "google/electra-small-discriminator + hidden-128 MLP",
+      "distilroberta-base + hidden-128 MLP"
+    ],
     "seed": 42,
     "epochs": 5,
+    "batch_size": 32,
     "max_length": 128,
     "train_validation_test_cap": [
       5000,
@@ -1200,6 +3439,12 @@
     ],
     "noise_types": 12,
     "per_noise_cap": 100,
+    "robustness_operating_point": "validation budget-matched threshold",
     "pseudo_gold": "clean v1.4 character spans projected through deterministic edits"
-  }
+  },
+  "students": [
+    "prajjwal1/bert-tiny + hidden-128 MLP",
+    "google/electra-small-discriminator + hidden-128 MLP",
+    "distilroberta-base + hidden-128 MLP"
+  ]
 }

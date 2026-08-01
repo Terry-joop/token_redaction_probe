@@ -23,6 +23,14 @@ DATASETS = {
         "piiclean2 v1.4",
     ),
 }
+MODELS = {
+    "bert_tiny": ("BERT-tiny", "prajjwal1/bert-tiny"),
+    "electra_small": (
+        "ELECTRA-small",
+        "google/electra-small-discriminator",
+    ),
+    "distilroberta": ("DistilRoBERTa", "distilroberta-base"),
+}
 
 
 def load(path: Path) -> dict:
@@ -44,17 +52,65 @@ def line_count(path: Path) -> int:
         return sum(1 for line in handle if line.strip())
 
 
+def result_path(dataset: str, model: str) -> Path:
+    root = ROOT / "artifacts" / "robustness" / "v14"
+    if model == "electra_small":
+        legacy = root / f"{dataset}_results.json"
+        if legacy.exists():
+            return legacy
+    return root / f"{dataset}_{model}_results.json"
+
+
 def sync_dataset_results(summary: dict) -> None:
     datasets = {}
     for key, (name, group, group_name, teacher) in DATASETS.items():
-        result_path = (
-            ROOT / "artifacts" / "robustness" / "v14" / f"{key}_results.json"
-        )
-        if not result_path.exists():
-            raise FileNotFoundError(f"Missing robustness result: {result_path}")
-        result = load(result_path)
-        rule = result["rule_v1_4"]
-        student = result["student"]
+        model_results = {}
+        raw_results = {}
+        for model_key, (model_name, encoder_name) in MODELS.items():
+            path = result_path(key, model_key)
+            if not path.exists():
+                raise FileNotFoundError(f"Missing robustness result: {path}")
+            result = load(path)
+            raw_results[model_key] = result
+            student = result["student"]
+            model_dir = (
+                ROOT
+                / "artifacts"
+                / "robustness"
+                / "v14"
+                / f"{key}_{model_key}_seed42"
+            )
+            clean_eval = load(model_dir / "medical_evaluation.json")
+            model_results[model_key] = {
+                "name": model_name,
+                "encoder": encoder_name,
+                "threshold": result["student_threshold"],
+                "operating_points": {
+                    "budget_matched": clean_eval["budget_matched"]["test"],
+                    "f2_optimized": clean_eval["f2_optimized"]["test"],
+                },
+                "robustness": {
+                    "clean_precision": student["clean"]["precision"],
+                    "clean_recall": student["clean"]["recall"],
+                    "clean_f1": student["clean"]["f1"],
+                    "clean_f2": student["clean"]["f2"],
+                    "noisy_precision": student["noisy"]["precision"],
+                    "noisy_recall": student["noisy"]["recall"],
+                    "noisy_f1": student["noisy"]["f1"],
+                    "noisy_f2": student["noisy"]["f2"],
+                    "noisy_mask_rate": student["noisy"]["predicted_mask_rate"],
+                    "f2_drop": student["clean"]["f2"]
+                    - student["noisy"]["f2"],
+                    "newly_leaked_span_rate": student["robustness"][
+                        "newly_leaked_span_rate"
+                    ],
+                },
+                "bootstrap_delta_f2": result["paired_bootstrap"],
+                "acceptance": result["acceptance"],
+            }
+
+        reference = raw_results["electra_small"]
+        rule = reference["rule_v1_4"]
         split_dir = ROOT / "data" / "robustness" / "v14" / key
         splits = {
             split: line_count(split_dir / f"{split}.jsonl")
@@ -63,7 +119,7 @@ def sync_dataset_results(summary: dict) -> None:
         pair_path = split_dir / "paired_noisy_test.jsonl"
         if not pair_path.exists():
             pair_path = split_dir / "robustness_pairs.jsonl"
-        unique_source_rows = result.get("unique_source_rows")
+        unique_source_rows = reference.get("unique_source_rows")
         if unique_source_rows is None:
             source_ids = {
                 json.loads(line)["source_id"]
@@ -75,12 +131,11 @@ def sync_dataset_results(summary: dict) -> None:
             "name": name,
             "group": group,
             "group_name": group_name,
-            "pairs": result["pairs"],
+            "pairs": reference["pairs"],
             "unique_source_rows": unique_source_rows,
             "splits": splits,
             "teacher": teacher,
-            "policy_id": result["rule_policy"],
-            "threshold": result["student_threshold"],
+            "policy_id": reference["rule_policy"],
             "rule": {
                 "clean_f2": rule["clean"]["f2"],
                 "noisy_precision": rule["noisy"]["precision"],
@@ -93,34 +148,24 @@ def sync_dataset_results(summary: dict) -> None:
                     "newly_leaked_span_rate"
                 ],
             },
-            "student_result": {
-                "clean_precision": student["clean"]["precision"],
-                "clean_recall": student["clean"]["recall"],
-                "clean_f1": student["clean"]["f1"],
-                "clean_f2": student["clean"]["f2"],
-                "noisy_precision": student["noisy"]["precision"],
-                "noisy_recall": student["noisy"]["recall"],
-                "noisy_f1": student["noisy"]["f1"],
-                "noisy_f2": student["noisy"]["f2"],
-                "noisy_mask_rate": student["noisy"]["predicted_mask_rate"],
-                "f2_drop": student["clean"]["f2"]
-                - student["noisy"]["f2"],
-                "newly_leaked_span_rate": student["robustness"][
-                    "newly_leaked_span_rate"
-                ],
-            },
-            "bootstrap_delta_f2": result["paired_bootstrap"],
-            "acceptance": result["acceptance"],
+            "models": model_results,
         }
     summary["datasets"] = datasets
+    summary.pop("student", None)
+    summary.pop("train_validation_test", None)
+    summary["students"] = [
+        value[1] + " + hidden-128 MLP" for value in MODELS.values()
+    ]
     summary["protocol"] = {
-        "student": "google/electra-small-discriminator + hidden-128 MLP",
+        "students": summary["students"],
         "seed": 42,
         "epochs": 5,
+        "batch_size": 32,
         "max_length": 128,
         "train_validation_test_cap": [5000, 500, 1000],
         "noise_types": 12,
         "per_noise_cap": 100,
+        "robustness_operating_point": "validation budget-matched threshold",
         "pseudo_gold": (
             "clean v1.4 character spans projected through deterministic edits"
         ),
@@ -130,13 +175,14 @@ def sync_dataset_results(summary: dict) -> None:
 def write_dataset_report(summary: dict) -> None:
     report_path = ROOT / "ROBUSTNESS_EXPERIMENT_V14.md"
     report = report_path.read_text(encoding="utf-8")
-    start = "## 10개 데이터셋 공통 비교"
+    start = "## 10개 데이터셋 × 3모델 공통 비교"
     end = "## 전체 데이터 및 증강 ablation"
     if start not in report or end not in report:
         raise ValueError("Could not find robustness report section markers")
 
     setup_rows = []
     metric_rows = []
+    operating_rows = []
     bootstrap_rows = []
     for item in summary["datasets"].values():
         split = item["splits"]
@@ -146,86 +192,148 @@ def write_dataset_report(summary: dict) -> None:
             f"{item['pairs']:,} | {item['unique_source_rows']:,} |"
         )
         rule = item["rule"]
-        student = item["student_result"]
-        metric_rows.extend(
-            [
-                f"| {item['name']} | 규칙 v1.4 | {rule['clean_f2']:.3f} | "
-                f"{rule['noisy_precision']:.3f} | {rule['noisy_recall']:.3f} | "
-                f"{rule['noisy_f1']:.3f} | {rule['noisy_f2']:.3f} | "
-                f"{rule['f2_drop']:.3f} | {rule['noisy_mask_rate'] * 100:.2f}% |",
-                f"| {item['name']} | ELECTRA-small | {student['clean_f2']:.3f} | "
-                f"{student['noisy_precision']:.3f} | {student['noisy_recall']:.3f} | "
-                f"{student['noisy_f1']:.3f} | {student['noisy_f2']:.3f} | "
-                f"{student['f2_drop']:.3f} | {student['noisy_mask_rate'] * 100:.2f}% |",
-            ]
+        metric_rows.append(
+            f"| {item['name']} | 규칙 v1.4 | — | {rule['clean_f2']:.3f} | "
+            f"{rule['noisy_precision']:.3f} | {rule['noisy_recall']:.3f} | "
+            f"{rule['noisy_f1']:.3f} | {rule['noisy_f2']:.3f} | "
+            f"{rule['f2_drop']:.3f} | {rule['noisy_mask_rate'] * 100:.2f}% |"
         )
-        boot = item["bootstrap_delta_f2"]
-        ci = boot["ci95"]
-        bootstrap_rows.append(
-            f"| {item['name']} | {boot['mean']:+.3f} | "
-            f"[{ci[0]:+.3f}, {ci[1]:+.3f}] | "
-            f"{'Student 우세' if ci[0] > 0 else '규칙 우세' if ci[1] < 0 else '유의 차이 없음'} |"
-        )
+        for model in item["models"].values():
+            robust = model["robustness"]
+            metric_rows.append(
+                f"| {item['name']} | {model['name']} | {model['threshold']:.2f} | "
+                f"{robust['clean_f2']:.3f} | {robust['noisy_precision']:.3f} | "
+                f"{robust['noisy_recall']:.3f} | {robust['noisy_f1']:.3f} | "
+                f"{robust['noisy_f2']:.3f} | {robust['f2_drop']:.3f} | "
+                f"{robust['noisy_mask_rate'] * 100:.2f}% |"
+            )
+            budget = model["operating_points"]["budget_matched"]
+            privacy = model["operating_points"]["f2_optimized"]
+            operating_rows.append(
+                f"| {item['name']} | {model['name']} | {budget['threshold']:.2f} | "
+                f"{budget['precision']:.3f} | {budget['recall']:.3f} | "
+                f"{budget['f2']:.3f} | {budget['predicted_mask_rate'] * 100:.2f}% | "
+                f"{privacy['threshold']:.2f} | {privacy['precision']:.3f} | "
+                f"{privacy['recall']:.3f} | {privacy['f2']:.3f} | "
+                f"{privacy['predicted_mask_rate'] * 100:.2f}% |"
+            )
+            boot = model["bootstrap_delta_f2"]
+            ci = boot["ci95"]
+            bootstrap_rows.append(
+                f"| {item['name']} | {model['name']} | {boot['mean']:+.3f} | "
+                f"[{ci[0]:+.3f}, {ci[1]:+.3f}] | "
+                f"{'Student 우세' if ci[0] > 0 else '규칙 우세' if ci[1] < 0 else '유의 차이 없음'} |"
+            )
 
-    clean_passes = sum(
-        item["acceptance"]["final_student_quality_gate"]["pass"]
+    all_models = [
+        model
         for item in summary["datasets"].values()
+        for model in item["models"].values()
+    ]
+    clean_passes = sum(
+        model["acceptance"]["final_student_quality_gate"]["pass"]
+        for model in all_models
     )
     budget_passes = sum(
-        item["acceptance"]["matched_budget_gate"]["pass"]
-        for item in summary["datasets"].values()
+        model["acceptance"]["matched_budget_gate"]["pass"]
+        for model in all_models
     )
     student_wins = sum(
-        item["student_result"]["noisy_f2"] > item["rule"]["noisy_f2"]
+        model["robustness"]["noisy_f2"] > item["rule"]["noisy_f2"]
         for item in summary["datasets"].values()
+        for model in item["models"].values()
     )
-    section = f"""## 10개 데이터셋 공통 비교
+    model_gate_summary = []
+    for model_key, (model_name, _) in MODELS.items():
+        values = [item["models"][model_key] for item in summary["datasets"].values()]
+        clean_count = sum(
+            value["acceptance"]["final_student_quality_gate"]["pass"]
+            for value in values
+        )
+        budget_count = sum(
+            value["acceptance"]["matched_budget_gate"]["pass"]
+            for value in values
+        )
+        model_gate_summary.append(
+            f"{model_name} clean {clean_count}/10·예산 {budget_count}/10"
+        )
+    privacy_tradeoff_runs = sum(
+        model["operating_points"]["f2_optimized"]["recall"]
+        >= model["operating_points"]["budget_matched"]["recall"]
+        and model["operating_points"]["f2_optimized"]["f2"]
+        >= model["operating_points"]["budget_matched"]["f2"]
+        and model["operating_points"]["f2_optimized"]["predicted_mask_rate"]
+        >= model["operating_points"]["budget_matched"]["predicted_mask_rate"]
+        for model in all_models
+    )
+    section = f"""## 10개 데이터셋 × 3모델 공통 비교
 
-기존 4-1의 Drug Reviews·BIOS 실험을 기존 메인 표의 나머지 8개 데이터셋까지
-같은 프로토콜로 확장했다. 의료 6개는 `medterm5 v1.4`, 일반 4개는
-`piiclean2 v1.4`로 clean pseudo-label을 만들었다. Student는 모든 데이터셋에서
-`google/electra-small-discriminator + hidden-128 MLP`를 encoder까지 fine-tuning했다.
+기존 4-1을 BERT-tiny, ELECTRA-small, DistilRoBERTa 세 Student로 확장했다.
+의료 6개는 `medterm5 v1.4`, 일반 4개는 `piiclean2 v1.4`로 clean
+pseudo-label을 만들고, 모든 encoder와 hidden-128 MLP token head를 함께 fine-tuning했다.
 
 - 데이터셋별 최대 train / validation / test: 5,000 / 500 / 1,000
 - 작은 split은 사용 가능한 행 전부 사용
 - 5 epochs, batch 32, max length 128, seed 42
-- validation에서 동일 마스킹 예산 threshold 선택 후 test에 고정
+- validation에서 threshold를 선택하고 test에서는 고정
+- 교란 표의 메인 운용점: Teacher와 가리는 양을 맞춘 동일 마스킹 예산
 - 12종 교란별 최대 100개 paired test 생성
 - Noisy P/R/F1/F2 정답: clean v1.4 문자 span을 결정적 편집을 따라 이동한 token pseudo-gold
 - RedactFormer 기준 커밋: `39b56279c6c58fdc6732df8d5ee98868e323d344`
 - 문서화된 교란: 이중 공백, 곱슬/C1 아포스트로피, `25 mg→25mg`, 숫자 뒤 쉼표
 - 미관측 교란: 삼중 공백, NBSP, modifier apostrophe, `25-mg`, thin space, 세미콜론, 단어 내부 zero-width
 
-대용량 `mapped_dataset_n5_medterm5/piiclean2` 산출물은 이 저장소에 없으므로,
-아래 결과는 로컬 clean 원문에서 현재 v1.4 코드로 다시 라벨링한 데이터셋별 제한본이다.
-즉 10개 **종류 전체**를 비교했지만 각 대규모 데이터셋의 **모든 행**을 학습한 실험은
-아니다. 작은 split은 사용 가능한 행 전부를 사용했다.
+대용량 `mapped_dataset_n5_medterm5/piiclean2` 산출물은 저장소에 없으므로,
+10개 데이터셋 **종류 전체**를 비교했지만 대규모 데이터셋의 **모든 행**을 학습한
+실험은 아니다.
 
 | 그룹 | 데이터셋 | Teacher | Train / Val / Test | 교란 pair | 고유 원문 |
 |---|---|---|---:|---:|---:|
 {chr(10).join(setup_rows)}
 
-## 10개 데이터셋 입력 교란 결과
+## 10개 데이터셋 × 3모델 입력 교란 결과
 
-메인 비교는 동일 마스킹 예산 threshold다. Clean F2와 Noisy 지표는 동일한
-projected pseudo-gold 기준이며, human-gold 개인정보 정확도가 아니다.
-
-| 데이터셋 | 방식 | Clean F2 | Noisy P | Noisy R | Noisy F1 | Noisy F2 | F2 하락 | Noisy mask |
-|---|---|---:|---:|---:|---:|---:|---:|---:|
+| 데이터셋 | 방식 | Budget Th. | Clean F2 | Noisy P | Noisy R | Noisy F1 | Noisy F2 | F2 하락 | Noisy mask |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|
 {chr(10).join(metric_rows)}
 
 paired source-cluster bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 다음과 같다.
 
-| 데이터셋 | 평균 차이 | 95% CI | 판정 |
-|---|---:|---:|---|
+| 데이터셋 | Student | 평균 차이 | 95% CI | 판정 |
+|---|---|---:|---:|---|
 {chr(10).join(bootstrap_rows)}
 
-10개 중 Student의 절대 noisy F2가 규칙보다 높은 데이터셋은 **{student_wins}개**다.
-동일 마스킹 예산은 **{budget_passes}/10개**, 사전 정의 clean 대체 최소선
-(F1/F2/Recall ≥ 0.85/0.90/0.90)은 **{clean_passes}/10개**가 통과했다.
-따라서 이 제한 실험만으로 규칙 대체 성공을 주장할 수 없고, 데이터셋별 취약성과
-표면 결함 보완 가능성을 확인하는 비교 결과로 해석한다. 특히 FinPhraseBank는 noisy
-마스킹률 차이가 1%p를 넘어 동일 예산 직접 비교에 주의한다.
+30개 Student run 중 절대 noisy F2가 규칙보다 높은 경우는 **{student_wins}개**,
+동일 마스킹 예산 통과는 **{budget_passes}/30개**, 사전 정의 clean 대체 최소선
+통과는 **{clean_passes}/30개**다. 모델별 결과는 각각 {"; ".join(model_gate_summary)}이다.
+DistilRoBERTa는 10개 데이터셋 모두에서 세 Student 중 noisy F2가 가장 높았다.
+
+## 동일 마스킹 예산과 Recall 중심 F2
+
+| 데이터셋 | Student | 예산 Th. | 예산 P | 예산 R | 예산 F2 | 예산 mask | F2 Th. | F2 P | F2 R | F2 | F2 mask |
+|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+{chr(10).join(operating_rows)}
+
+- **동일 마스킹 예산**은 Teacher와 비슷한 비율을 가리는 threshold다. 같은 privacy/utility
+  비용에서 모델을 비교하므로 논문의 주 비교에 적합하다.
+- **Recall 중심 F2**는 validation F2를 최대화한다. F2는 Recall 오차를 Precision보다
+  네 배 크게 반영하므로 민감 토큰 누락이 더 비싼 배포 상황의 보조 운용점이다. 대신
+  더 많이 가릴 수 있어 규칙과의 공정한 효율 비교로 단독 사용하면 안 된다. 실제로
+  이번 결과에서는 {privacy_tradeoff_runs}/30개 run 모두 Recall·F2·마스킹률이 함께 증가했다.
+- 따라서 **모델 비교의 메인은 동일 예산**, 실제 privacy-first 배포 후보 선택은 F2 운용점을
+  함께 제시하는 것이 적절하다.
+
+## 왜 clean F1 0.85인가
+
+0.85는 외부 표준이나 이론적으로 보장된 숫자가 아니다. 초기 전체 Drug ELECTRA 실험이
+F1 0.892, F2 0.904, Recall 0.912를 달성한 뒤 결과를 보며 임의로 통과시키지 않도록,
+그보다 낮은 **pilot screening floor**로 미리 고정한 값이다. F1 0.85는 Recall만 높이려고
+과도하게 가리는 모델을 거르는 보조 안전장치이고, privacy 측면의 핵심 floor는
+F2 0.90과 Recall 0.90이다.
+
+논문에서는 ‘0.85가 보편적 합격선’이라고 쓰지 않고, 사전 정의한 내부 pilot 기준이라고
+명시해야 한다. 최종 규칙 대체 판정은 이 절대값 하나가 아니라 동일 예산, noisy
+비열등성/우월성의 신뢰구간, human-gold 검증을 함께 요구한다.
 
 """
     prefix, suffix = report.split(start, 1)
