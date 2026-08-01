@@ -147,20 +147,30 @@ def robustness_table():
    f"<td>{run['shared_targets']}</td><td>{run['rule_span_survival']*100:.1f}%</td><td>{run['student_span_survival']*100:.1f}%</td>"
    f"<td>{run['survival_delta']*100:+.1f}%p<span class='task'>[{ci[0]*100:+.1f}, {ci[1]*100:+.1f}]</span></td></tr>"
   )
+ group_counts={}
+ for item in source['datasets'].values():
+  group_counts[item['group']]=group_counts.get(item['group'],0)+1
+ seen_groups=set()
  for item in source['datasets'].values():
   rule=item['rule']; student=item['student_result']; ci=item['bootstrap_delta_f2']['ci95']
+  group=item['group']; group_cell=''
+  if group not in seen_groups:
+   css_group='medical' if group=='medical' else 'pii'
+   group_cell=f"<td rowspan='{group_counts[group]*2}' class='meta merge'><span class='pill g-{css_group}'>{item['group_name']}</span></td>"
+   seen_groups.add(group)
+  split=item['splits']
   rows.append(
-   f"<tr><td rowspan='2' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['teacher']} · {item['pairs']}쌍</span></td>"
+   f"<tr>{group_cell}<td rowspan='2' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['teacher']} · {split['train']:,}/{split['validation']:,}/{split['test']:,} · {item['pairs']:,}쌍</span></td>"
    f"<td class='left meta dataset'>규칙 v1.4</td><td>{rule['clean_f2']:.3f}</td><td>{rule['noisy_precision']:.3f}</td><td>{rule['noisy_recall']:.3f}</td><td>{rule['noisy_f1']:.3f}</td><td>{rule['noisy_f2']:.3f}</td><td>{rule['f2_drop']:.3f}</td><td>{rule['noisy_mask_rate']*100:.2f}%</td><td>{rule['newly_leaked_span_rate']*100:.2f}%</td><td rowspan='2'>{item['bootstrap_delta_f2']['mean']:.3f}<span class='task'>[{ci[0]:.3f}, {ci[1]:.3f}]</span></td></tr>"
    f"<tr><td class='left meta dataset'>ELECTRA-small</td><td>{student['clean_f2']:.3f}</td><td>{student['noisy_precision']:.3f}</td><td>{student['noisy_recall']:.3f}</td><td>{student['noisy_f1']:.3f}</td><td>{student['noisy_f2']:.3f}</td><td>{student['f2_drop']:.3f}</td><td>{student['noisy_mask_rate']*100:.2f}%</td><td>{student['newly_leaked_span_rate']*100:.2f}%*</td></tr>"
   )
  return (
-  "<h2>4-1. 최신 v1.4 입력 교란 강건성</h2>"
-  "<p class='lede'>clean v1.4 라벨을 공통 기준으로 이동한 paired noisy test. 동일 마스킹 예산의 ELECTRA-small과 현재 규칙을 비교했다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>Clean F2</th><th>Noisy P</th><th>Noisy R</th><th>Noisy F1</th><th>Noisy F2</th><th>F2 하락</th><th>Noisy mask</th><th>신규 누출</th><th>Student−Rule ΔF2<br>95% CI</th></tr></thead><tbody>"
+  "<h2>4-1. 최신 v1.4 입력 교란 강건성 — 10개 데이터셋</h2>"
+  "<p class='lede'>각 clean v1.4 규칙 라벨을 결정적 편집으로 noisy 문장에 이동한 pseudo-gold 기준이다. 데이터셋별 최대 train/validation/test 5,000/500/1,000, ELECTRA-small, seed 42, 동일 마스킹 예산을 사용했다. Noisy P/R은 이 이동된 token 정답에 대한 Precision/Recall이다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>그룹</th><th class='left'>데이터셋</th><th class='left'>방식</th><th>Clean F2</th><th>Noisy P</th><th>Noisy R</th><th>Noisy F1</th><th>Noisy F2</th><th>F2 하락</th><th>Noisy mask</th><th>신규 누출</th><th>Student−Rule ΔF2<br>95% CI</th></tr></thead><tbody>"
   + ''.join(rows)
   + "</tbody></table></div>"
-  "<div class='notice'><strong>결과:</strong> Student는 자기 기준 하락폭은 작았지만 절대 noisy F2가 Drug 0.837, BIOS 0.855로 규칙보다 낮아 대체 합격선에 미달했다. *Student 신규 누출은 clean에서 먼저 맞힌 span만 분모로 한 조건부 값이다.</div>"
+  f"<div class='notice'><strong>결과:</strong> 10개 데이터셋 모두 같은 프로토콜로 비교했다. Noisy F2에서 Student가 규칙을 이긴 데이터셋은 {sum(1 for item in source['datasets'].values() if item['student_result']['noisy_f2'] > item['rule']['noisy_f2'])}/10개, clean 대체 최소선 통과는 {sum(1 for item in source['datasets'].values() if item['acceptance']['final_student_quality_gate']['pass'])}/10개, 마스킹 예산 ±1%p 통과는 {sum(1 for item in source['datasets'].values() if item['acceptance']['matched_budget_gate']['pass'])}/10개다. 이 표는 규칙의 clean 라벨을 pseudo-gold로 사용하므로 규칙 모방·표면 강건성 결과이지 human-gold 개인정보 정답률은 아니다. *Student 신규 누출은 clean에서 먼저 맞힌 span만 분모로 한 조건부 값이다.</div>"
   "<div class='notice warn'><strong>합격선:</strong> clean F1/F2/Recall ≥ 0.85/0.90/0.90, 마스킹률 차이 ≤ 1%p를 먼저 만족한 뒤 noisy 비열등성 또는 우월성을 판정한다. 상세 설계는 ROBUSTNESS_EXPERIMENT_V14.md에 있다.</div>"
   "<h2>4-2. 전체 데이터·표면 교란 증강 비교</h2>"
   f"<p class='lede'>전체 test에서 생성 가능한 unseen target {absolute['unseen_target_pairs']:,}개를 고정 pseudo-gold로 둔 비교다. 같은 원문에서 파생된 여러 오염은 원문 단위로 묶어 통계 처리했다.</p>"

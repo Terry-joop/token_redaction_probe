@@ -12,76 +12,856 @@
   "datasets": {
     "drug": {
       "name": "Drug Reviews",
+      "group": "medical",
+      "group_name": "의료 규칙",
       "pairs": 711,
+      "unique_source_rows": 214,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
       "teacher": "medterm5 v1.4",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
-      "threshold": 0.89,
+      "threshold": 0.8899999999999999,
       "rule": {
         "clean_f2": 1.0,
-        "noisy_precision": 0.9977105062,
-        "noisy_recall": 0.9415436322,
-        "noisy_f1": 0.9688136849,
-        "noisy_f2": 0.9522653329,
-        "noisy_mask_rate": 0.095976366,
-        "f2_drop": 0.0477346671,
-        "newly_leaked_span_rate": 0.3220815752
+        "noisy_precision": 0.9977105062325108,
+        "noisy_recall": 0.9415436322170208,
+        "noisy_f1": 0.9688136849255852,
+        "noisy_f2": 0.9522653328801048,
+        "noisy_mask_rate": 0.09597636603349773,
+        "f2_drop": 0.04773466711989516,
+        "newly_leaked_span_rate": 0.32208157524613223
       },
       "student_result": {
-        "clean_precision": 0.8634164496,
-        "clean_recall": 0.8571428571,
-        "clean_f1": 0.8602682158,
-        "clean_f2": 0.8583902716,
-        "noisy_precision": 0.8635399775,
-        "noisy_recall": 0.8309926779,
-        "noisy_f1": 0.8469537558,
-        "noisy_f2": 0.837304371,
-        "noisy_mask_rate": 0.0978685483,
-        "f2_drop": 0.0210859006,
-        "newly_leaked_span_rate": 0.2445193929
+        "clean_precision": 0.8634164495720134,
+        "clean_recall": 0.8571428571428571,
+        "clean_f1": 0.8602682158086645,
+        "clean_f2": 0.8583902715769222,
+        "noisy_precision": 0.8635399775477112,
+        "noisy_recall": 0.8309926779498259,
+        "noisy_f1": 0.8469537558111084,
+        "noisy_f2": 0.8373043709634503,
+        "noisy_mask_rate": 0.09786854826895844,
+        "f2_drop": 0.02108590061347182,
+        "newly_leaked_span_rate": 0.24451939291736935
       },
       "bootstrap_delta_f2": {
-        "mean": -0.115009041,
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.11500904101560315,
         "ci95": [
-          -0.1242589526,
-          -0.1058997239
-        ]
+          -0.12425895263797934,
+          -0.10589972393571553
+        ],
+        "repeats": 2000,
+        "unit": "paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0018921822354607126,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "symptom2dx": {
+      "name": "Symptom2Dx",
+      "group": "medical",
+      "group_name": "의료 규칙",
+      "pairs": 268,
+      "unique_source_rows": 101,
+      "splits": {
+        "train": 844,
+        "validation": 108,
+        "test": 108
+      },
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.8999999999999999,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9992774566473989,
+        "noisy_recall": 0.8474264705882353,
+        "noisy_f1": 0.9171087533156499,
+        "noisy_f2": 0.8739888776541962,
+        "noisy_mask_rate": 0.1575591985428051,
+        "f2_drop": 0.1260111223458038,
+        "newly_leaked_span_rate": 0.4552238805970149
+      },
+      "student_result": {
+        "clean_precision": 0.8811333794056669,
+        "clean_recall": 0.8903631284916201,
+        "clean_f1": 0.8857242097950677,
+        "clean_f2": 0.8885017421602788,
+        "noisy_precision": 0.8770014556040757,
+        "noisy_recall": 0.7383578431372549,
+        "noisy_f1": 0.801729873586161,
+        "noisy_f2": 0.7624651986838775,
+        "noisy_mask_rate": 0.1564207650273224,
+        "f2_drop": 0.12603654347640125,
+        "newly_leaked_span_rate": 0.40506329113924056
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.11216229412363371,
+        "ci95": [
+          -0.14114178847368003,
+          -0.0853865586500529
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0011384335154826786,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.018656716417910446,
+          "student_minus_rule_noisy_ci95": [
+            -0.08835611677479148,
+            0.0434825741890959
+          ],
+          "student_drop_advantage": 0.09701492537313433,
+          "student_drop_advantage_ci95": [
+            0.06036969131275419,
+            0.13438735177865613
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.07172995780590717,
+          "ci95": [
+            0.04098174366616989,
+            0.10600058829296985
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "adr": {
+      "name": "ADR",
+      "group": "medical",
+      "group_name": "의료 규칙",
+      "pairs": 664,
+      "unique_source_rows": 205,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.7599999999999999,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.99814083197769,
+        "noisy_recall": 0.9330871170975451,
+        "noisy_f1": 0.9645183022681338,
+        "noisy_f2": 0.9454105216817081,
+        "noisy_mask_rate": 0.2655517156257714,
+        "f2_drop": 0.05458947831829186,
+        "newly_leaked_span_rate": 0.27710843373493976
+      },
+      "student_result": {
+        "clean_precision": 0.9171852561033987,
+        "clean_recall": 0.8726941471191073,
+        "clean_f1": 0.8943867429104914,
+        "clean_f2": 0.8812436758347898,
+        "noisy_precision": 0.9199621122424817,
+        "noisy_recall": 0.8440147729741473,
+        "noisy_f1": 0.8803535010197144,
+        "noisy_f2": 0.8581842279655401,
+        "noisy_mask_rate": 0.26061466304616143,
+        "f2_drop": 0.02305944786924974,
+        "newly_leaked_span_rate": 0.21575984990619135
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.08718950218529713,
+        "ci95": [
+          -0.10647433369036918,
+          -0.06937342000153411
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0049370525796099685,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.0677710843373494,
+          "student_minus_rule_noisy_ci95": [
+            -0.1111111111111111,
+            -0.023957857903544825
+          ],
+          "student_drop_advantage": 0.12951807228915663,
+          "student_drop_advantage_ci95": [
+            0.09130773503174273,
+            0.1719019721298037
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.054409005628517824,
+          "ci95": [
+            0.028214162092666764,
+            0.08190938166311298
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "redditmh": {
+      "name": "RedditMH",
+      "group": "medical",
+      "group_name": "의료 규칙",
+      "pairs": 696,
+      "unique_source_rows": 252,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.94,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9969547011800532,
+        "noisy_recall": 0.9178202207814964,
+        "noisy_f1": 0.9557522123893806,
+        "noisy_f2": 0.9326258813474824,
+        "noisy_mask_rate": 0.06465824903394127,
+        "f2_drop": 0.06737411865251763,
+        "newly_leaked_span_rate": 0.3275862068965517
+      },
+      "student_result": {
+        "clean_precision": 0.8227593152064451,
+        "clean_recall": 0.7516099356025759,
+        "clean_f1": 0.7855769230769231,
+        "clean_f2": 0.7648380453098671,
+        "noisy_precision": 0.8226324237560193,
+        "noisy_recall": 0.7184159803749781,
+        "noisy_f1": 0.7670002806098588,
+        "noisy_f2": 0.7370919027757802,
+        "noisy_mask_rate": 0.06133549927391765,
+        "f2_drop": 0.027746142534086915,
+        "newly_leaked_span_rate": 0.22271714922049002
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.19460252748025245,
+        "ci95": [
+          -0.2249748332823059,
+          -0.16701327273663497
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0033227497600236203,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.16379310344827586,
+          "student_minus_rule_noisy_ci95": [
+            -0.21866452282936472,
+            -0.10334328429929784
+          ],
+          "student_drop_advantage": 0.1910919540229885,
+          "student_drop_advantage_ci95": [
+            0.1567259780852014,
+            0.2279961266803372
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.09131403118040089,
+          "ci95": [
+            0.05664278531925591,
+            0.12799978454924266
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": false,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "mednli": {
+      "name": "MedNLI",
+      "group": "medical",
+      "group_name": "의료 규칙",
+      "pairs": 732,
+      "unique_source_rows": 223,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.7999999999999999,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.998613251155624,
+        "noisy_recall": 0.9390031874818893,
+        "noisy_f1": 0.9678912783751493,
+        "noisy_f2": 0.9503489940758989,
+        "noisy_mask_rate": 0.260161949811593,
+        "f2_drop": 0.0496510059241011,
+        "newly_leaked_span_rate": 0.319672131147541
+      },
+      "student_result": {
+        "clean_precision": 0.9028721432983323,
+        "clean_recall": 0.878191649143887,
+        "clean_f1": 0.890360895386021,
+        "clean_f2": 0.8830192098586445,
+        "noisy_precision": 0.9049682711654543,
+        "noisy_recall": 0.8471457548536656,
+        "noisy_f1": 0.8751028960562748,
+        "noisy_f2": 0.8581114796442514,
+        "noisy_mask_rate": 0.2589994387877816,
+        "f2_drop": 0.024907730214393076,
+        "newly_leaked_span_rate": 0.2524271844660194
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.09186743479465033,
+        "ci95": [
+          -0.10733550826299304,
+          -0.07573347338748175
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.00116251102381143,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.03278688524590164,
+          "student_minus_rule_noisy_ci95": [
+            -0.07979959544501049,
+            0.015050949377487138
+          ],
+          "student_drop_advantage": 0.12295081967213115,
+          "student_drop_advantage_ci95": [
+            0.08666643741403027,
+            0.1628790561421581
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.07928802588996764,
+          "ci95": [
+            0.042196132994152584,
+            0.11764936743928339
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "mentalhealth": {
+      "name": "Mental Health",
+      "group": "medical",
+      "group_name": "의료 규칙",
+      "pairs": 581,
+      "unique_source_rows": 219,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
+      "teacher": "medterm5 v1.4",
+      "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+      "threshold": 0.94,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.997948717948718,
+        "noisy_recall": 0.9091333800513899,
+        "noisy_f1": 0.9514729250702848,
+        "noisy_f2": 0.9256088280060882,
+        "noisy_mask_rate": 0.08962220792352238,
+        "f2_drop": 0.07439117199391176,
+        "newly_leaked_span_rate": 0.29432013769363163
+      },
+      "student_result": {
+        "clean_precision": 0.7678947368421053,
+        "clean_recall": 0.7203159713650951,
+        "clean_f1": 0.7433447968411667,
+        "clean_f2": 0.7293541291741652,
+        "noisy_precision": 0.7735408560311284,
+        "noisy_recall": 0.6965662228451296,
+        "noisy_f1": 0.7330383480825958,
+        "noisy_f2": 0.7107107107107107,
+        "noisy_mask_rate": 0.08858810552440481,
+        "f2_drop": 0.01864341846345452,
+        "newly_leaked_span_rate": 0.23636363636363633
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.21483027634162172,
+        "ci95": [
+          -0.24680442702607744,
+          -0.18452130105829437
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0010341023991175674,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.2667814113597246,
+          "student_minus_rule_noisy_ci95": [
+            -0.32848315900830954,
+            -0.20103878176154585
+          ],
+          "student_drop_advantage": 0.16523235800344235,
+          "student_drop_advantage_ci95": [
+            0.13050586845003087,
+            0.2035611247309255
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.06666666666666667,
+          "ci95": [
+            0.03343211752786221,
+            0.10638469457789979
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": false,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
       }
     },
     "bios": {
       "name": "BIOS",
+      "group": "general",
+      "group_name": "일반 PII/엔티티",
       "pairs": 900,
+      "unique_source_rows": 226,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
       "teacher": "piiclean2 v1.4",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
-      "threshold": 0.87,
+      "threshold": 0.8699999999999999,
       "rule": {
         "clean_f2": 1.0,
-        "noisy_precision": 0.9984749757,
-        "noisy_recall": 0.9593073593,
-        "noisy_f1": 0.9784993716,
-        "noisy_f2": 0.9668931074,
-        "noisy_mask_rate": 0.1979255275,
-        "f2_drop": 0.0331068926,
-        "newly_leaked_span_rate": 0.2633333333
+        "noisy_precision": 0.9984749757382504,
+        "noisy_recall": 0.9593073593073593,
+        "noisy_f1": 0.9784993716246051,
+        "noisy_f2": 0.9668931074295841,
+        "noisy_mask_rate": 0.19792552753615233,
+        "f2_drop": 0.03310689257041588,
+        "newly_leaked_span_rate": 0.2633333333333333
       },
       "student_result": {
-        "clean_precision": 0.884269271,
-        "clean_recall": 0.8733034792,
-        "clean_f1": 0.8787521664,
-        "clean_f2": 0.8754748256,
-        "noisy_precision": 0.8853644964,
-        "noisy_recall": 0.8476856477,
-        "noisy_f1": 0.8661154775,
-        "noisy_f2": 0.8549626525,
-        "noisy_mask_rate": 0.1972395247,
-        "f2_drop": 0.0205121731,
-        "newly_leaked_span_rate": 0.237008872
+        "clean_precision": 0.8842692710149983,
+        "clean_recall": 0.8733034791594901,
+        "clean_f1": 0.8787521663778163,
+        "clean_f2": 0.8754748256095034,
+        "noisy_precision": 0.8853644963828603,
+        "noisy_recall": 0.8476856476856477,
+        "noisy_f1": 0.8661154775271341,
+        "noisy_f2": 0.8549626524799828,
+        "noisy_mask_rate": 0.19723952473726092,
+        "f2_drop": 0.020512173129520583,
+        "newly_leaked_span_rate": 0.23700887198986054
       },
       "bootstrap_delta_f2": {
-        "mean": -0.1119912305,
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.11199123053935427,
         "ci95": [
-          -0.1208530296,
-          -0.1036222488
-        ]
+          -0.12085302959572258,
+          -0.10362224875834554
+        ],
+        "repeats": 2000,
+        "unit": "paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0006860027988914164,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "mrpc": {
+      "name": "MRPC",
+      "group": "general",
+      "group_name": "일반 PII/엔티티",
+      "pairs": 420,
+      "unique_source_rows": 153,
+      "splits": {
+        "train": 3668,
+        "validation": 408,
+        "test": 1000
+      },
+      "teacher": "piiclean2 v1.4",
+      "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+      "threshold": 0.83,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9976950938426078,
+        "noisy_recall": 0.9226552984165651,
+        "noisy_f1": 0.9587090650213573,
+        "noisy_f2": 0.9367464292339084,
+        "noisy_mask_rate": 0.1434577231931979,
+        "f2_drop": 0.06325357076609162,
+        "newly_leaked_span_rate": 0.2761904761904762
+      },
+      "student_result": {
+        "clean_precision": 0.9261400128452152,
+        "clean_recall": 0.9351491569390402,
+        "clean_f1": 0.930622781542433,
+        "clean_f2": 0.9333333333333333,
+        "noisy_precision": 0.9275133942641034,
+        "noisy_recall": 0.896163215590743,
+        "noisy_f1": 0.9115688400185845,
+        "noisy_f2": 0.9022625544178061,
+        "noisy_mask_rate": 0.14988190836088805,
+        "f2_drop": 0.03107077891552723,
+        "newly_leaked_span_rate": 0.25
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.03467472183358375,
+        "ci95": [
+          -0.05755950836728251,
+          -0.012620328850476079
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": true,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0064241851676901385,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.023809523809523808,
+          "student_minus_rule_noisy_ci95": [
+            -0.06265737105726277,
+            0.013208430913348827
+          ],
+          "student_drop_advantage": 0.04285714285714286,
+          "student_drop_advantage_ci95": [
+            0.020830933179723503,
+            0.06888565812105822
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": false,
+          "student_minus_rule": 0.025510204081632654,
+          "ci95": [
+            0.007462686567164179,
+            0.046274217819299
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "qnli": {
+      "name": "QNLI",
+      "group": "general",
+      "group_name": "일반 PII/엔티티",
+      "pairs": 903,
+      "unique_source_rows": 263,
+      "splits": {
+        "train": 5000,
+        "validation": 500,
+        "test": 1000
+      },
+      "teacher": "piiclean2 v1.4",
+      "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+      "threshold": 0.8999999999999999,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.996380846325167,
+        "noisy_recall": 0.9381389252948886,
+        "noisy_f1": 0.9663831510733091,
+        "noisy_f2": 0.949236155315086,
+        "noisy_mask_rate": 0.14993217155379318,
+        "f2_drop": 0.05076384468491402,
+        "newly_leaked_span_rate": 0.3045404208194906
+      },
+      "student_result": {
+        "clean_precision": 0.9000141222991103,
+        "clean_recall": 0.8812223451327433,
+        "clean_f1": 0.8905191085027597,
+        "clean_f2": 0.8849176594740203,
+        "noisy_precision": 0.8980747451868629,
+        "noisy_recall": 0.8314547837483617,
+        "noisy_f1": 0.8634816932081122,
+        "noisy_f2": 0.843976160068114,
+        "noisy_mask_rate": 0.14742773661692582,
+        "f2_drop": 0.0409414994059063,
+        "newly_leaked_span_rate": 0.2666666666666667
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.10562620767169333,
+        "ci95": [
+          -0.12757404160839506,
+          -0.086290246614554
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": false,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": true,
+          "mask_rate_gap": 0.0025044349368673613,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": -0.06090808416389812,
+          "student_minus_rule_noisy_ci95": [
+            -0.09656821284944056,
+            -0.027025508654722148
+          ],
+          "student_drop_advantage": 0.0753045404208195,
+          "student_drop_advantage_ci95": [
+            0.04951506330815214,
+            0.10021120281046116
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": false,
+          "student_minus_rule": 0.02564102564102564,
+          "ci95": [
+            0.0026698723574770785,
+            0.04792261017670852
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
+      }
+    },
+    "finphrasebank": {
+      "name": "FinPhraseBank",
+      "group": "general",
+      "group_name": "일반 PII/엔티티",
+      "pairs": 600,
+      "unique_source_rows": 150,
+      "splits": {
+        "train": 1806,
+        "validation": 226,
+        "test": 226
+      },
+      "teacher": "piiclean2 v1.4",
+      "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+      "threshold": 0.83,
+      "rule": {
+        "clean_f2": 1.0,
+        "noisy_precision": 0.9976004799040192,
+        "noisy_recall": 0.9323490936273594,
+        "noisy_f1": 0.96387171561051,
+        "noisy_f2": 0.9447074417723916,
+        "noisy_mask_rate": 0.2750825082508251,
+        "f2_drop": 0.05529255822760837,
+        "newly_leaked_span_rate": 0.29500000000000004
+      },
+      "student_result": {
+        "clean_precision": 0.9206915993234355,
+        "clean_recall": 0.9510774606872452,
+        "clean_f1": 0.9356378915202445,
+        "clean_f2": 0.944840887174542,
+        "noisy_precision": 0.9224748415952292,
+        "noisy_recall": 0.92506073631097,
+        "noisy_f1": 0.9237659792852477,
+        "noisy_f2": 0.9245423982069481,
+        "noisy_mask_rate": 0.2951595159515952,
+        "f2_drop": 0.020298488967593897,
+        "newly_leaked_span_rate": 0.189873417721519
+      },
+      "bootstrap_delta_f2": {
+        "metric": "noisy_f2_student_minus_rule",
+        "mean": -0.020087462308381633,
+        "ci95": [
+          -0.03721663441504802,
+          -0.003929597814930587
+        ],
+        "repeats": 2000,
+        "unit": "source-clustered paired sentence"
+      },
+      "acceptance": {
+        "final_student_quality_gate": {
+          "pass": true,
+          "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+        },
+        "matched_budget_gate": {
+          "pass": false,
+          "mask_rate_gap": 0.02007700770077009,
+          "criteria": "absolute noisy mask-rate gap <= 0.01"
+        },
+        "robustness_superiority_gate": {
+          "pass": false,
+          "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+        },
+        "absolute_target_robustness_gate": {
+          "pass": false,
+          "student_minus_rule_noisy": 0.041666666666666664,
+          "student_minus_rule_noisy_ci95": [
+            -0.0033066129499579188,
+            0.08747855917667238
+          ],
+          "student_drop_advantage": 0.12,
+          "student_drop_advantage_ci95": [
+            0.08734329436432353,
+            0.15332804923245577
+          ],
+          "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+        },
+        "conditional_surface_robustness_gate": {
+          "pass": true,
+          "student_minus_rule": 0.11573236889692586,
+          "ci95": [
+            0.08363537794299877,
+            0.14933179994551624
+          ],
+          "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+        },
+        "pilot_quality_reference": {
+          "pass": true,
+          "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+        }
       }
     }
   },
@@ -407,5 +1187,19 @@
       "threshold_selection": "full validation split",
       "bootstrap_unit": "source-cluster bootstrap; all perturbations from one source sentence stay together"
     }
+  },
+  "protocol": {
+    "student": "google/electra-small-discriminator + hidden-128 MLP",
+    "seed": 42,
+    "epochs": 5,
+    "max_length": 128,
+    "train_validation_test_cap": [
+      5000,
+      500,
+      1000
+    ],
+    "noise_types": 12,
+    "per_noise_cap": 100,
+    "pseudo_gold": "clean v1.4 character spans projected through deterministic edits"
   }
 }

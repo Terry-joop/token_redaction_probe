@@ -12,82 +12,92 @@
 - 세 seed의 오염 후 Student−규칙 차이는 +3.9~+5.4%p였고, 원문 단위 cluster bootstrap 95% CI가 모두 0보다 컸다.
 - 전체-token noisy F2는 Student 0.874, 규칙 v1.4 0.927로 token 단위 절대 성능은 여전히 규칙이 높다.
 - 따라서 현재 근거가 지지하는 주장은 “규칙 전체를 능가한다”가 아니라, **규칙의 표면 이음매 실패를 보완하거나 장기적으로 일부 대체할 수 있는 학습형 redactor**다.
+- 별도의 동일 조건 10개 데이터셋 제한 비교에서는 Student의 noisy F2 우세가 0/10개, clean 대체 최소선 통과가 2/10개였다. Drug 전체+증강의 표면 강건성 결과를 다른 도메인에 일반화하지 않는다.
 
-## 초기 5k 비교에서 무엇을 사용했는가
+## 10개 데이터셋 공통 비교
 
-| 항목 | Drug | BIOS |
-|---|---|---|
-| clean 원문 | `data/full_redactor/drug` | `data/full_redactor/bios` |
-| 최신 Teacher | medterm5 v1.4 | piiclean2 v1.4 |
-| 코드 식별자 | `73ee6d572fe2eda2` | `81dda225ecbead4f` |
-| Student | ELECTRA-small + hidden-128 MLP token head | 동일 |
-| Train / Validation / Test | 5,000 / 500 / 1,000 | 5,000 / 500 / 1,000 |
-| Seed | 42 | 42 |
-| 학습 | encoder와 token head 전체 fine-tuning, 5 epochs | 동일 |
+기존 4-1의 Drug Reviews·BIOS 실험을 기존 메인 표의 나머지 8개 데이터셋까지
+같은 프로토콜로 확장했다. 의료 6개는 `medterm5 v1.4`, 일반 4개는
+`piiclean2 v1.4`로 clean pseudo-label을 만들었다. Student는 모든 데이터셋에서
+`google/electra-small-discriminator + hidden-128 MLP`를 encoder까지 fine-tuning했다.
 
-RedactFormer 기준 커밋은 `39b56279c6c58fdc6732df8d5ee98868e323d344`이며, `docs/MASKING_FRAMEWORK.md`와 `docs/examples_v1.4`의 v1.4 G0 검사를 통과한 빌더를 호출했다.
+- 데이터셋별 최대 train / validation / test: 5,000 / 500 / 1,000
+- 작은 split은 사용 가능한 행 전부 사용
+- 5 epochs, batch 32, max length 128, seed 42
+- validation에서 동일 마스킹 예산 threshold 선택 후 test에 고정
+- 12종 교란별 최대 100개 paired test 생성
+- Noisy P/R/F1/F2 정답: clean v1.4 문자 span을 결정적 편집을 따라 이동한 token pseudo-gold
+- RedactFormer 기준 커밋: `39b56279c6c58fdc6732df8d5ee98868e323d344`
+- 문서화된 교란: 이중 공백, 곱슬/C1 아포스트로피, `25 mg→25mg`, 숫자 뒤 쉼표
+- 미관측 교란: 삼중 공백, NBSP, modifier apostrophe, `25-mg`, thin space, 세미콜론, 단어 내부 zero-width
 
-대용량 산출물 `mapped_dataset_n5_medterm5`, `mapped_dataset_n5_piiclean2`, `mapped_dataset_n5_mdccunion`은 로컬 저장소에 없고 Git에도 포함되지 않는다. 따라서 이 실험은 구 라벨을 재사용하지 않고, 로컬에 있는 clean 원문을 **현재 v1.4 코드로 다시 라벨링한 최신 정책 subset**이다. 대용량 디렉터리가 제공되면 같은 파이프라인으로 전체 실험을 다시 실행해야 한다.
+대용량 `mapped_dataset_n5_medterm5/piiclean2` 산출물은 이 저장소에 없으므로,
+아래 결과는 로컬 clean 원문에서 현재 v1.4 코드로 다시 라벨링한 데이터셋별 제한본이다.
+즉 10개 **종류 전체**를 비교했지만 각 대규모 데이터셋의 **모든 행**을 학습한 실험은
+아니다. 작은 split은 사용 가능한 행 전부를 사용했다.
 
-## 실험 설계
+| 그룹 | 데이터셋 | Teacher | Train / Val / Test | 교란 pair | 고유 원문 |
+|---|---|---|---:|---:|---:|
+| 의료 규칙 | Drug Reviews | medterm5 v1.4 | 5,000 / 500 / 1,000 | 711 | 214 |
+| 의료 규칙 | Symptom2Dx | medterm5 v1.4 | 844 / 108 / 108 | 268 | 101 |
+| 의료 규칙 | ADR | medterm5 v1.4 | 5,000 / 500 / 1,000 | 664 | 205 |
+| 의료 규칙 | RedditMH | medterm5 v1.4 | 5,000 / 500 / 1,000 | 696 | 252 |
+| 의료 규칙 | MedNLI | medterm5 v1.4 | 5,000 / 500 / 1,000 | 732 | 223 |
+| 의료 규칙 | Mental Health | medterm5 v1.4 | 5,000 / 500 / 1,000 | 581 | 219 |
+| 일반 PII/엔티티 | BIOS | piiclean2 v1.4 | 5,000 / 500 / 1,000 | 900 | 226 |
+| 일반 PII/엔티티 | MRPC | piiclean2 v1.4 | 3,668 / 408 / 1,000 | 420 | 153 |
+| 일반 PII/엔티티 | QNLI | piiclean2 v1.4 | 5,000 / 500 / 1,000 | 903 | 263 |
+| 일반 PII/엔티티 | FinPhraseBank | piiclean2 v1.4 | 1,806 / 226 / 226 | 600 | 150 |
 
-1. clean 문장을 현재 v1.4 규칙으로 라벨링한다.
-2. clean 문자별 민감 마스크를 만든다.
-3. 텍스트 결함을 결정적으로 주입하면서 문자 마스크도 같은 편집으로 이동한다.
-4. 이동된 라벨을 noisy 문장의 공통 정답으로 쓴다.
-5. 현재 규칙, clean-only Student, seen-noise 증강 Student를 같은 noisy 문장에서 평가한다.
-6. validation에서 정한 threshold를 test에서 변경하지 않는다.
+## 10개 데이터셋 입력 교란 결과
 
-주입한 결함은 다음과 같다.
+메인 비교는 동일 마스킹 예산 threshold다. Clean F2와 Noisy 지표는 동일한
+projected pseudo-gold 기준이며, human-gold 개인정보 정확도가 아니다.
 
-- 문서화된 계열: 이중 공백, 곱슬/C1 아포스트로피, `25 mg→25mg`, 숫자 뒤 쉼표
-- 미관측 변형: 삼중 공백, NBSP, modifier apostrophe, `25-mg`, thin space, 세미콜론, 단어 내부 zero-width 문자
-- 초기 제한 실험: Drug 711쌍, BIOS 900쌍
-- 최종 전체 Drug unseen 평가: 13,901 target-pair, 4,866개 고유 원문
-- 전체 Drug의 unseen 유형별 수: triple space 3,704, NBSP 3,704, modifier apostrophe 91, dosage hyphen 124, dosage thin space 124, 세미콜론 1,304, zero-width 4,850
-- 아포스트로피와 dosage 계열은 전체 평가에서도 상대적으로 표본이 작아 유형별 결론은 주의한다.
-
-사람이 noisy 문장을 다시 라벨링하지 않은 이유는 의미와 민감 span을 바꾸지 않는 결정적 표면 편집만 사용하고, clean 라벨을 문자 좌표로 그대로 전달했기 때문이다.
-
-## Clean held-out Student 성능
-
-### 동일 마스킹 예산
-
-| 데이터셋 | Threshold | Precision | Recall | F1 | F2 | Teacher mask | Student mask |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Drug | 0.89 | 0.867 | 0.863 | 0.865 | 0.864 | 10.36% | 10.32% |
-| BIOS | 0.87 | 0.889 | 0.893 | 0.891 | 0.892 | 18.47% | 18.55% |
-
-### Recall 중심 운용점
-
-| 데이터셋 | Threshold | Precision | Recall | F1 | F2 | Teacher mask | Student mask |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| Drug | 0.63 | 0.736 | 0.944 | 0.827 | 0.893 | 10.36% | 13.29% |
-| BIOS | 0.53 | 0.807 | 0.956 | 0.875 | 0.922 | 18.47% | 21.89% |
-
-Recall 중심 결과는 더 많이 가려서 얻은 값이므로 동일 예산 결과와 직접 우열을 비교하지 않는다.
-
-## 입력 교란 결과
-
-메인 비교는 동일 마스킹 예산 threshold를 사용한다.
-
-| 데이터셋 | 방식 | Clean F2 | Noisy F2 | F2 하락 | Clean Recall | Noisy Recall | 신규 누출 span | Noisy mask |
+| 데이터셋 | 방식 | Clean F2 | Noisy P | Noisy R | Noisy F1 | Noisy F2 | F2 하락 | Noisy mask |
 |---|---|---:|---:|---:|---:|---:|---:|---:|
-| Drug | 규칙 v1.4 | 1.000 | 0.952 | 0.048 | 1.000 | 0.942 | 32.21% | 9.60% |
-| Drug | ELECTRA-small | 0.858 | 0.837 | 0.021 | 0.857 | 0.831 | 24.45%* | 9.79% |
-| BIOS | 규칙 v1.4 | 1.000 | 0.967 | 0.033 | 1.000 | 0.959 | 26.33% | 19.79% |
-| BIOS | ELECTRA-small | 0.875 | 0.855 | 0.021 | 0.873 | 0.848 | 23.70%* | 19.72% |
+| Drug Reviews | 규칙 v1.4 | 1.000 | 0.998 | 0.942 | 0.969 | 0.952 | 0.048 | 9.60% |
+| Drug Reviews | ELECTRA-small | 0.858 | 0.864 | 0.831 | 0.847 | 0.837 | 0.021 | 9.79% |
+| Symptom2Dx | 규칙 v1.4 | 1.000 | 0.999 | 0.847 | 0.917 | 0.874 | 0.126 | 15.76% |
+| Symptom2Dx | ELECTRA-small | 0.889 | 0.877 | 0.738 | 0.802 | 0.762 | 0.126 | 15.64% |
+| ADR | 규칙 v1.4 | 1.000 | 0.998 | 0.933 | 0.965 | 0.945 | 0.055 | 26.56% |
+| ADR | ELECTRA-small | 0.881 | 0.920 | 0.844 | 0.880 | 0.858 | 0.023 | 26.06% |
+| RedditMH | 규칙 v1.4 | 1.000 | 0.997 | 0.918 | 0.956 | 0.933 | 0.067 | 6.47% |
+| RedditMH | ELECTRA-small | 0.765 | 0.823 | 0.718 | 0.767 | 0.737 | 0.028 | 6.13% |
+| MedNLI | 규칙 v1.4 | 1.000 | 0.999 | 0.939 | 0.968 | 0.950 | 0.050 | 26.02% |
+| MedNLI | ELECTRA-small | 0.883 | 0.905 | 0.847 | 0.875 | 0.858 | 0.025 | 25.90% |
+| Mental Health | 규칙 v1.4 | 1.000 | 0.998 | 0.909 | 0.951 | 0.926 | 0.074 | 8.96% |
+| Mental Health | ELECTRA-small | 0.729 | 0.774 | 0.697 | 0.733 | 0.711 | 0.019 | 8.86% |
+| BIOS | 규칙 v1.4 | 1.000 | 0.998 | 0.959 | 0.978 | 0.967 | 0.033 | 19.79% |
+| BIOS | ELECTRA-small | 0.875 | 0.885 | 0.848 | 0.866 | 0.855 | 0.021 | 19.72% |
+| MRPC | 규칙 v1.4 | 1.000 | 0.998 | 0.923 | 0.959 | 0.937 | 0.063 | 14.35% |
+| MRPC | ELECTRA-small | 0.933 | 0.928 | 0.896 | 0.912 | 0.902 | 0.031 | 14.99% |
+| QNLI | 규칙 v1.4 | 1.000 | 0.996 | 0.938 | 0.966 | 0.949 | 0.051 | 14.99% |
+| QNLI | ELECTRA-small | 0.885 | 0.898 | 0.831 | 0.863 | 0.844 | 0.041 | 14.74% |
+| FinPhraseBank | 규칙 v1.4 | 1.000 | 0.998 | 0.932 | 0.964 | 0.945 | 0.055 | 27.51% |
+| FinPhraseBank | ELECTRA-small | 0.945 | 0.922 | 0.925 | 0.924 | 0.925 | 0.020 | 29.52% |
 
-`신규 누출 span`의 Student 값은 clean에서 먼저 맞힌 span만 분모로 삼는다. Student는 clean부터 놓친 span이 있으므로 규칙과의 절대 개인정보 성능 비교에 단독 사용하면 안 된다.
-
-paired sentence bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 다음과 같다.
+paired source-cluster bootstrap 2,000회의 noisy F2 차이(Student−Rule)는 다음과 같다.
 
 | 데이터셋 | 평균 차이 | 95% CI | 판정 |
 |---|---:|---:|---|
-| Drug | -0.115 | [-0.124, -0.106] | 규칙 우세 |
+| Drug Reviews | -0.115 | [-0.124, -0.106] | 규칙 우세 |
+| Symptom2Dx | -0.112 | [-0.141, -0.085] | 규칙 우세 |
+| ADR | -0.087 | [-0.106, -0.069] | 규칙 우세 |
+| RedditMH | -0.195 | [-0.225, -0.167] | 규칙 우세 |
+| MedNLI | -0.092 | [-0.107, -0.076] | 규칙 우세 |
+| Mental Health | -0.215 | [-0.247, -0.185] | 규칙 우세 |
 | BIOS | -0.112 | [-0.121, -0.104] | 규칙 우세 |
+| MRPC | -0.035 | [-0.058, -0.013] | 규칙 우세 |
+| QNLI | -0.106 | [-0.128, -0.086] | 규칙 우세 |
+| FinPhraseBank | -0.020 | [-0.037, -0.004] | 규칙 우세 |
 
-특히 C1 아포스트로피와 단어 내부 zero-width 문자는 두 방식 모두 어려웠다. 그러나 이 조건에서도 Student의 절대 F2가 규칙보다 낮아 현재 가설의 우월성 근거가 되지는 않는다.
+10개 중 Student의 절대 noisy F2가 규칙보다 높은 데이터셋은 **0개**다.
+동일 마스킹 예산은 **9/10개**, 사전 정의 clean 대체 최소선
+(F1/F2/Recall ≥ 0.85/0.90/0.90)은 **2/10개**가 통과했다.
+따라서 이 제한 실험만으로 규칙 대체 성공을 주장할 수 없고, 데이터셋별 취약성과
+표면 결함 보완 가능성을 확인하는 비교 결과로 해석한다. 특히 FinPhraseBank는 noisy
+마스킹률 차이가 1%p를 넘어 동일 예산 직접 비교에 주의한다.
 
 ## 전체 데이터 및 증강 ablation
 

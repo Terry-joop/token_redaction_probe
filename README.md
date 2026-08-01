@@ -6,6 +6,13 @@ RedactFormer 앞단에서 민감 토큰을 고르는 **작은 로컬 Student red
 라벨링했다. 데이터셋 성격에 맞는 규칙을 Transformer+MLP Student가 얼마나 모방하는지
 확인하며, 서로 의미가 다른 규칙의 결과는 하나의 macro 값으로 섞지 않는다.
 
+최신 4-1 표면 교란 비교는 기존 메인 표의 10개 데이터셋 모두에 같은 제한
+프로토콜(데이터셋별 최대 5,000/500/1,000, ELECTRA-small, seed 42)을 적용했다.
+의료 6개는 `medterm5 v1.4`, 일반 4개는 `piiclean2 v1.4`를 clean pseudo-gold로
+사용했으며, 각 데이터셋에서 가능한 12종 paired 교란을 최대 유형당 100개 평가했다.
+세부 P/R/F1/F2와 split·pair 수는 대시보드 4-1 및
+`ROBUSTNESS_EXPERIMENT_V14.md`에 있다.
+
 최신 확장 실험은 Drug Reviews 1개 데이터셋으로 진행했다. 원본 49,974문장 중 clean train
 39,980문장을 사용하고 seen-noise 30,591행을 추가해 최종 학습 입력은 70,571행이다.
 Validation 4,997문장과 test 4,997문장을 모두 사용했고, 전체 test에서 생성 가능한 미관측
