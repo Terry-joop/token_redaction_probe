@@ -159,3 +159,5 @@ def test_perturbation_catalog_matches_runtime_and_documents_counts():
     page = build_html()
     assert "13,901" in page
     assert "C1 artifact 불일치" in page
+    assert "학습에서 본 교란과 test에서 처음 본 교란" in page
+    assert "종류별 최대 100쌍" in page
