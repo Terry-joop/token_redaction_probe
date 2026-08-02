@@ -30,6 +30,7 @@ ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
 
 ```bash
 python src/build_results_dashboard.py
+python src/build_perturbation_catalog.py
 ```
 
 - 웹 표: `reports/redactor_results_dashboard.html`
@@ -78,11 +79,12 @@ python src/build_results_dashboard.py
 
 ## 먼저 읽을 문서
 
-루트 문서는 세 개만 사용한다.
+루트 문서는 네 개만 사용한다.
 
 - `README.md`: 연구 구조와 실행 방법(현재 문서)
 - `MEDICAL_REDACTOR_ALL_RESULTS.md`: 날짜·실험 순서별 전체 결과와 해석
 - `ROBUSTNESS_EXPERIMENT_V14.md`: 최신 v1.4 규칙 대 Student 입력 교란 결과와 합격선
+- `PERTURBATION_CATALOG.md`: Seen/Unseen 오염 규칙 12종의 조건·예시·실제 개수
 
 SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 

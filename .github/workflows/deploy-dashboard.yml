@@ -6,6 +6,7 @@ on:
       - main
     paths:
       - "reports/redactor_results_dashboard.html"
+      - "reports/perturbation_catalog.html"
       - "reports/redactor_results.csv"
       - "reports/full_dataset_results.json"
       - ".github/workflows/deploy-dashboard.yml"
@@ -34,7 +35,9 @@ jobs:
       - name: Prepare dashboard site
         run: |
           mkdir -p _site
+          mkdir -p _site/perturbations
           cp reports/redactor_results_dashboard.html _site/index.html
+          cp reports/perturbation_catalog.html _site/perturbations/index.html
           cp reports/redactor_results.csv _site/redactor_results.csv
           cp reports/full_dataset_results.json _site/full_dataset_results.json
           touch _site/.nojekyll

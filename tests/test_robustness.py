@@ -145,3 +145,17 @@ def test_absolute_target_robustness_uses_all_fixed_targets():
     assert result["student_clean_target_detection"] == 2 / 3
     assert result["student_noisy_target_detection"] == 2 / 3
     assert result["student_minus_rule_noisy"] == 1 / 3
+
+
+def test_perturbation_catalog_matches_runtime_and_documents_counts():
+    sys.path.insert(0, str(Path(__file__).parents[1] / "src"))
+    from build_perturbation_catalog import CATALOG, build_html
+
+    assert [(item["name"], item["group"]) for item in CATALOG] == [
+        (name, group) for name, group, _ in TRANSFORMS
+    ]
+    assert sum(item["group"] == "seen" for item in CATALOG) == 5
+    assert sum(item["group"] == "unseen" for item in CATALOG) == 7
+    page = build_html()
+    assert "13,901" in page
+    assert "C1 artifact 불일치" in page
