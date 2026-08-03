@@ -246,7 +246,7 @@ def strict_matrix_table():
  path=ROOT/'reports/robustness_v14_strict_matrix.json'
  if not path.exists(): return ''
  source=json.loads(path.read_text(encoding='utf-8'))
- rows=[]; seed_rows=[]; group_counts={}
+ rows=[]; seed_rows=[]; analysis_cards=[]; group_counts={}
  for item in source['datasets'].values(): group_counts[item['group']]=group_counts.get(item['group'],0)+1
  seen=set()
  for item in source['datasets'].values():
@@ -272,6 +272,15 @@ def strict_matrix_table():
    f"<td>{s['rule_clean_target_detection']['mean']*100:.1f}% → {s['rule_noisy_target_detection']['mean']*100:.1f}%<span class='task'>−{s['rule_detection_drop']['mean']*100:.1f}%p</span></td>"
    f"<td>{s['student_clean_target_detection']['mean']*100:.1f}% → {s['student_noisy_target_detection']['mean']*100:.1f}%<span class='task'>−{s['student_detection_drop']['mean']*100:.1f}%p</span></td>"
    f"<td>{advantage*100:+.1f}%p<span class='task'>하락폭 이점 {drop_adv*100:+.1f}%p</span></td><td class='{verdict_class}'>{verdict}</td></tr>"
+  )
+  analysis_cards.append(
+   f"<article class='analysis-card'><h3>{item['name']} · {verdict}</h3>"
+   f"<p><strong>규모:</strong> test {item['splits']['test']:,}문장, unseen target-pair {item['unseen_pairs']:,}개.</p>"
+   f"<p><strong>Clean:</strong> Student F2 {s['clean_f2']['mean']:.3f}±{s['clean_f2']['sample_std']:.3f}, gate {item['quality_gate_pass_seeds']}/3.</p>"
+   f"<p><strong>오염 target 탐지:</strong> 규칙 {s['rule_noisy_target_detection']['mean']*100:.1f}% vs Student {s['student_noisy_target_detection']['mean']*100:.1f}%"
+   f" (Student−규칙 {advantage*100:+.1f}%p). Clean→오염 하락은 규칙 {s['rule_detection_drop']['mean']*100:.1f}%p vs Student {s['student_detection_drop']['mean']*100:.1f}%p다.</p>"
+   f"<p><strong>Noisy token F2:</strong> 규칙 {s['rule_noisy_f2']['mean']:.3f} vs Student {s['student_noisy_f2']['mean']:.3f}. "
+   f"<strong>의미:</strong> {item['meaning']} CI gate {item['absolute_gate_pass_seeds']}/3.</p></article>"
   )
   for run in item['runs']:
    seed_rows.append(
@@ -302,6 +311,9 @@ def strict_matrix_table():
   "<div class='notice'><strong>읽는 핵심:</strong> Clean 최신 규칙이 잡은 target을 절대 정답으로 고정한다. 규칙과 Student 각각의 clean→noisy 탐지율 하락을 비교하며, Student noisy 탐지가 더 높고 하락폭이 더 작아야 표면 교란 보완 근거가 된다.</div>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>그룹</th><th class='left'>데이터셋</th><th>Train clean+seen</th><th>Test 원문</th><th>Unseen pair</th><th>Student clean F2</th><th>Clean gate</th><th>규칙 clean→noisy 탐지</th><th>Student clean→noisy 탐지</th><th>Student−규칙</th><th>판정</th></tr></thead><tbody>"
   +''.join(rows)+"</tbody></table></div>"
+  "<h3>4-3-1. 데이터셋별 수치·의미 해석</h3>"
+  "<p class='lede'>target 탐지율과 clean→오염 하락을 함께 보고, 전체-token noisy F2와 3-seed CI로 과대해석을 막는다.</p>"
+  "<div class='analysis-grid'>"+''.join(analysis_cards)+"</div>"
   f"<div class='notice'><strong>요약:</strong> 전체 {len(source['datasets'])}개 데이터셋, {pairs:,}개 unseen target pair(고유 원문 {sources:,}개)에서 3-seed를 반복했다. 평균 noisy 탐지와 하락폭이 모두 좋은 데이터셋은 <strong>{average_wins}/10개</strong>, 두 차이의 95% CI가 seed 3개 모두 0보다 큰 엄격 우세는 <strong>{strict_wins}/10개</strong>다.</div>"
   f"<div class='notice'><strong>그룹 평균 noisy 탐지:</strong> 의료는 규칙 {medical['rule_noisy_target_detection']*100:.1f}% vs Student {medical['student_noisy_target_detection']*100:.1f}%, 실제 PII는 {pii['rule_noisy_target_detection']*100:.1f}% vs {pii['student_noisy_target_detection']*100:.1f}%, 비개인 엔티티 대조는 {entity['rule_noisy_target_detection']*100:.1f}% vs {entity['student_noisy_target_detection']*100:.1f}%다.</div>"
   f"<div class='notice warn'><strong>결론:</strong> privacy 관련 8개 중 엄격 우세는 <strong>{privacy_strict}/8개</strong>(Drug Reviews)다. FinPhraseBank의 우세는 비개인 엔티티 대조 결과이므로 privacy 성공으로 세지 않는다. 현재 Student는 일부 도메인의 규칙 보완 후보이지 전체 규칙 대체 모델은 아니다.</div>"

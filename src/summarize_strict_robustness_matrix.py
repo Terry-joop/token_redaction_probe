@@ -18,6 +18,49 @@ DATASETS = {
     "qnli": ("QNLI", "entity", "비개인 엔티티 대조", "piiclean2 v1.4"),
     "finphrasebank": ("FinPhraseBank", "entity", "비개인 엔티티 대조", "piiclean2 v1.4"),
 }
+DATASET_MEANINGS = {
+    "drug": (
+        "실제 의료 privacy 도메인에서 Student가 규칙의 표면 이음매를 보완할 수 있다는 "
+        "가장 강한 근거다. 다만 전체 noisy token F2는 규칙보다 낮으므로 독립 대체가 "
+        "아니라 규칙과 병렬로 쓰는 보완 후보로 해석한다."
+    ),
+    "symptom2dx": (
+        "평균값은 Student 쪽이 약간 좋지만 test와 target-pair가 작고 3-seed CI gate를 "
+        "통과하지 못했다. 표본을 늘려 재검증하기 전에는 우세라고 주장하지 않는다."
+    ),
+    "adr": (
+        "Student의 하락폭은 작지만 오염 후 절대 탐지율은 규칙보다 낮다. 낮은 clean "
+        "시작점 때문에 덜 하락해 보이는 효과가 섞였으므로 규칙 대체 근거가 아니다."
+    ),
+    "redditmh": (
+        "비정형 정신건강 서술에서 clean 품질 gate부터 통과하지 못했고 오염 후에도 "
+        "규칙보다 낮다. 현재 모델·라벨 구성으로는 규칙 보완이나 대체를 주장할 수 없다."
+    ),
+    "mednli": (
+        "clean 규칙 모방은 합격했지만 학습에 없던 표면 교란에서는 규칙의 절대 "
+        "탐지율이 더 높다. 임상 문장쌍에 대한 추가 증강 없이는 규칙 유지가 타당하다."
+    ),
+    "mentalhealth": (
+        "clean F2와 오염 후 절대 탐지율이 모두 가장 약한 축에 속한다. 자유서술 표현의 "
+        "다양성을 현재 단일 ELECTRA-small이 충분히 학습하지 못한 실패 사례다."
+    ),
+    "bios": (
+        "가장 큰 실제 PII 평가이므로 중요한 반례다. Student가 덜 하락하더라도 오염 후 "
+        "절대 탐지율은 규칙보다 낮아, 규모만 늘리는 것으로 규칙을 이기지는 못했다."
+    ),
+    "mrpc": (
+        "엄격 PII 정책의 clean 모방은 좋지만 오염 후에는 규칙이 앞선다. Student를 "
+        "단독 필터로 교체하기보다 규칙의 미탐 후보를 재검사하는 보조기로 보는 편이 맞다."
+    ),
+    "qnli": (
+        "규칙과 Student의 차이는 작지만 비개인 엔티티 대조군이므로 privacy 성과가 "
+        "아니다. 학습형 모델이 일반 엔티티 경계를 어느 정도 유지하는지 보는 통제 결과다."
+    ),
+    "finphrasebank": (
+        "수치와 3-seed CI에서는 Student가 규칙보다 강건하지만 비개인 엔티티 대조군이다. "
+        "학습형 redactor의 표면 일반화 가능성은 지지해도 개인정보 보호 성공으로 세지 않는다."
+    ),
+}
 FIELDS = [
     "clean_precision",
     "clean_recall",
@@ -103,6 +146,7 @@ def build() -> dict:
             "group": group,
             "group_name": group_name,
             "teacher": teacher,
+            "meaning": DATASET_MEANINGS[key],
             "policy_id": clean_summary["policy"],
             "splits": {
                 split: clean_summary["splits"][split]["examples"]
@@ -203,6 +247,46 @@ def markdown(result: dict) -> str:
             f"{s['student_detection_drop']['mean']:.3f}±{s['student_detection_drop']['sample_std']:.3f} | "
             f"{item['quality_gate_pass_seeds']}/3 | {item['absolute_gate_pass_seeds']}/3 |"
         )
+    lines.extend([
+        "",
+        "## 데이터셋별 수치 해석",
+        "",
+        "아래 target 탐지율은 clean 최신 규칙이 고른 민감 span 전체를 오염 문장에서도 "
+        "전부 가린 비율이다. noisy token F2는 오염 문장의 모든 토큰을 대상으로 한 별도 "
+        "지표이므로, 특정 target의 생존율과 같은 숫자로 해석하면 안 된다.",
+        "",
+    ])
+    for item in items:
+        s = item["summary"]
+        advantage = s["student_minus_rule_noisy"]["mean"]
+        drop_advantage = s["student_drop_advantage"]["mean"]
+        if item["absolute_gate_pass_seeds"] == 3:
+            verdict = "엄격 우세"
+        elif advantage > 0 and drop_advantage > 0:
+            verdict = "평균 우세지만 통계적 재현성 미달"
+        elif item["quality_gate_pass_seeds"] < 3:
+            verdict = "clean 품질 및 규칙 대비 성능 미달"
+        else:
+            verdict = "오염 후 절대 탐지율에서 규칙 우세"
+        lines.extend([
+            f"### {item['name']} — {verdict}",
+            "",
+            f"- **평가 규모:** test 원문 {item['splits']['test']:,}개에서 적용 가능한 "
+            f"Unseen target-pair {item['unseen_pairs']:,}개를 평가했다.",
+            f"- **Clean 모방:** Student F2 {s['clean_f2']['mean']:.3f}±"
+            f"{s['clean_f2']['sample_std']:.3f}, clean gate {item['quality_gate_pass_seeds']}/3이다.",
+            f"- **오염 후 target 탐지:** 규칙 {s['rule_noisy_target_detection']['mean']*100:.1f}% "
+            f"대 Student {s['student_noisy_target_detection']['mean']*100:.1f}%±"
+            f"{s['student_noisy_target_detection']['sample_std']*100:.1f}%p로, Student−규칙은 "
+            f"{advantage*100:+.1f}%p다.",
+            f"- **Clean→오염 하락:** 규칙 {s['rule_detection_drop']['mean']*100:.1f}%p 대 "
+            f"Student {s['student_detection_drop']['mean']*100:.1f}%p이며 Student의 하락폭 이점은 "
+            f"{drop_advantage*100:+.1f}%p다. noisy token F2는 규칙 "
+            f"{s['rule_noisy_f2']['mean']:.3f}, Student {s['student_noisy_f2']['mean']:.3f}이다.",
+            f"- **의미:** {item['meaning']} 엄격 CI gate는 "
+            f"{item['absolute_gate_pass_seeds']}/3이다.",
+            "",
+        ])
     lines.extend([
         "",
         "## 해석",

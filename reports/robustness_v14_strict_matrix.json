@@ -22,6 +22,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "실제 의료 privacy 도메인에서 Student가 규칙의 표면 이음매를 보완할 수 있다는 가장 강한 근거다. 다만 전체 noisy token F2는 규칙보다 낮으므로 독립 대체가 아니라 규칙과 병렬로 쓰는 보완 후보로 해석한다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 39980,
@@ -204,6 +205,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "평균값은 Student 쪽이 약간 좋지만 test와 target-pair가 작고 3-seed CI gate를 통과하지 못했다. 표본을 늘려 재검증하기 전에는 우세라고 주장하지 않는다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 844,
@@ -384,6 +386,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "Student의 하락폭은 작지만 오염 후 절대 탐지율은 규칙보다 낮다. 낮은 clean 시작점 때문에 덜 하락해 보이는 효과가 섞였으므로 규칙 대체 근거가 아니다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 16714,
@@ -566,6 +569,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "비정형 정신건강 서술에서 clean 품질 gate부터 통과하지 못했고 오염 후에도 규칙보다 낮다. 현재 모델·라벨 구성으로는 규칙 보완이나 대체를 주장할 수 없다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 47685,
@@ -748,6 +752,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "clean 규칙 모방은 합격했지만 학습에 없던 표면 교란에서는 규칙의 절대 탐지율이 더 높다. 임상 문장쌍에 대한 추가 증강 없이는 규칙 유지가 타당하다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 11210,
@@ -930,6 +935,7 @@
       "group": "medical",
       "group_name": "의료 규칙",
       "teacher": "medterm5 v1.4",
+      "meaning": "clean F2와 오염 후 절대 탐지율이 모두 가장 약한 축에 속한다. 자유서술 표현의 다양성을 현재 단일 ELECTRA-small이 충분히 학습하지 못한 실패 사례다.",
       "policy_id": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
       "splits": {
         "train": 33502,
@@ -1112,6 +1118,7 @@
       "group": "pii",
       "group_name": "실제 PII",
       "teacher": "piiclean2 v1.4",
+      "meaning": "가장 큰 실제 PII 평가이므로 중요한 반례다. Student가 덜 하락하더라도 오염 후 절대 탐지율은 규칙보다 낮아, 규모만 늘리는 것으로 규칙을 이기지는 못했다.",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
       "splits": {
         "train": 257090,
@@ -1294,6 +1301,7 @@
       "group": "pii",
       "group_name": "실제 PII",
       "teacher": "piiclean2 strict v1.4",
+      "meaning": "엄격 PII 정책의 clean 모방은 좋지만 오염 후에는 규칙이 앞선다. Student를 단독 필터로 교체하기보다 규칙의 미탐 후보를 재검사하는 보조기로 보는 편이 맞다.",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
       "splits": {
         "train": 3668,
@@ -1474,6 +1482,7 @@
       "group": "entity",
       "group_name": "비개인 엔티티 대조",
       "teacher": "piiclean2 v1.4",
+      "meaning": "규칙과 Student의 차이는 작지만 비개인 엔티티 대조군이므로 privacy 성과가 아니다. 학습형 모델이 일반 엔티티 경계를 어느 정도 유지하는지 보는 통제 결과다.",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
       "splits": {
         "train": 104716,
@@ -1656,6 +1665,7 @@
       "group": "entity",
       "group_name": "비개인 엔티티 대조",
       "teacher": "piiclean2 v1.4",
+      "meaning": "수치와 3-seed CI에서는 Student가 규칙보다 강건하지만 비개인 엔티티 대조군이다. 학습형 redactor의 표면 일반화 가능성은 지지해도 개인정보 보호 성공으로 세지 않는다.",
       "policy_id": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
       "splits": {
         "train": 1806,
