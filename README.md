@@ -14,14 +14,18 @@ ELECTRA-small, DistilRoBERTa를 비교했다.
 세부 P/R/F1/F2와 split·pair 수는 대시보드 4-1 및
 `ROBUSTNESS_EXPERIMENT_V14.md`에 있다.
 
-최신 확장 실험은 Drug Reviews 1개 데이터셋으로 진행했다. 원본 49,974문장 중 clean train
-39,980문장을 사용하고 seen-noise 30,591행을 추가해 최종 학습 입력은 70,571행이다.
-Validation 4,997문장과 test 4,997문장을 모두 사용했고, 전체 test에서 생성 가능한 미관측
-오염 target-pair 13,901개(고유 원문 4,866개)를 평가했다. 같은 분모에서 오염 후 정확한
-span 탐지율은 Student 3-seed 평균 57.3%, 규칙 52.8%였고, clean→오염 하락은 Student
-33.2%p, 규칙 47.2%p였다. 다만 전체 noisy token F2는 Student 0.874, 규칙 0.927이므로
-완전 대체가 아닌 규칙 보완 후보이다. 상세 설계와 원문-cluster 신뢰구간은
-ROBUSTNESS_EXPERIMENT_V14.md에 정리했다.
+최신 strict 확장 실험은 10개 데이터셋 모두에 같은 `Seen 5종 학습 / Unseen 7종 최종 test`
+분리를 적용했다. clean train 517,215행에 적용 가능한 Seen 교란 367,609행을 추가해
+총 884,824행으로 데이터셋별 ELECTRA-small을 학습했고, seed 42·43·44를 반복했다.
+각 전체 test에서 유형당 상한 없이 생성 가능한 Unseen target-pair 352,908개
+(고유 원문 113,047개)를 평가했다. 모든 교란이 모든 문장에 적용되는 것은 아니므로 실제
+pair 수와 나타난 교란 종류는 데이터셋마다 다르다.
+
+평균 noisy 탐지와 하락폭이 모두 나은 데이터셋은 3/10개였지만, 두 차이의 원문-cluster
+95% CI가 세 seed 모두 0보다 큰 엄격 우세는 Drug Reviews와 FinPhraseBank 2/10개였다.
+FinPhraseBank는 비개인 엔티티 대조이므로 privacy 관련 8개 중 엄격 우세는 Drug Reviews
+1/8개다. 따라서 현재 Student는 일부 표면 결함의 규칙 보완 근거를 보였지만 전체 규칙을
+대체한다고 결론 낼 수 없다. 상세 표는 `STRICT_ROBUSTNESS_MATRIX.md`와 대시보드 4-3에 있다.
 
 
 ## 결과 대시보드
@@ -79,12 +83,13 @@ python src/build_results_dashboard.py
 
 ## 먼저 읽을 문서
 
-루트 문서는 네 개만 사용한다.
+루트 문서는 다섯 개만 사용한다.
 
 - `README.md`: 연구 구조와 실행 방법(현재 문서)
 - `MEDICAL_REDACTOR_ALL_RESULTS.md`: 날짜·실험 순서별 전체 결과와 해석
-- `ROBUSTNESS_EXPERIMENT_V14.md`: 최신 v1.4 규칙 대 Student 입력 교란 결과와 합격선
-- `PERTURBATION_CATALOG.md`: Seen/Unseen 오염 규칙 12종의 조건·예시·실제 개수
+- `ROBUSTNESS_EXPERIMENT_V14.md`: 초기 제한 실험과 Drug 전체 확장 결과·합격선
+- `STRICT_ROBUSTNESS_MATRIX.md`: 10개 데이터셋 전체 strict 5/7·3-seed 최종 비교
+- `PERTURBATION_CATALOG.md`: Seen/Unseen 오염 규칙 12종의 조건·예시·전체 실제 개수
 
 SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 

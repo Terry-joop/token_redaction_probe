@@ -1,0 +1,298 @@
+{
+  "pairs": 2986,
+  "unique_source_rows": 1357,
+  "noise_group": "unseen",
+  "rule_policy": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+  "student_model_dir": "/home/jovyan/token_redaction_probe/artifacts/robustness/v14_strict/mrpc_electra_small_seed43",
+  "student_threshold": 0.8999999999999999,
+  "rule_v1_4": {
+    "clean": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0,
+      "gold_mask_rate": 0.14216764707873306,
+      "predicted_mask_rate": 0.14216764707873306,
+      "residual_sensitive_rate": 0.0,
+      "overmask_rate": 0.0,
+      "tokens": 147727
+    },
+    "noisy": {
+      "precision": 0.9976665555502643,
+      "recall": 0.8844140493076663,
+      "f1": 0.937632868619509,
+      "f2": 0.9049597843647139,
+      "gold_mask_rate": 0.1574706836493206,
+      "predicted_mask_rate": 0.1395950222033132,
+      "residual_sensitive_rate": 0.11558595069233368,
+      "overmask_rate": 0.0003866182736310557,
+      "tokens": 150428
+    },
+    "robustness": {
+      "clean_target_detection": 1.0,
+      "noisy_target_detection": 0.5341594105827193,
+      "eligible_clean_targets": 2986,
+      "span_survival_rate": 0.5341594105827193,
+      "newly_leaked_span_rate": 0.4658405894172807
+    },
+    "by_noise": {
+      "nbsp": {
+        "precision": 0.9993613284368513,
+        "recall": 0.9729519664231308,
+        "f1": 0.9859798361688721,
+        "f2": 0.9781215814971089,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15431429556990095,
+        "residual_sensitive_rate": 0.027048033576869246,
+        "overmask_rate": 0.000117120018739203,
+        "tokens": 40586
+      },
+      "semicolon_after_number": {
+        "precision": 0.9901960784313726,
+        "recall": 0.9528301886792453,
+        "f1": 0.9711538461538461,
+        "f2": 0.9600760456273765,
+        "gold_mask_rate": 0.1318407960199005,
+        "predicted_mask_rate": 0.12686567164179105,
+        "residual_sensitive_rate": 0.047169811320754707,
+        "overmask_rate": 0.0014326647564469914,
+        "tokens": 804
+      },
+      "triple_space": {
+        "precision": 1.0,
+        "recall": 0.9996891030623348,
+        "f1": 0.9998445273631841,
+        "f2": 0.9997512669838012,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15845365396934905,
+        "residual_sensitive_rate": 0.0003108969376651727,
+        "overmask_rate": 0.0,
+        "tokens": 40586
+      },
+      "zero_width_inside": {
+        "precision": 0.9946361087407046,
+        "recall": 0.761384845091452,
+        "f1": 0.8625191606321687,
+        "f2": 0.7988524879080424,
+        "gold_mask_rate": 0.15654765383042132,
+        "predicted_mask_rate": 0.11983579734704611,
+        "residual_sensitive_rate": 0.238615154908548,
+        "overmask_rate": 0.0007620895108770957,
+        "tokens": 68452
+      }
+    }
+  },
+  "student": {
+    "clean": {
+      "precision": 0.9465423990728221,
+      "recall": 0.9332920674221503,
+      "f1": 0.9398705346439703,
+      "f2": 0.9359123725123191,
+      "gold_mask_rate": 0.14216764707873306,
+      "predicted_mask_rate": 0.14017748955844225,
+      "residual_sensitive_rate": 0.06670793257784968,
+      "overmask_rate": 0.0087354507792464,
+      "tokens": 147727
+    },
+    "noisy": {
+      "precision": 0.9486301369863014,
+      "recall": 0.8653326578858493,
+      "f1": 0.9050688802543271,
+      "f2": 0.8808009625300791,
+      "gold_mask_rate": 0.1574706836493206,
+      "predicted_mask_rate": 0.14364347063046773,
+      "residual_sensitive_rate": 0.13466734211415066,
+      "overmask_rate": 0.008758087423070854,
+      "tokens": 150428
+    },
+    "robustness": {
+      "clean_target_detection": 0.9290020093770931,
+      "noisy_target_detection": 0.5033489618218352,
+      "eligible_clean_targets": 2774,
+      "span_survival_rate": 0.5418168709444845,
+      "newly_leaked_span_rate": 0.4581831290555155
+    },
+    "by_noise": {
+      "nbsp": {
+        "precision": 0.9512426784866234,
+        "recall": 0.9340898492149853,
+        "f1": 0.9425882352941176,
+        "f2": 0.9374707479172517,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15564480362686642,
+        "residual_sensitive_rate": 0.06591015078501472,
+        "overmask_rate": 0.00901824144291863,
+        "tokens": 40586
+      },
+      "semicolon_after_number": {
+        "precision": 0.851063829787234,
+        "recall": 0.7547169811320755,
+        "f1": 0.8,
+        "f2": 0.7722007722007722,
+        "gold_mask_rate": 0.1318407960199005,
+        "predicted_mask_rate": 0.11691542288557213,
+        "residual_sensitive_rate": 0.24528301886792447,
+        "overmask_rate": 0.02005730659025788,
+        "tokens": 804
+      },
+      "triple_space": {
+        "precision": 0.9512426784866234,
+        "recall": 0.9340898492149853,
+        "f1": 0.9425882352941176,
+        "f2": 0.9374707479172517,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15564480362686642,
+        "residual_sensitive_rate": 0.06591015078501472,
+        "overmask_rate": 0.00901824144291863,
+        "tokens": 40586
+      },
+      "zero_width_inside": {
+        "precision": 0.9459459459459459,
+        "recall": 0.7838745800671892,
+        "f1": 0.8573178199632578,
+        "f2": 0.8116883116883117,
+        "gold_mask_rate": 0.15654765383042132,
+        "predicted_mask_rate": 0.12972593934435808,
+        "residual_sensitive_rate": 0.21612541993281076,
+        "overmask_rate": 0.008313703755022862,
+        "tokens": 68452
+      }
+    }
+  },
+  "absolute_target_robustness": {
+    "target_pairs": 2986,
+    "unique_source_rows": 1357,
+    "rule_clean_target_detection": 1.0,
+    "rule_noisy_target_detection": 0.5341594105827193,
+    "rule_detection_drop": 0.4658405894172807,
+    "student_clean_target_detection": 0.9290020093770931,
+    "student_noisy_target_detection": 0.5033489618218352,
+    "student_detection_drop": 0.4256530475552579,
+    "student_minus_rule_noisy": -0.030810448760884127,
+    "student_minus_rule_noisy_ci95": [
+      -0.041598718244172564,
+      -0.02048690059617099
+    ],
+    "student_drop_advantage": 0.04018754186202277,
+    "student_drop_advantage_ci95": [
+      0.03278674953859516,
+      0.04757085020242915
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over fixed target pairs"
+  },
+  "paired_bootstrap": {
+    "metric": "noisy_f2_student_minus_rule",
+    "mean": -0.024251138020410987,
+    "ci95": [
+      -0.03174241340034601,
+      -0.01666243819971363
+    ],
+    "repeats": 2000,
+    "unit": "source-clustered paired sentence"
+  },
+  "shared_clean_target_robustness": {
+    "eligible_shared_clean_targets": 2774,
+    "rule_span_survival_rate": 0.5295602018745494,
+    "student_span_survival_rate": 0.5418168709444845,
+    "student_minus_rule": 0.012256669069935111,
+    "ci95": [
+      0.008339376359680928,
+      0.016697343895619755
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over shared clean-correct targets"
+  },
+  "shared_clean_target_by_noise": {
+    "nbsp": {
+      "eligible_shared_clean_targets": 748,
+      "rule_span_survival_rate": 0.9558823529411765,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.04411764705882353,
+      "ci95": [
+        0.03074866310160428,
+        0.06016042780748663
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "semicolon_after_number": {
+      "eligible_shared_clean_targets": 8,
+      "rule_span_survival_rate": 0.75,
+      "student_span_survival_rate": 0.875,
+      "student_minus_rule": 0.125,
+      "ci95": [
+        0.0,
+        0.375
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "triple_space": {
+      "eligible_shared_clean_targets": 748,
+      "rule_span_survival_rate": 1.0,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "zero_width_inside": {
+      "eligible_shared_clean_targets": 1270,
+      "rule_span_survival_rate": 0.0,
+      "student_span_survival_rate": 0.0,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    }
+  },
+  "acceptance": {
+    "final_student_quality_gate": {
+      "pass": true,
+      "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+    },
+    "matched_budget_gate": {
+      "pass": true,
+      "mask_rate_gap": 0.004048448427154516,
+      "criteria": "absolute noisy mask-rate gap <= 0.01"
+    },
+    "robustness_superiority_gate": {
+      "pass": false,
+      "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+    },
+    "absolute_target_robustness_gate": {
+      "pass": false,
+      "student_minus_rule_noisy": -0.030810448760884127,
+      "student_minus_rule_noisy_ci95": [
+        -0.041598718244172564,
+        -0.02048690059617099
+      ],
+      "student_drop_advantage": 0.04018754186202277,
+      "student_drop_advantage_ci95": [
+        0.03278674953859516,
+        0.04757085020242915
+      ],
+      "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+    },
+    "conditional_surface_robustness_gate": {
+      "pass": false,
+      "student_minus_rule": 0.012256669069935111,
+      "ci95": [
+        0.008339376359680928,
+        0.016697343895619755
+      ],
+      "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+    },
+    "pilot_quality_reference": {
+      "pass": true,
+      "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+    }
+  }
+}

@@ -241,9 +241,77 @@ def robustness_table():
 
  )
 
+
+def strict_matrix_table():
+ path=ROOT/'reports/robustness_v14_strict_matrix.json'
+ if not path.exists(): return ''
+ source=json.loads(path.read_text(encoding='utf-8'))
+ rows=[]; seed_rows=[]; group_counts={}
+ for item in source['datasets'].values(): group_counts[item['group']]=group_counts.get(item['group'],0)+1
+ seen=set()
+ for item in source['datasets'].values():
+  s=item['summary']; group=item['group']; group_cell=''
+  if group not in seen:
+   group_cell=f"<td rowspan='{group_counts[group]}' class='meta merge'><span class='pill g-{group}'>{item['group_name']}</span></td>"
+   seen.add(group)
+  advantage=s['student_minus_rule_noisy']['mean']; drop_adv=s['student_drop_advantage']['mean']
+  if item['absolute_gate_pass_seeds']==3:
+   verdict='우세 · CI 3/3'
+   verdict_class='best'
+  elif advantage>0 and drop_adv>0:
+   verdict='평균 우세 · CI 미달'
+   verdict_class='over'
+  else:
+   verdict='미달'
+   verdict_class='low'
+  rows.append(
+   f"<tr>{group_cell}<td class='left meta dataset'>{item['name']}<span class='task'>{item['teacher']}</span></td>"
+   f"<td>{item['clean_train_rows']:,}+{item['augmented_train_rows']:,}</td><td>{item['splits']['test']:,}</td><td>{item['unseen_pairs']:,}</td>"
+   f"<td>{s['clean_f2']['mean']:.3f}<span class='task'>±{s['clean_f2']['sample_std']:.3f}</span></td>"
+   f"<td class='{'best' if item['quality_gate_pass_seeds']==3 else 'low'}'>{item['quality_gate_pass_seeds']}/3</td>"
+   f"<td>{s['rule_clean_target_detection']['mean']*100:.1f}% → {s['rule_noisy_target_detection']['mean']*100:.1f}%<span class='task'>−{s['rule_detection_drop']['mean']*100:.1f}%p</span></td>"
+   f"<td>{s['student_clean_target_detection']['mean']*100:.1f}% → {s['student_noisy_target_detection']['mean']*100:.1f}%<span class='task'>−{s['student_detection_drop']['mean']*100:.1f}%p</span></td>"
+   f"<td>{advantage*100:+.1f}%p<span class='task'>하락폭 이점 {drop_adv*100:+.1f}%p</span></td><td class='{verdict_class}'>{verdict}</td></tr>"
+  )
+  for run in item['runs']:
+   seed_rows.append(
+    f"<tr><td class='left meta dataset'>{item['name']}</td><td><span class='seed'>{run['seed']}</span></td><td>{run['threshold']:.2f}</td>"
+    f"<td>{run['clean_f2']:.3f}</td><td>{run['rule_noisy_target_detection']*100:.1f}%</td><td>{run['student_noisy_target_detection']*100:.1f}%</td>"
+    f"<td>{run['student_minus_rule_noisy']*100:+.1f}%p<span class='task'>[{run['student_minus_rule_noisy_ci95'][0]*100:+.1f}, {run['student_minus_rule_noisy_ci95'][1]*100:+.1f}]</span></td>"
+    f"<td>{run['rule_detection_drop']*100:.1f}%p</td><td>{run['student_detection_drop']*100:.1f}%p</td></tr>"
+   )
+ average_wins=sum(
+  item['summary']['student_minus_rule_noisy']['mean']>0
+  and item['summary']['student_drop_advantage']['mean']>0
+  for item in source['datasets'].values()
+ )
+ strict_wins=sum(
+  item['absolute_gate_pass_seeds']==3
+  for item in source['datasets'].values()
+ )
+ pairs=sum(item['unseen_pairs'] for item in source['datasets'].values())
+ sources=sum(item['unique_test_sources'] for item in source['datasets'].values())
+ privacy_strict=sum(
+  item['group'] in {'medical','pii'} and item['absolute_gate_pass_seeds']==3
+  for item in source['datasets'].values()
+ )
+ medical=source['groups']['medical']['metrics']; pii=source['groups']['pii']['metrics']; entity=source['groups']['entity']['metrics']
+ return (
+  "<h2>4-3. 전 데이터셋 strict 5/7 검증</h2>"
+  "<p class='lede'>각 데이터셋의 전체 clean train에 seen 5종만 증강하고, 전체 test에서는 학습에 없던 unseen 7종만 평가했다. Student는 ELECTRA-small, seed 42·43·44로 고정했다.</p>"
+  "<div class='notice'><strong>읽는 핵심:</strong> Clean 최신 규칙이 잡은 target을 절대 정답으로 고정한다. 규칙과 Student 각각의 clean→noisy 탐지율 하락을 비교하며, Student noisy 탐지가 더 높고 하락폭이 더 작아야 표면 교란 보완 근거가 된다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>그룹</th><th class='left'>데이터셋</th><th>Train clean+seen</th><th>Test 원문</th><th>Unseen pair</th><th>Student clean F2</th><th>Clean gate</th><th>규칙 clean→noisy 탐지</th><th>Student clean→noisy 탐지</th><th>Student−규칙</th><th>판정</th></tr></thead><tbody>"
+  +''.join(rows)+"</tbody></table></div>"
+  f"<div class='notice'><strong>요약:</strong> 전체 {len(source['datasets'])}개 데이터셋, {pairs:,}개 unseen target pair(고유 원문 {sources:,}개)에서 3-seed를 반복했다. 평균 noisy 탐지와 하락폭이 모두 좋은 데이터셋은 <strong>{average_wins}/10개</strong>, 두 차이의 95% CI가 seed 3개 모두 0보다 큰 엄격 우세는 <strong>{strict_wins}/10개</strong>다.</div>"
+  f"<div class='notice'><strong>그룹 평균 noisy 탐지:</strong> 의료는 규칙 {medical['rule_noisy_target_detection']*100:.1f}% vs Student {medical['student_noisy_target_detection']*100:.1f}%, 실제 PII는 {pii['rule_noisy_target_detection']*100:.1f}% vs {pii['student_noisy_target_detection']*100:.1f}%, 비개인 엔티티 대조는 {entity['rule_noisy_target_detection']*100:.1f}% vs {entity['student_noisy_target_detection']*100:.1f}%다.</div>"
+  f"<div class='notice warn'><strong>결론:</strong> privacy 관련 8개 중 엄격 우세는 <strong>{privacy_strict}/8개</strong>(Drug Reviews)다. FinPhraseBank의 우세는 비개인 엔티티 대조 결과이므로 privacy 성공으로 세지 않는다. 현재 Student는 일부 도메인의 규칙 보완 후보이지 전체 규칙 대체 모델은 아니다.</div>"
+  "<details><summary>데이터셋별 seed 42·43·44와 95% CI 보기</summary><div><div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Seed</th><th>Th.</th><th>Clean F2</th><th>규칙 noisy 탐지</th><th>Student noisy 탐지</th><th>차이 95% CI</th><th>규칙 하락</th><th>Student 하락</th></tr></thead><tbody>"
+  +''.join(seed_rows)+"</tbody></table></div></div></details>"
+ )
+
 HTML = r'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Token Redaction Probe · 전체 결과</title><style>
 :root{--bg:#f4f6f8;--panel:#fff;--ink:#162027;--muted:#62707a;--faint:#8d99a2;--line:#dde3e7;--line2:#edf0f2;--teal:#087f70;--tealbg:#e4f5f1;--blue:#486581;--bluebg:#eaf0f5;--amber:#9a5b08;--red:#b43b33;--redbg:#fbe9e7;--mono:ui-monospace,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}:root[data-theme=dark]{--bg:#11171b;--panel:#192126;--ink:#edf2f4;--muted:#a5b0b7;--faint:#78858d;--line:#303a40;--line2:#253036;--teal:#52cfbb;--tealbg:#173b35;--blue:#b1c9dd;--bluebg:#23313d;--amber:#f4bd6b;--red:#f08a80;--redbg:#3c211f}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}.wrap{max-width:1240px;margin:auto;padding:42px 22px 80px}.hero{display:flex;justify-content:space-between;gap:20px}.eyebrow{color:var(--teal);font:700 12px var(--mono);letter-spacing:.13em}.hero h1{font-size:clamp(27px,4vw,42px);line-height:1.15;margin:8px 0 10px;letter-spacing:-.035em}.hero p{max-width:820px;color:var(--muted);margin:0}.actions{display:flex;gap:8px;align-items:flex-start}.button,button{border:1px solid var(--line);color:var(--ink);background:var(--panel);border-radius:9px;padding:8px 11px;text-decoration:none;cursor:pointer;font:650 12px var(--sans)}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px}.card b{font:750 25px var(--mono);display:block}.card span,.lede{font-size:12px;color:var(--muted)}.notice{border:1px solid var(--line);border-left:4px solid var(--teal);background:var(--panel);border-radius:10px;padding:13px 15px;color:var(--muted);font-size:13px;margin:16px 0}.notice strong{color:var(--ink)}.warn{border-left-color:var(--amber)}h2{font-size:21px;margin:34px 0 6px}.lede{margin:0 0 14px}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:10px;border-radius:12px 12px 0 0}.toolbar select,.toolbar input{border:1px solid var(--line);color:var(--ink);background:var(--bg);border-radius:8px;padding:7px 9px;font:12px var(--sans)}.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0}.seg .active{background:var(--teal);color:#fff}.tablewrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px}.solo{border-top:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}th{position:sticky;top:0;background:var(--panel);color:var(--muted);font-size:11px;text-align:right;padding:9px 8px;border-bottom:1px solid var(--line)}th.left,td.left{text-align:left}td{padding:7px 8px;border-bottom:1px solid var(--line2);text-align:right;font:500 12px var(--mono)}td.meta{font-family:var(--sans)}tr.start td{border-top:2px solid var(--line)}.pill,.policy,.seed{display:inline-block;border-radius:999px;padding:2px 7px;font:700 10px var(--sans)}.g-medical{background:var(--tealbg);color:var(--teal)}.g-pii{background:var(--redbg);color:var(--red)}.g-entity{background:var(--bluebg);color:var(--blue)}.policy{background:var(--bg);color:var(--muted)}.seed{padding:1px 5px;background:var(--tealbg);color:var(--teal)}.best{color:var(--teal);font-weight:800;background:color-mix(in srgb,var(--teal) 7%,transparent)}.low{color:var(--red)}.over{color:var(--amber)}.dataset{font-weight:750}.task{display:block;font-size:10px;color:var(--faint);margin-top:2px}td.merge{vertical-align:middle;text-align:center!important;border-right:1px solid var(--line);background:color-mix(in srgb,var(--panel) 94%,var(--teal) 6%)}td.merge.dataset-cell{text-align:left!important;min-width:140px}.analysis-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.analysis-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.analysis-card h3{font-size:14px;margin:0 0 8px;color:var(--teal)}.analysis-card p{font-size:13px;color:var(--muted);margin:0}.analysis-card strong{color:var(--ink)}.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.macro{border:1px solid var(--line);background:var(--panel);border-radius:12px;overflow:hidden}.macro h3{padding:13px;margin:0;border-bottom:1px solid var(--line);font-size:14px}.macro table{white-space:normal}.help-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.help{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;color:var(--muted)}.help b{display:block;color:var(--ink);font:700 13px var(--mono)}details{background:var(--panel);border:1px solid var(--line);border-radius:11px;margin-top:12px}summary{cursor:pointer;padding:13px 15px;font-weight:700;font-size:13px}details>div{padding:0 15px 15px;color:var(--muted);font-size:12px}.foot{margin-top:36px;border-top:1px solid var(--line);padding-top:14px;color:var(--faint);font-size:11px}@media(max-width:850px){.hero{display:block}.actions{margin-top:14px}.cards,.macro-grid,.help-grid,.analysis-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.cards,.macro-grid,.help-grid,.analysis-grid{grid-template-columns:1fr}.wrap{padding:24px 12px}}
-</style></head><body><main class="wrap"><div class="hero"><div><div class="eyebrow">TOKEN REDACTION PROBE · 2026-08-01</div><h1>로컬 Student Redactor — 전체 데이터 실험</h1><p>각 데이터셋의 사용 가능한 행을 빈 문장·중복 제거 후 전부 사용해, 규칙 기반 pseudo-teacher를 작은 Transformer+MLP가 얼마나 모방하는지 정리했다. 의미가 다른 Teacher 정책은 그룹별로 분리했다.</p></div><div class="actions"><a class="button" href="perturbations/">오염 규칙 12종</a><a class="button" href="redactor_results.csv">CSV · Excel용</a><button id="theme">다크 모드</button></div></div>
+</style></head><body><main class="wrap"><div class="hero"><div><div class="eyebrow">TOKEN REDACTION PROBE · 2026-08-03</div><h1>로컬 Student Redactor — 전체 데이터 실험</h1><p>각 데이터셋의 사용 가능한 행을 빈 문장·중복 제거 후 전부 사용해, 규칙 기반 pseudo-teacher를 작은 Transformer+MLP가 얼마나 모방하는지 정리했다. 의미가 다른 Teacher 정책은 그룹별로 분리했다.</p></div><div class="actions"><a class="button" href="perturbations/">오염 규칙 12종</a><a class="button" href="redactor_results.csv">CSV · Excel용</a><button id="theme">다크 모드</button></div></div>
 <section class="cards"><div class="card"><b>10</b><span>고정 조건 데이터셋</span></div><div class="card"><b>3</b><span>Student 아키텍처</span></div><div class="card"><b>30</b><span>seed 42 전체-data run</span></div><div class="card"><b>__EXAMPLE_COUNT__</b><span>전처리 후 전체 예시</span></div></section><div class="notice"><strong>주 지표:</strong> F1은 균형 일치, F2는 Recall을 더 중시한다. <strong>Token Accuracy는 클래스 불균형 때문에 메인 표에서 제외</strong>했다.</div><div class="notice warn"><strong>해석 제한:</strong> 모두 human-gold가 아닌 deterministic pseudo-gold다. QNLI·FinPhraseBank는 개인정보 탐지가 아닌 엔티티 대조 실험이며 세 그룹의 macro를 합치지 않는다.</div>
 <h2>1. 고정 3모델 × 10데이터셋</h2><p class="lede">사용 가능한 전체 데이터를 학습하고, validation에서 threshold를 선택한 뒤 test에 한 번 적용한 seed 42 결과. 전체 및 Train/Val/Test 예시 수는 바로 아래 규모 표에 분리해 표시한다.</p><div class="toolbar"><div class="seg"><button class="mode active" data-mode="budget">동일 마스킹 예산</button><button class="mode" data-mode="privacy">Recall 중심 F2</button></div><select id="group"><option value="all">모든 그룹</option><option value="medical">의료 규칙</option><option value="pii">실제 PII</option><option value="entity">비개인 엔티티 대조</option></select><select id="model"><option value="all">모든 모델</option><option value="bert_tiny">BERT-tiny</option><option value="electra_small">ELECTRA-small</option><option value="distilroberta">DistilRoBERTa</option></select><input id="search" placeholder="데이터셋 검색"><span id="count" style="margin-left:auto;color:var(--faint);font-size:11px"></span></div><div class="tablewrap"><table><thead><tr><th class="left">그룹</th><th class="left">데이터셋</th><th class="left">Teacher</th><th class="left">Student</th><th>Seed</th><th>Th.</th><th>P</th><th>R</th><th>F1</th><th>F2</th><th>Teacher mask</th><th>Student mask</th><th>남은 민감</th><th>Tokens</th></tr></thead><tbody id="results"></tbody></table></div>
 <h2>1-1. 전체 데이터 규모</h2><p class="lede">빈 문장·중복 제거 후 실제 사용한 예시 수. 공식 split이 있으면 보존했다.</p>__SPLIT_TABLE__
@@ -266,7 +334,7 @@ def main():
  html=html.replace('__EXAMPLE_COUNT__',f'{example_count:,}')
  html=html.replace('__SPLIT_TABLE__',split_table(data))
  html=html.replace(
-  '<h2>5. 결과 분석</h2>', robustness_table() + '<h2>5. 결과 분석</h2>'
+  '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table() + '<h2>5. 결과 분석</h2>'
  )
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')

@@ -9,3 +9,4 @@ artifacts/
 teacher/chatgpt_chunks_100/
 teacher/*_rejected.jsonl
 .venv*/
+reports/robustness_v14_strict_*_seed*.md

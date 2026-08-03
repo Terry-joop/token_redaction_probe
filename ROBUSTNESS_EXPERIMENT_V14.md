@@ -1,5 +1,18 @@
 # RedactFormer v1.4 입력 교란 강건성 실험
 
+## 2026-08-03 최종 strict 10데이터셋 확장
+
+이 문서 아래의 5k 제한·12종 pilot과 Drug-only 전체 확장 뒤에, 같은 설계를 10개
+데이터셋 전체로 확장했다. 최종 실험은 데이터셋별 전체 clean train에 Seen 5종만
+증강하고 전체 test에서는 Unseen 7종만 유형당 상한 없이 사용했다. ELECTRA-small과
+seed 42·43·44를 고정했으며 총 352,908 target-pair를 평가했다.
+
+엄격 우세는 오염 후 절대 탐지율이 규칙보다 높고 clean→noisy 하락도 더 작으며, 두
+차이의 source-cluster bootstrap 95% CI 하한이 모두 0보다 큰 상태가 세 seed에서 재현된
+경우다. 이 기준은 Drug Reviews와 FinPhraseBank 2/10개만 통과했다. FinPhraseBank는
+비개인 엔티티 대조이므로 privacy 관련 데이터셋에서는 Drug Reviews 1/8개만 통과했다.
+전체 표와 최신 결론은 `STRICT_ROBUSTNESS_MATRIX.md` 및 대시보드 4-3을 기준으로 한다.
+
 ## 결론
 
 전체 Drug Reviews와 학습 전용 표면 교란 증강을 사용한 ELECTRA-small은 **규칙 대체 후보의 clean 최소선**과 **조건부 표면 강건성 기준**을 3개 seed에서 통과했다. 다만 최신 규칙보다 전체 noisy F2가 낮아 **독립적인 완전 대체 모델이라고 결론 내릴 단계는 아니다**.

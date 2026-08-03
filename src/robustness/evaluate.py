@@ -97,19 +97,43 @@ def detection_flags(
     )
 
 
-def cluster_bootstrap_indices(
-    pairs: list[dict], rng: np.random.Generator
+def source_cluster_totals(
+    pairs: list[dict], values: np.ndarray
 ) -> np.ndarray:
-    """Resample source sentences, keeping all perturbations of each source."""
-    by_source: dict[str, list[int]] = defaultdict(list)
+    """Aggregate pair-level values once per source sentence."""
+    matrix = np.asarray(values)
+    if matrix.ndim == 1:
+        matrix = matrix[:, None]
+    if len(matrix) != len(pairs):
+        raise ValueError("pair/value length mismatch")
+    source_to_cluster: dict[str, int] = {}
+    cluster_ids = np.empty(len(pairs), dtype=np.int64)
     for index, row in enumerate(pairs):
-        by_source[row["source_id"]].append(index)
-    clusters = list(by_source.values())
-    chosen = rng.integers(0, len(clusters), size=len(clusters))
-    return np.asarray(
-        [index for cluster in chosen for index in clusters[cluster]],
-        dtype=np.int64,
-    )
+        source_id = row["source_id"]
+        cluster_ids[index] = source_to_cluster.setdefault(
+            source_id, len(source_to_cluster)
+        )
+    totals = np.zeros((len(source_to_cluster), matrix.shape[1]), dtype=np.float64)
+    np.add.at(totals, cluster_ids, matrix)
+    return totals
+
+
+def bootstrap_cluster_sums(
+    cluster_totals: np.ndarray,
+    repeats: int,
+    rng: np.random.Generator,
+    batch_size: int = 32,
+) -> np.ndarray:
+    """Resample source clusters without rebuilding/flattening them per repeat."""
+    cluster_count = len(cluster_totals)
+    output = np.empty((repeats, cluster_totals.shape[1]), dtype=np.float64)
+    for start in range(0, repeats, batch_size):
+        stop = min(start + batch_size, repeats)
+        chosen = rng.integers(
+            0, cluster_count, size=(stop - start, cluster_count)
+        )
+        output[start:stop] = cluster_totals[chosen].sum(axis=1)
+    return output
 
 
 def absolute_target_robustness(
@@ -134,12 +158,15 @@ def absolute_target_robustness(
         + student_noisy_values
     )
     rng = np.random.default_rng(seed)
-    noisy_bootstrap = np.empty(repeats, dtype=np.float64)
-    drop_bootstrap = np.empty(repeats, dtype=np.float64)
-    for repeat in range(repeats):
-        indices = cluster_bootstrap_indices(pairs, rng)
-        noisy_bootstrap[repeat] = float(np.mean(noisy_delta[indices]))
-        drop_bootstrap[repeat] = float(np.mean(drop_advantage[indices]))
+    cluster_values = source_cluster_totals(
+        pairs,
+        np.column_stack(
+            [noisy_delta, drop_advantage, np.ones(len(pairs), dtype=np.float64)]
+        ),
+    )
+    sampled = bootstrap_cluster_sums(cluster_values, repeats, rng)
+    noisy_bootstrap = sampled[:, 0] / sampled[:, 2]
+    drop_bootstrap = sampled[:, 1] / sampled[:, 2]
     noisy_ci = np.percentile(noisy_bootstrap, [2.5, 97.5])
     drop_ci = np.percentile(drop_bootstrap, [2.5, 97.5])
     return {
@@ -361,11 +388,15 @@ def shared_target_robustness(
     )
     differences = student_values - rule_values
     rng = np.random.default_rng(seed)
-    bootstrap = np.empty(repeats, dtype=np.float64)
     eligible_pairs = [pairs[index] for index in eligible]
-    for repeat in range(repeats):
-        indices = cluster_bootstrap_indices(eligible_pairs, rng)
-        bootstrap[repeat] = float(np.mean(differences[indices]))
+    cluster_values = source_cluster_totals(
+        eligible_pairs,
+        np.column_stack(
+            [differences, np.ones(len(eligible_pairs), dtype=np.float64)]
+        ),
+    )
+    sampled = bootstrap_cluster_sums(cluster_values, repeats, rng)
+    bootstrap = sampled[:, 0] / sampled[:, 1]
     low, high = np.percentile(bootstrap, [2.5, 97.5])
     return {
         "eligible_shared_clean_targets": len(eligible),
@@ -404,6 +435,7 @@ def shared_target_by_noise(
         )
     return output
 
+
 def bootstrap_delta(
     pairs: list[dict],
     rule_predictions: list[list[int]],
@@ -425,27 +457,27 @@ def bootstrap_delta(
             )
         return np.asarray(counts, dtype=np.int64)
 
-    def f2_from_counts(counts: np.ndarray) -> float:
-        true_positive, false_positive, false_negative = counts.sum(axis=0)
-        denominator = (
-            5 * true_positive + false_positive + 4 * false_negative
-        )
-        return (
-            float(5 * true_positive / denominator)
-            if denominator
-            else 0.0
-        )
-
     rng = np.random.default_rng(seed)
     rule_counts = pair_counts(rule_predictions)
     student_counts = pair_counts(student_predictions)
-    deltas = []
-    for _ in range(repeats):
-        indices = cluster_bootstrap_indices(pairs, rng)
-        deltas.append(
-            f2_from_counts(student_counts[indices])
-            - f2_from_counts(rule_counts[indices])
+    cluster_values = source_cluster_totals(
+        pairs, np.column_stack([rule_counts, student_counts])
+    )
+    sampled = bootstrap_cluster_sums(cluster_values, repeats, rng)
+
+    def f2_from_rows(counts: np.ndarray) -> np.ndarray:
+        true_positive = counts[:, 0]
+        false_positive = counts[:, 1]
+        false_negative = counts[:, 2]
+        denominator = 5 * true_positive + false_positive + 4 * false_negative
+        return np.divide(
+            5 * true_positive,
+            denominator,
+            out=np.zeros_like(denominator, dtype=np.float64),
+            where=denominator != 0,
         )
+
+    deltas = f2_from_rows(sampled[:, 3:]) - f2_from_rows(sampled[:, :3])
     low, high = np.percentile(deltas, [2.5, 97.5])
     return {
         "metric": "noisy_f2_student_minus_rule",

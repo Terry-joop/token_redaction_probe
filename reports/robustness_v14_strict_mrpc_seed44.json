@@ -1,0 +1,298 @@
+{
+  "pairs": 2986,
+  "unique_source_rows": 1357,
+  "noise_group": "unseen",
+  "rule_policy": "redactformer-piiclean2-rule-v1.4@81dda225ecbead4f",
+  "student_model_dir": "/home/jovyan/token_redaction_probe/artifacts/robustness/v14_strict/mrpc_electra_small_seed44",
+  "student_threshold": 0.95,
+  "rule_v1_4": {
+    "clean": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0,
+      "gold_mask_rate": 0.14216764707873306,
+      "predicted_mask_rate": 0.14216764707873306,
+      "residual_sensitive_rate": 0.0,
+      "overmask_rate": 0.0,
+      "tokens": 147727
+    },
+    "noisy": {
+      "precision": 0.9976665555502643,
+      "recall": 0.8844140493076663,
+      "f1": 0.937632868619509,
+      "f2": 0.9049597843647139,
+      "gold_mask_rate": 0.1574706836493206,
+      "predicted_mask_rate": 0.1395950222033132,
+      "residual_sensitive_rate": 0.11558595069233368,
+      "overmask_rate": 0.0003866182736310557,
+      "tokens": 150428
+    },
+    "robustness": {
+      "clean_target_detection": 1.0,
+      "noisy_target_detection": 0.5341594105827193,
+      "eligible_clean_targets": 2986,
+      "span_survival_rate": 0.5341594105827193,
+      "newly_leaked_span_rate": 0.4658405894172807
+    },
+    "by_noise": {
+      "nbsp": {
+        "precision": 0.9993613284368513,
+        "recall": 0.9729519664231308,
+        "f1": 0.9859798361688721,
+        "f2": 0.9781215814971089,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15431429556990095,
+        "residual_sensitive_rate": 0.027048033576869246,
+        "overmask_rate": 0.000117120018739203,
+        "tokens": 40586
+      },
+      "semicolon_after_number": {
+        "precision": 0.9901960784313726,
+        "recall": 0.9528301886792453,
+        "f1": 0.9711538461538461,
+        "f2": 0.9600760456273765,
+        "gold_mask_rate": 0.1318407960199005,
+        "predicted_mask_rate": 0.12686567164179105,
+        "residual_sensitive_rate": 0.047169811320754707,
+        "overmask_rate": 0.0014326647564469914,
+        "tokens": 804
+      },
+      "triple_space": {
+        "precision": 1.0,
+        "recall": 0.9996891030623348,
+        "f1": 0.9998445273631841,
+        "f2": 0.9997512669838012,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15845365396934905,
+        "residual_sensitive_rate": 0.0003108969376651727,
+        "overmask_rate": 0.0,
+        "tokens": 40586
+      },
+      "zero_width_inside": {
+        "precision": 0.9946361087407046,
+        "recall": 0.761384845091452,
+        "f1": 0.8625191606321687,
+        "f2": 0.7988524879080424,
+        "gold_mask_rate": 0.15654765383042132,
+        "predicted_mask_rate": 0.11983579734704611,
+        "residual_sensitive_rate": 0.238615154908548,
+        "overmask_rate": 0.0007620895108770957,
+        "tokens": 68452
+      }
+    }
+  },
+  "student": {
+    "clean": {
+      "precision": 0.9496165420832929,
+      "recall": 0.9315303304447196,
+      "f1": 0.940486491683492,
+      "f2": 0.9350922473950866,
+      "gold_mask_rate": 0.14216764707873306,
+      "predicted_mask_rate": 0.13945994977221496,
+      "residual_sensitive_rate": 0.06846966955528044,
+      "overmask_rate": 0.008190964687315052,
+      "tokens": 147727
+    },
+    "noisy": {
+      "precision": 0.9517367287707144,
+      "recall": 0.8582826747720365,
+      "f1": 0.9025971143174251,
+      "f2": 0.875475825481854,
+      "gold_mask_rate": 0.1574706836493206,
+      "predicted_mask_rate": 0.14200813678304572,
+      "residual_sensitive_rate": 0.14171732522796354,
+      "overmask_rate": 0.008134764083951397,
+      "tokens": 150428
+    },
+    "robustness": {
+      "clean_target_detection": 0.9316811788345613,
+      "noisy_target_detection": 0.5053583389149364,
+      "eligible_clean_targets": 2782,
+      "span_survival_rate": 0.5424155283968368,
+      "newly_leaked_span_rate": 0.4575844716031632
+    },
+    "by_noise": {
+      "nbsp": {
+        "precision": 0.9545020680878142,
+        "recall": 0.932690812995492,
+        "f1": 0.9434703986162434,
+        "f2": 0.9369729527140983,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15488099344601586,
+        "residual_sensitive_rate": 0.06730918700450805,
+        "overmask_rate": 0.008374081339853014,
+        "tokens": 40586
+      },
+      "semicolon_after_number": {
+        "precision": 0.8539325842696629,
+        "recall": 0.7169811320754716,
+        "f1": 0.7794871794871795,
+        "f2": 0.7407407407407407,
+        "gold_mask_rate": 0.1318407960199005,
+        "predicted_mask_rate": 0.11069651741293532,
+        "residual_sensitive_rate": 0.28301886792452835,
+        "overmask_rate": 0.01862464183381089,
+        "tokens": 804
+      },
+      "triple_space": {
+        "precision": 0.9545020680878142,
+        "recall": 0.932690812995492,
+        "f1": 0.9434703986162434,
+        "f2": 0.9369729527140983,
+        "gold_mask_rate": 0.15850293204553295,
+        "predicted_mask_rate": 0.15488099344601586,
+        "residual_sensitive_rate": 0.06730918700450805,
+        "overmask_rate": 0.008374081339853014,
+        "tokens": 40586
+      },
+      "zero_width_inside": {
+        "precision": 0.9487415239627629,
+        "recall": 0.7703434117207913,
+        "f1": 0.8502858320028841,
+        "f2": 0.8004460389799283,
+        "gold_mask_rate": 0.15654765383042132,
+        "predicted_mask_rate": 0.12711096826973645,
+        "residual_sensitive_rate": 0.22965658827920865,
+        "overmask_rate": 0.007724816405708743,
+        "tokens": 68452
+      }
+    }
+  },
+  "absolute_target_robustness": {
+    "target_pairs": 2986,
+    "unique_source_rows": 1357,
+    "rule_clean_target_detection": 1.0,
+    "rule_noisy_target_detection": 0.5341594105827193,
+    "rule_detection_drop": 0.4658405894172807,
+    "student_clean_target_detection": 0.9316811788345613,
+    "student_noisy_target_detection": 0.5053583389149364,
+    "student_detection_drop": 0.42632283991962483,
+    "student_minus_rule_noisy": -0.028801071667782986,
+    "student_minus_rule_noisy_ci95": [
+      -0.03904950294177318,
+      -0.01842416403213756
+    ],
+    "student_drop_advantage": 0.03951774949765573,
+    "student_drop_advantage_ci95": [
+      0.03273433791966601,
+      0.04696306824288905
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over fixed target pairs"
+  },
+  "paired_bootstrap": {
+    "metric": "noisy_f2_student_minus_rule",
+    "mean": -0.02942513484207045,
+    "ci95": [
+      -0.03750411779144003,
+      -0.021023483454536127
+    ],
+    "repeats": 2000,
+    "unit": "source-clustered paired sentence"
+  },
+  "shared_clean_target_robustness": {
+    "eligible_shared_clean_targets": 2782,
+    "rule_span_survival_rate": 0.5305535585909418,
+    "student_span_survival_rate": 0.5424155283968368,
+    "student_minus_rule": 0.01186196980589504,
+    "ci95": [
+      0.007865289440910386,
+      0.0161529935060003
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over shared clean-correct targets"
+  },
+  "shared_clean_target_by_noise": {
+    "nbsp": {
+      "eligible_shared_clean_targets": 751,
+      "rule_span_survival_rate": 0.9560585885486018,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.043941411451398134,
+      "ci95": [
+        0.03062583222370173,
+        0.05858854860186418
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "semicolon_after_number": {
+      "eligible_shared_clean_targets": 9,
+      "rule_span_survival_rate": 0.7777777777777778,
+      "student_span_survival_rate": 0.7777777777777778,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        -0.4444444444444444,
+        0.4444444444444444
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "triple_space": {
+      "eligible_shared_clean_targets": 751,
+      "rule_span_survival_rate": 1.0,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "zero_width_inside": {
+      "eligible_shared_clean_targets": 1271,
+      "rule_span_survival_rate": 0.0,
+      "student_span_survival_rate": 0.0,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    }
+  },
+  "acceptance": {
+    "final_student_quality_gate": {
+      "pass": true,
+      "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+    },
+    "matched_budget_gate": {
+      "pass": true,
+      "mask_rate_gap": 0.002413114579732506,
+      "criteria": "absolute noisy mask-rate gap <= 0.01"
+    },
+    "robustness_superiority_gate": {
+      "pass": false,
+      "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+    },
+    "absolute_target_robustness_gate": {
+      "pass": false,
+      "student_minus_rule_noisy": -0.028801071667782986,
+      "student_minus_rule_noisy_ci95": [
+        -0.03904950294177318,
+        -0.01842416403213756
+      ],
+      "student_drop_advantage": 0.03951774949765573,
+      "student_drop_advantage_ci95": [
+        0.03273433791966601,
+        0.04696306824288905
+      ],
+      "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+    },
+    "conditional_surface_robustness_gate": {
+      "pass": false,
+      "student_minus_rule": 0.01186196980589504,
+      "ci95": [
+        0.007865289440910386,
+        0.0161529935060003
+      ],
+      "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+    },
+    "pilot_quality_reference": {
+      "pass": true,
+      "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+    }
+  }
+}

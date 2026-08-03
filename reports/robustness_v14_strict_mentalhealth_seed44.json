@@ -1,0 +1,400 @@
+{
+  "pairs": 5612,
+  "unique_source_rows": 2784,
+  "noise_group": "unseen",
+  "rule_policy": "redactformer-medterm5-rule-v1.4@73ee6d572fe2eda2",
+  "student_model_dir": "/home/jovyan/token_redaction_probe/artifacts/robustness/v14_strict/mentalhealth_electra_small_seed44",
+  "student_threshold": 0.95,
+  "rule_v1_4": {
+    "clean": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "f2": 1.0,
+      "gold_mask_rate": 0.07051989519532928,
+      "predicted_mask_rate": 0.07051989519532928,
+      "residual_sensitive_rate": 0.0,
+      "overmask_rate": 0.0,
+      "tokens": 474788
+    },
+    "noisy": {
+      "precision": 0.995430667371235,
+      "recall": 0.8239804451305802,
+      "f1": 0.9016273438819753,
+      "f2": 0.8533771071944402,
+      "gold_mask_rate": 0.08090251106906221,
+      "predicted_mask_rate": 0.06696808654580728,
+      "residual_sensitive_rate": 0.17601955486941978,
+      "overmask_rate": 0.0003329347176170028,
+      "tokens": 480393
+    },
+    "robustness": {
+      "clean_target_detection": 1.0,
+      "noisy_target_detection": 0.4552744119743407,
+      "eligible_clean_targets": 5612,
+      "span_survival_rate": 0.4552744119743407,
+      "newly_leaked_span_rate": 0.5447255880256593
+    },
+    "by_noise": {
+      "dosage_hyphen": {
+        "precision": 1.0,
+        "recall": 0.9705882352941176,
+        "f1": 0.9850746268656716,
+        "f2": 0.9763313609467456,
+        "gold_mask_rate": 0.13518886679920478,
+        "predicted_mask_rate": 0.1312127236580517,
+        "residual_sensitive_rate": 0.02941176470588236,
+        "overmask_rate": 0.0,
+        "tokens": 503
+      },
+      "dosage_thin_space": {
+        "precision": 1.0,
+        "recall": 0.9452054794520548,
+        "f1": 0.971830985915493,
+        "f2": 0.9556786703601108,
+        "gold_mask_rate": 0.1437007874015748,
+        "predicted_mask_rate": 0.13582677165354332,
+        "residual_sensitive_rate": 0.0547945205479452,
+        "overmask_rate": 0.0,
+        "tokens": 508
+      },
+      "modifier_apostrophe": {
+        "precision": 0.9849137931034483,
+        "recall": 0.8908382066276803,
+        "f1": 0.9355168884339816,
+        "f2": 0.9081875993640699,
+        "gold_mask_rate": 0.08974807557732681,
+        "predicted_mask_rate": 0.08117564730580826,
+        "residual_sensitive_rate": 0.10916179337231968,
+        "overmask_rate": 0.0013453776667307323,
+        "tokens": 5716
+      },
+      "nbsp": {
+        "precision": 0.9949409780775716,
+        "recall": 0.9148299922472034,
+        "f1": 0.9532052391668109,
+        "f2": 0.9298032329235896,
+        "gold_mask_rate": 0.07877539980980133,
+        "predicted_mask_rate": 0.07243253618573162,
+        "residual_sensitive_rate": 0.0851700077527966,
+        "overmask_rate": 0.0003977724741447892,
+        "tokens": 114617
+      },
+      "semicolon_after_number": {
+        "precision": 0.9959793222286043,
+        "recall": 0.959070796460177,
+        "f1": 0.9771766694843618,
+        "f2": 0.9662320294215981,
+        "gold_mask_rate": 0.09563101660848408,
+        "predicted_mask_rate": 0.09208716809478472,
+        "residual_sensitive_rate": 0.04092920353982299,
+        "overmask_rate": 0.0004094046087261668,
+        "tokens": 18906
+      },
+      "triple_space": {
+        "precision": 0.9997761862130707,
+        "recall": 0.9894783475467936,
+        "f1": 0.9946006123016977,
+        "f2": 0.9915209091716239,
+        "gold_mask_rate": 0.07877539980980133,
+        "predicted_mask_rate": 0.07796400184963836,
+        "residual_sensitive_rate": 0.010521652453206354,
+        "overmask_rate": 1.8941546387847104e-05,
+        "tokens": 114617
+      },
+      "zero_width_inside": {
+        "precision": 0.9929325815929485,
+        "recall": 0.681602616516762,
+        "f1": 0.8083263300795138,
+        "f2": 0.727205052749119,
+        "gold_mask_rate": 0.08134317107561878,
+        "predicted_mask_rate": 0.05583835123223043,
+        "residual_sensitive_rate": 0.318397383483238,
+        "overmask_rate": 0.0004295760711648269,
+        "tokens": 225526
+      }
+    }
+  },
+  "student": {
+    "clean": {
+      "precision": 0.8329271594909288,
+      "recall": 0.826832327817932,
+      "f1": 0.8298685531857491,
+      "f2": 0.8280441479974875,
+      "gold_mask_rate": 0.07051989519532928,
+      "predicted_mask_rate": 0.07000387541386893,
+      "residual_sensitive_rate": 0.17316767218206797,
+      "overmask_rate": 0.012583105600195783,
+      "tokens": 474788
+    },
+    "noisy": {
+      "precision": 0.8382611284799761,
+      "recall": 0.7243792615463784,
+      "f1": 0.7771704623878537,
+      "f2": 0.7446110714380174,
+      "gold_mask_rate": 0.08090251106906221,
+      "predicted_mask_rate": 0.06991150995122743,
+      "residual_sensitive_rate": 0.27562073845362156,
+      "overmask_rate": 0.012302730517656865,
+      "tokens": 480393
+    },
+    "robustness": {
+      "clean_target_detection": 0.7904490377761939,
+      "noisy_target_detection": 0.38239486813970064,
+      "eligible_clean_targets": 4436,
+      "span_survival_rate": 0.4790351668169522,
+      "newly_leaked_span_rate": 0.5209648331830479
+    },
+    "by_noise": {
+      "dosage_hyphen": {
+        "precision": 0.9142857142857143,
+        "recall": 0.9411764705882353,
+        "f1": 0.927536231884058,
+        "f2": 0.935672514619883,
+        "gold_mask_rate": 0.13518886679920478,
+        "predicted_mask_rate": 0.13916500994035785,
+        "residual_sensitive_rate": 0.05882352941176472,
+        "overmask_rate": 0.013793103448275862,
+        "tokens": 503
+      },
+      "dosage_thin_space": {
+        "precision": 0.9210526315789473,
+        "recall": 0.958904109589041,
+        "f1": 0.9395973154362416,
+        "f2": 0.9510869565217391,
+        "gold_mask_rate": 0.1437007874015748,
+        "predicted_mask_rate": 0.14960629921259844,
+        "residual_sensitive_rate": 0.04109589041095896,
+        "overmask_rate": 0.013793103448275862,
+        "tokens": 508
+      },
+      "modifier_apostrophe": {
+        "precision": 0.8037974683544303,
+        "recall": 0.7426900584795322,
+        "f1": 0.7720364741641338,
+        "f2": 0.7541567695961995,
+        "gold_mask_rate": 0.08974807557732681,
+        "predicted_mask_rate": 0.08292512246326102,
+        "residual_sensitive_rate": 0.2573099415204678,
+        "overmask_rate": 0.017874303286565443,
+        "tokens": 5716
+      },
+      "nbsp": {
+        "precision": 0.8436825973436258,
+        "recall": 0.8231254845497841,
+        "f1": 0.8332772732369099,
+        "f2": 0.8271563717306623,
+        "gold_mask_rate": 0.07877539980980133,
+        "predicted_mask_rate": 0.0768559637750072,
+        "residual_sensitive_rate": 0.17687451545021593,
+        "overmask_rate": 0.01304125468803273,
+        "tokens": 114617
+      },
+      "semicolon_after_number": {
+        "precision": 0.86,
+        "recall": 0.8561946902654868,
+        "f1": 0.8580931263858093,
+        "f2": 0.8569530558015943,
+        "gold_mask_rate": 0.09563101660848408,
+        "predicted_mask_rate": 0.0952078705172961,
+        "residual_sensitive_rate": 0.14380530973451322,
+        "overmask_rate": 0.014738565914142005,
+        "tokens": 18906
+      },
+      "triple_space": {
+        "precision": 0.8436825973436258,
+        "recall": 0.8231254845497841,
+        "f1": 0.8332772732369099,
+        "f2": 0.8271563717306623,
+        "gold_mask_rate": 0.07877539980980133,
+        "predicted_mask_rate": 0.0768559637750072,
+        "residual_sensitive_rate": 0.17687451545021593,
+        "overmask_rate": 0.01304125468803273,
+        "tokens": 114617
+      },
+      "zero_width_inside": {
+        "precision": 0.8286705543662803,
+        "recall": 0.611937857726901,
+        "f1": 0.7040010033864292,
+        "f2": 0.6457142199776824,
+        "gold_mask_rate": 0.08134317107561878,
+        "predicted_mask_rate": 0.060068462172875856,
+        "residual_sensitive_rate": 0.388062142273099,
+        "overmask_rate": 0.011202764732287228,
+        "tokens": 225526
+      }
+    }
+  },
+  "absolute_target_robustness": {
+    "target_pairs": 5612,
+    "unique_source_rows": 2784,
+    "rule_clean_target_detection": 1.0,
+    "rule_noisy_target_detection": 0.4552744119743407,
+    "rule_detection_drop": 0.5447255880256593,
+    "student_clean_target_detection": 0.7904490377761939,
+    "student_noisy_target_detection": 0.38239486813970064,
+    "student_detection_drop": 0.40805416963649327,
+    "student_minus_rule_noisy": -0.07287954383464006,
+    "student_minus_rule_noisy_ci95": [
+      -0.08485509863693438,
+      -0.060882189863848454
+    ],
+    "student_drop_advantage": 0.13667141838916608,
+    "student_drop_advantage_ci95": [
+      0.12729185054427772,
+      0.14564733955589143
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over fixed target pairs"
+  },
+  "paired_bootstrap": {
+    "metric": "noisy_f2_student_minus_rule",
+    "mean": -0.1087305046768296,
+    "ci95": [
+      -0.11667558878040911,
+      -0.10077452522697566
+    ],
+    "repeats": 2000,
+    "unit": "source-clustered paired sentence"
+  },
+  "shared_clean_target_robustness": {
+    "eligible_shared_clean_targets": 4436,
+    "rule_span_survival_rate": 0.4353020739404869,
+    "student_span_survival_rate": 0.4790351668169522,
+    "student_minus_rule": 0.043733092876465283,
+    "ci95": [
+      0.03713803550269661,
+      0.0498795214558526
+    ],
+    "repeats": 2000,
+    "unit": "source-cluster bootstrap over shared clean-correct targets"
+  },
+  "shared_clean_target_by_noise": {
+    "dosage_hyphen": {
+      "eligible_shared_clean_targets": 4,
+      "rule_span_survival_rate": 0.5,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.5,
+      "ci95": [
+        0.0,
+        1.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "dosage_thin_space": {
+      "eligible_shared_clean_targets": 4,
+      "rule_span_survival_rate": 0.5,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.5,
+      "ci95": [
+        0.0,
+        1.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "modifier_apostrophe": {
+      "eligible_shared_clean_targets": 36,
+      "rule_span_survival_rate": 0.6666666666666666,
+      "student_span_survival_rate": 0.6111111111111112,
+      "student_minus_rule": -0.05555555555555555,
+      "ci95": [
+        -0.25,
+        0.1388888888888889
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "nbsp": {
+      "eligible_shared_clean_targets": 963,
+      "rule_span_survival_rate": 0.8566978193146417,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.14330218068535824,
+      "ci95": [
+        0.12250778816199377,
+        0.16510903426791276
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "semicolon_after_number": {
+      "eligible_shared_clean_targets": 179,
+      "rule_span_survival_rate": 0.8659217877094972,
+      "student_span_survival_rate": 0.9441340782122905,
+      "student_minus_rule": 0.0782122905027933,
+      "ci95": [
+        0.01675977653631285,
+        0.1340782122905028
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "triple_space": {
+      "eligible_shared_clean_targets": 963,
+      "rule_span_survival_rate": 0.9584631360332295,
+      "student_span_survival_rate": 1.0,
+      "student_minus_rule": 0.04153686396677051,
+      "ci95": [
+        0.030114226375908618,
+        0.05399792315680166
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    },
+    "zero_width_inside": {
+      "eligible_shared_clean_targets": 2287,
+      "rule_span_survival_rate": 0.0,
+      "student_span_survival_rate": 0.0,
+      "student_minus_rule": 0.0,
+      "ci95": [
+        0.0,
+        0.0
+      ],
+      "repeats": 2000,
+      "unit": "source-cluster bootstrap over shared clean-correct targets"
+    }
+  },
+  "acceptance": {
+    "final_student_quality_gate": {
+      "pass": false,
+      "criteria": "clean F1>=0.85, F2>=0.90, Recall>=0.90"
+    },
+    "matched_budget_gate": {
+      "pass": true,
+      "mask_rate_gap": 0.0029434234054201425,
+      "criteria": "absolute noisy mask-rate gap <= 0.01"
+    },
+    "robustness_superiority_gate": {
+      "pass": false,
+      "criteria": "noisy F2 higher, newly leaked span rate lower, and paired bootstrap 95% CI for delta F2 entirely above zero"
+    },
+    "absolute_target_robustness_gate": {
+      "pass": false,
+      "student_minus_rule_noisy": -0.07287954383464006,
+      "student_minus_rule_noisy_ci95": [
+        -0.08485509863693438,
+        -0.060882189863848454
+      ],
+      "student_drop_advantage": 0.13667141838916608,
+      "student_drop_advantage_ci95": [
+        0.12729185054427772,
+        0.14564733955589143
+      ],
+      "criteria": "on all fixed clean-rule targets, both noisy detection advantage and smaller-drop advantage have source-cluster 95% CIs entirely above zero"
+    },
+    "conditional_surface_robustness_gate": {
+      "pass": false,
+      "student_minus_rule": 0.043733092876465283,
+      "ci95": [
+        0.03713803550269661,
+        0.0498795214558526
+      ],
+      "criteria": "on shared clean-correct spans, Student survival >= rule +5 percentage points and paired 95% CI entirely above zero"
+    },
+    "pilot_quality_reference": {
+      "pass": false,
+      "criteria": "exploratory pilot only: clean F2>=0.80 and Recall>=0.85"
+    }
+  }
+}

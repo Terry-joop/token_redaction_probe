@@ -17,14 +17,8 @@ from build_pairs import TRANSFORMS  # noqa: E402
 
 OUT = ROOT / "reports" / "perturbation_catalog.html"
 MARKDOWN_OUT = ROOT / "PERTURBATION_CATALOG.md"
-PAIR_PATH = ROOT / "data/robustness/v14/drug/robustness_pairs.jsonl"
-TRAIN_SUMMARY_PATH = (
-    ROOT
-    / "data/robustness/v14_augmented/drug/train_full_augmented.summary.json"
-)
-TEST_SUMMARY_PATH = (
-    ROOT / "data/robustness/v14_full_eval/drug/robustness_pairs.summary.json"
-)
+PAIR_PATH = ROOT / "data/robustness/v14_strict/drug/catalog_examples.jsonl"
+STRICT_ROOT = ROOT / "data" / "robustness" / "v14_strict"
 
 
 CATALOG = [
@@ -201,6 +195,38 @@ def load_json(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_strict_counts() -> dict:
+    train_counts: dict[str, int] = {}
+    test_counts: dict[str, int] = {}
+    clean_train_rows = 0
+    augmented_train_rows = 0
+    unseen_pairs = 0
+    datasets = 0
+    for dataset_dir in sorted(STRICT_ROOT.iterdir()):
+        train_path = dataset_dir / "train_seen_augmented.summary.json"
+        test_path = dataset_dir / "unseen_pairs.summary.json"
+        if not (train_path.exists() and test_path.exists()):
+            continue
+        train = load_json(train_path)
+        test = load_json(test_path)
+        datasets += 1
+        clean_train_rows += train["clean_rows"]
+        augmented_train_rows += train["augmented_rows"]
+        unseen_pairs += test["pairs"]
+        for name, count in train["selected_by_noise"].items():
+            train_counts[name] = train_counts.get(name, 0) + count
+        for name, count in test["counts"].items():
+            test_counts[name] = test_counts.get(name, 0) + count
+    return {
+        "datasets": datasets,
+        "clean_train_rows": clean_train_rows,
+        "augmented_train_rows": augmented_train_rows,
+        "unseen_pairs": unseen_pairs,
+        "train_counts": train_counts,
+        "test_counts": test_counts,
+    }
+
+
 def load_examples() -> dict[str, dict]:
     examples: dict[str, dict] = {}
     with PAIR_PATH.open(encoding="utf-8") as handle:
@@ -270,7 +296,7 @@ def catalog_cards(
                 <div><b>Clean</b><code>{marked_excerpt(row['clean_text'], row['clean_target'])}</code></div>
                 <div><b>Noisy</b><code>{marked_excerpt(row['text'], row['noisy_target'])}</code></div>
               </div>
-              <div class="counts">실제 Drug Reviews · 학습 증강 <b>{train_count:,}</b>행 · 최종 unseen test <b>{final_test_count:,}</b>쌍 · 예시 ID <code>{escape(row['source_id'])}</code></div>
+              <div class="counts">전체 10개 데이터셋 합계 · 학습 증강 <b>{train_count:,}</b>행 · 최종 unseen test <b>{final_test_count:,}</b>쌍 · 예문은 Drug Reviews <code>{escape(row['source_id'])}</code></div>
             </article>
             """
         )
@@ -310,10 +336,9 @@ def build_html() -> str:
     missing = {item["name"] for item in CATALOG} - examples.keys()
     if missing:
         raise ValueError(f"Missing stored examples for: {sorted(missing)}")
-    train_summary = load_json(TRAIN_SUMMARY_PATH)
-    test_summary = load_json(TEST_SUMMARY_PATH)
-    train_counts = train_summary["selected_by_noise"]
-    all_test_counts = test_summary["counts"]
+    strict = load_strict_counts()
+    train_counts = strict["train_counts"]
+    all_test_counts = strict["test_counts"]
     unseen_counts = {
         item["name"]: all_test_counts[item["name"]]
         for item in CATALOG
@@ -324,7 +349,8 @@ def build_html() -> str:
     rows = count_rows(train_counts, unseen_counts)
     mapping_rows = generalization_rows()
     c1_actual = examples["c1_apostrophe"]["edit"]["new"]
-    c1_codes = " ".join(f"U+{ord(char):04X}" for char in c1_actual)
+    if c1_actual != "\x92":
+        raise ValueError(f"latest C1 example is not one U+0092: {c1_actual!r}")
     return f"""<!doctype html>
 <html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Token Redaction Probe · 오염 규칙 카탈로그</title>
@@ -335,26 +361,27 @@ def build_html() -> str:
 </style></head><body><main class="wrap">
 <header class="hero"><div><div class="eyebrow">TOKEN REDACTION PROBE · PERTURBATION CATALOG V1</div><h1>입력 오염 규칙 12종</h1><p>최신 v1.4 clean pseudo-label을 유지한 채 공백·Unicode·용량·구두점 경계만 바꾸어, 규칙과 학습형 redactor가 같은 민감 span을 계속 탐지하는지 비교한 통제 실험 명세입니다.</p></div><div class="actions"><a class="button" href="../">전체 결과</a><a class="button" href="https://github.com/Terry-joop/token_redaction_probe/blob/main/src/robustness/build_pairs.py">생성 코드</a><button id="theme">다크 모드</button></div></header>
 <section class="cards"><div class="card"><b>12</b><span>전체 교란</span></div><div class="card"><b>5</b><span>Seen · 학습 증강</span></div><div class="card"><b>7</b><span>Unseen · 최종 평가</span></div><div class="card"><b>{final_unseen:,}</b><span>최종 unseen target-pair</span></div></section>
-<div class="notice"><strong>Seen과 Unseen:</strong> Seen 5종은 Drug Reviews 학습 증강에 사용했습니다. Unseen 7종은 학습에는 넣지 않고 test에만 적용하여 같은 계열의 처음 보는 표기에도 일반화하는지 평가했습니다.</div>
+<div class="notice"><strong>Seen과 Unseen:</strong> 동일한 분리를 10개 데이터셋 모두에 적용했습니다. Seen 5종만 clean train에 증강하고, Unseen 7종은 학습에서 제외한 채 각 데이터셋의 전체 test에서 적용 가능한 target을 모두 평가했습니다.</div>
 <h2>1. 문장과 정답을 만드는 순서</h2><p class="lede">오염된 문장에서 규칙을 다시 실행해 정답을 만들지 않습니다. 그래야 규칙이 오염 때문에 놓친 민감정보가 정답에서도 사라지는 오류를 막을 수 있습니다.</p>
 <div class="flow"><div class="flow-step"><b>1 · 원문</b><span>원래 문장을 준비</span></div><div class="flow-step"><b>2 · 최신 clean 정답</b><span>medterm5/piiclean2 v1.4로 민감 span 결정</span></div><div class="flow-step"><b>3 · 한 종류 편집</b><span>적용 가능한 민감 span에 교란 하나 삽입</span></div><div class="flow-step"><b>4 · 정답 이동</b><span>문자 길이 변화만큼 clean span 좌표 이동</span></div><div class="flow-step"><b>5 · Paired 비교</b><span>같은 target을 규칙과 Student가 가리는지 평가</span></div></div>
 <h2>2. 학습에서 본 교란과 test에서 처음 본 교란</h2><p class="lede">Test 교란은 Seen 문장을 다시 사용한 것이 아닙니다. 네 계열은 학습 교란과 원리는 같지만 표면 문자가 다른 변형이고, zero-width는 학습에 직접 대응하는 예가 없는 완전히 새로운 계열입니다.</p>
 <div class="tablewrap"><table><thead><tr><th class="left">일반화 계열</th><th class="left">Train · Seen</th><th class="left">Test · Unseen</th><th class="left">확인하려는 질문</th></tr></thead><tbody>{mapping_rows}</tbody></table></div>
-<div class="notice"><strong>최종 test 구성:</strong> 최종 Drug Reviews 증강 실험은 Unseen 7종만 사용해 13,901쌍을 평가했습니다. 반면 앞선 10데이터셋 × 3모델 강건성 표는 탐색용으로 Seen과 Unseen 12종을 모두 포함하고 종류별 최대 100쌍을 사용했습니다. 따라서 두 표의 pair 수와 역할이 다릅니다.</div>
+<div class="notice"><strong>최종 test 구성:</strong> strict 최종 표는 10개 데이터셋 모두에서 Unseen 7종만 사용했고 유형당 상한을 두지 않았습니다. 교란의 적용 조건을 만족하지 않는 문장에는 억지로 변형을 넣지 않으므로 데이터셋별 실제 pair 수와 나타난 교란 종류는 다릅니다. 앞선 10데이터셋 × 3모델 탐색 표는 12종 전체를 종류별 최대 100쌍만 사용한 별도 pilot입니다.</div>
 <h2>3. 교란 규칙 전체 목록</h2><p class="lede">예문은 실제 Drug Reviews pair에서 가져왔습니다. 가운데점(·)은 일반 공백이고 꺾쇠 표시는 화면에 보이지 않는 Unicode 문자입니다. 노란 영역은 clean 규칙이 민감하다고 정한 target span입니다.</p>
 <div class="catalog">{cards}</div>
-<h2>4. 실제 사용 개수</h2><p class="lede">학습은 clean 39,980행에 Seen 30,591행을 더했습니다. 최종 표면 일반화 평가는 전체 test에서 생성 가능한 Unseen 13,901쌍을 모두 사용했습니다.</p>
+<h2>4. 실제 사용 개수</h2><p class="lede">10개 데이터셋의 clean train {strict['clean_train_rows']:,}행에 Seen {strict['augmented_train_rows']:,}행을 더했습니다. 최종 표면 일반화 평가는 각 전체 test에서 생성 가능한 Unseen {strict['unseen_pairs']:,}쌍을 모두 사용했습니다.</p>
 <div class="tablewrap"><table><thead><tr><th class="left">ID</th><th class="left">교란</th><th>구분</th><th>학습 증강</th><th>최종 unseen test</th></tr></thead><tbody>{rows}</tbody></table></div>
 <h2>5. 해석 범위와 재현성 주의</h2><div class="limits"><div class="limit"><b>Pseudo-gold</b>정답은 사람이 검수한 개인정보 gold가 아니라 clean v1.4 규칙의 span을 이동한 정답입니다.</div><div class="limit"><b>통제된 단일 교란</b>한 pair에는 한 종류만 넣었습니다. 여러 오류가 동시에 섞인 실제 사용자 입력 전체를 대표하지 않습니다.</div><div class="limit"><b>표면 강건성</b>문장의 의미를 바꾸지 않는 문자·경계 변화만 시험합니다. 문맥적 민감성이나 새로운 개인정보 유형 평가는 아닙니다.</div><div class="limit"><b>원문 단위 통계</b>한 원문에서 여러 pair가 나오므로 신뢰구간은 같은 source_id의 변형을 묶은 cluster bootstrap으로 계산합니다.</div></div>
-<div class="notice warn"><strong>C1 artifact 불일치:</strong> 현재 저장된 예시 artifact의 AP-02에는 <code>{escape(c1_codes)}</code> 두 문자가 연속으로 들어 있지만 현재 생성 코드는 U+0092 한 문자만 넣도록 수정되어 있습니다. 최종 논문용 재실험에서는 최신 코드로 pair를 재생성하고 생성 코드 커밋과 artifact hash를 함께 고정해야 합니다.</div>
-<footer>생성: <code>src/build_perturbation_catalog.py</code> · 실행 규칙: <code>src/robustness/build_pairs.py</code> · 예문: 실제 Drug Reviews robustness pair · 2026-08-02</footer>
+<div class="notice"><strong>최신 C1 artifact:</strong> strict 데이터와 이 문서의 AP-02 예시는 현재 생성 코드와 동일하게 <code>U+0092</code> 한 문자만 삽입합니다. 과거 두 문자 artifact는 최종 10개 데이터셋 결과에 사용하지 않았습니다.</div>
+<footer>생성: <code>src/build_perturbation_catalog.py</code> · 실행 규칙: <code>src/robustness/build_pairs.py</code> · 예문: 최신 Drug Reviews strict pair · 집계: strict 10개 데이터셋 · 2026-08-03</footer>
 </main><script>const b=document.getElementById('theme');b.onclick=()=>{{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';b.textContent=dark?'라이트 모드':'다크 모드'}};</script></body></html>"""
 
 
 def build_markdown() -> str:
     validate_catalog()
-    train_counts = load_json(TRAIN_SUMMARY_PATH)["selected_by_noise"]
-    test_counts = load_json(TEST_SUMMARY_PATH)["counts"]
+    strict = load_strict_counts()
+    train_counts = strict["train_counts"]
+    test_counts = strict["test_counts"]
     lines = [
         "# 입력 오염 규칙 카탈로그 v1",
         "",
@@ -384,7 +411,7 @@ def build_markdown() -> str:
     lines.extend(
         [
             "",
-            "최종 Drug Reviews 증강 평가는 Unseen 7종 13,901쌍만 사용했다. 앞선 10데이터셋 × 3모델 탐색 표는 Seen/Unseen 12종을 모두 포함하고 종류별 최대 100쌍을 사용했으므로 두 평가의 역할과 분모가 다르다.",
+            f"strict 최종 평가는 10개 데이터셋 모두에서 Unseen 7종만 사용해 적용 가능한 {strict['unseen_pairs']:,}쌍을 유형당 상한 없이 평가했다. 앞선 10데이터셋 × 3모델 탐색 표는 12종 전체를 종류별 최대 100쌍 사용한 별도 pilot이다.",
             "",
             "## 핵심 원칙",
             "",
@@ -394,9 +421,9 @@ def build_markdown() -> str:
             "- Seen 5종은 학습 증강, Unseen 7종은 최종 일반화 평가에만 사용한다.",
             "- 이 평가는 human-gold 개인정보 정확도가 아니라 규칙 기반 pseudo-gold 표면 강건성이다.",
             "",
-            "## 알려진 불일치",
+            "## 최신 artifact 확인",
             "",
-            "저장된 기존 C1 artifact에는 U+0092가 두 번 들어가지만 현재 생성 코드는 한 번 넣는다. 최종 실험 전에 최신 코드로 데이터를 재생성하고 artifact hash를 고정해야 한다.",
+            "strict 10개 데이터셋과 문서 예시는 최신 코드로 다시 생성했으며 C1 교란은 U+0092 한 문자만 삽입한다. 과거 두 문자 artifact는 최종 결과에 사용하지 않았다.",
             "",
         ]
     )

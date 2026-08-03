@@ -266,6 +266,14 @@ def limit_reached(count: int, per_noise: int) -> bool:
     return per_noise > 0 and count >= per_noise
 
 
+def transforms_for_group(noise_group: str):
+    if noise_group == "all":
+        return TRANSFORMS
+    if noise_group not in {"seen", "unseen"}:
+        raise ValueError(f"unknown noise group: {noise_group}")
+    return [item for item in TRANSFORMS if item[1] == noise_group]
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         description="Build paired clean/noisy robustness cases"
@@ -278,6 +286,12 @@ def main() -> None:
     )
     parser.add_argument("--output", required=True)
     parser.add_argument("--per-noise", type=int, default=100)
+    parser.add_argument(
+        "--noise-group",
+        choices=["all", "seen", "unseen"],
+        default="all",
+        help="Generate only one perturbation group; all preserves legacy behavior.",
+    )
     args = parser.parse_args()
 
     rows = []
@@ -285,7 +299,9 @@ def main() -> None:
         rows.extend(read_jsonl(path))
     pairs = []
     counts = {}
-    for noise_name, group, transform in TRANSFORMS:
+    for noise_name, group, transform in transforms_for_group(
+        args.noise_group
+    ):
         count = 0
         for row in rows:
             if limit_reached(count, args.per_noise):
@@ -328,6 +344,7 @@ def main() -> None:
         "pairs": len(pairs),
         "unique_source_rows": len({row["source_id"] for row in pairs}),
         "per_noise_requested": args.per_noise,
+        "noise_group": args.noise_group,
         "counts": counts,
         "note": (
             "Gold labels are projected from clean v1.4 labels through "
