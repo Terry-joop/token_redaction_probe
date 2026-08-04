@@ -1,0 +1,422 @@
+{
+  "pairs": 2986,
+  "unique_source_rows": 1357,
+  "seed": 42,
+  "student_threshold": 0.8899999999999999,
+  "gold": "clean RedactFormer v1.4 labels projected through deterministic edits",
+  "hybrid_definition": "raw_rule OR student at stable-word level",
+  "systems": {
+    "raw_rule": {
+      "clean": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0,
+        "gold_mask_rate": 0.14216764707873306,
+        "predicted_mask_rate": 0.14216764707873306,
+        "residual_sensitive_rate": 0.0,
+        "overmask_rate": 0.0,
+        "tokens": 147727
+      },
+      "noisy": {
+        "precision": 0.9976665555502643,
+        "recall": 0.9375699261579772,
+        "f1": 0.9666851236618679,
+        "f2": 0.9490029806394332,
+        "gold_mask_rate": 0.14854282447416706,
+        "predicted_mask_rate": 0.1395950222033132,
+        "residual_sensitive_rate": 0.062430073842022815,
+        "overmask_rate": 0.0003825644308768533,
+        "tokens": 150428
+      },
+      "robustness": {
+        "clean_target_detection": 1.0,
+        "noisy_target_detection": 0.8054253181513731,
+        "eligible_clean_targets": 2986,
+        "span_survival_rate": 0.8054253181513731,
+        "newly_leaked_span_rate": 0.19457468184862692
+      },
+      "by_noise": {
+        "nbsp": {
+          "precision": 0.9993613284368513,
+          "recall": 0.9729519664231308,
+          "f1": 0.9859798361688721,
+          "f2": 0.9781215814971089,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15431429556990095,
+          "residual_sensitive_rate": 0.027048033576869246,
+          "overmask_rate": 0.000117120018739203,
+          "tokens": 40586
+        },
+        "semicolon_after_number": {
+          "precision": 0.9901960784313726,
+          "recall": 0.9528301886792453,
+          "f1": 0.9711538461538461,
+          "f2": 0.9600760456273765,
+          "gold_mask_rate": 0.1318407960199005,
+          "predicted_mask_rate": 0.12686567164179105,
+          "residual_sensitive_rate": 0.047169811320754707,
+          "overmask_rate": 0.0014326647564469914,
+          "tokens": 804
+        },
+        "triple_space": {
+          "precision": 1.0,
+          "recall": 0.9996891030623348,
+          "f1": 0.9998445273631841,
+          "f2": 0.9997512669838012,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15845365396934905,
+          "residual_sensitive_rate": 0.0003108969376651727,
+          "overmask_rate": 0.0,
+          "tokens": 40586
+        },
+        "zero_width_inside": {
+          "precision": 0.9946361087407046,
+          "recall": 0.8704790355275792,
+          "f1": 0.9284251251706873,
+          "f2": 0.8927672611883138,
+          "gold_mask_rate": 0.13692806638228247,
+          "predicted_mask_rate": 0.11983579734704611,
+          "residual_sensitive_rate": 0.12952096447242079,
+          "overmask_rate": 0.0007447654835051372,
+          "tokens": 68452
+        }
+      },
+      "target_by_noise": {
+        "nbsp": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.9484029484029484,
+          "detection_drop": 0.051597051597051635
+        },
+        "semicolon_after_number": {
+          "pairs": 15,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.7333333333333333,
+          "detection_drop": 0.2666666666666667
+        },
+        "triple_space": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.9975429975429976,
+          "detection_drop": 0.002457002457002422
+        },
+        "zero_width_inside": {
+          "pairs": 1343,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.6031273268801192,
+          "detection_drop": 0.39687267311988084
+        }
+      }
+    },
+    "normalized_rule": {
+      "clean": {
+        "precision": 0.9999523877541303,
+        "recall": 1.0,
+        "f1": 0.9999761933103202,
+        "f2": 0.9999904771881041,
+        "gold_mask_rate": 0.14216764707873306,
+        "predicted_mask_rate": 0.14217441632199937,
+        "residual_sensitive_rate": 0.0,
+        "overmask_rate": 7.89110278161373e-06,
+        "tokens": 147727
+      },
+      "noisy": {
+        "precision": 0.9999104824993286,
+        "recall": 0.999776236294473,
+        "f1": 0.9998433548906841,
+        "f2": 0.9998030826515816,
+        "gold_mask_rate": 0.14854282447416706,
+        "predicted_mask_rate": 0.14852288137846678,
+        "residual_sensitive_rate": 0.00022376370552701363,
+        "overmask_rate": 1.561487472966748e-05,
+        "tokens": 150428
+      },
+      "robustness": {
+        "clean_target_detection": 1.0,
+        "noisy_target_detection": 0.9986604152712659,
+        "eligible_clean_targets": 2986,
+        "span_survival_rate": 0.9986604152712659,
+        "newly_leaked_span_rate": 0.0013395847287340779
+      },
+      "by_noise": {
+        "nbsp": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "f2": 1.0,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15850293204553295,
+          "residual_sensitive_rate": 0.0,
+          "overmask_rate": 0.0,
+          "tokens": 40586
+        },
+        "semicolon_after_number": {
+          "precision": 0.9901960784313726,
+          "recall": 0.9528301886792453,
+          "f1": 0.9711538461538461,
+          "f2": 0.9600760456273765,
+          "gold_mask_rate": 0.1318407960199005,
+          "predicted_mask_rate": 0.12686567164179105,
+          "residual_sensitive_rate": 0.047169811320754707,
+          "overmask_rate": 0.0014326647564469914,
+          "tokens": 804
+        },
+        "triple_space": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1": 1.0,
+          "f2": 1.0,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15850293204553295,
+          "residual_sensitive_rate": 0.0,
+          "overmask_rate": 0.0,
+          "tokens": 40586
+        },
+        "zero_width_inside": {
+          "precision": 0.9998933219543418,
+          "recall": 1.0,
+          "f1": 0.9999466581319678,
+          "f2": 0.9999786625698801,
+          "gold_mask_rate": 0.13692806638228247,
+          "predicted_mask_rate": 0.13694267515923567,
+          "residual_sensitive_rate": 0.0,
+          "overmask_rate": 1.692648826148039e-05,
+          "tokens": 68452
+        }
+      },
+      "target_by_noise": {
+        "nbsp": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 1.0,
+          "detection_drop": 0.0
+        },
+        "semicolon_after_number": {
+          "pairs": 15,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.7333333333333333,
+          "detection_drop": 0.2666666666666667
+        },
+        "triple_space": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 1.0,
+          "detection_drop": 0.0
+        },
+        "zero_width_inside": {
+          "pairs": 1343,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 1.0,
+          "detection_drop": 0.0
+        }
+      }
+    },
+    "student": {
+      "clean": {
+        "precision": 0.941322274655608,
+        "recall": 0.9402914008189697,
+        "f1": 0.9408065553464663,
+        "f2": 0.940497394915561,
+        "gold_mask_rate": 0.14216764707873306,
+        "predicted_mask_rate": 0.1420119544836083,
+        "residual_sensitive_rate": 0.05970859918103033,
+        "overmask_rate": 0.009713947524166502,
+        "tokens": 147727
+      },
+      "noisy": {
+        "precision": 0.9432813796919671,
+        "recall": 0.9154620720519132,
+        "f1": 0.9291635438668211,
+        "f2": 0.9208938829164641,
+        "gold_mask_rate": 0.14854282447416706,
+        "predicted_mask_rate": 0.14416199111867473,
+        "residual_sensitive_rate": 0.08453792794808679,
+        "overmask_rate": 0.0096031479587455,
+        "tokens": 150428
+      },
+      "robustness": {
+        "clean_target_detection": 0.9350301406563966,
+        "noisy_target_detection": 0.8168117883456129,
+        "eligible_clean_targets": 2792,
+        "span_survival_rate": 0.8656876790830945,
+        "newly_leaked_span_rate": 0.13431232091690548
+      },
+      "by_noise": {
+        "nbsp": {
+          "precision": 0.9452503509592888,
+          "recall": 0.9420177211254469,
+          "f1": 0.9436312675179072,
+          "f2": 0.9426624770556575,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15796087320750998,
+          "residual_sensitive_rate": 0.057982278874553095,
+          "overmask_rate": 0.010277281644365062,
+          "tokens": 40586
+        },
+        "semicolon_after_number": {
+          "precision": 0.8735632183908046,
+          "recall": 0.7169811320754716,
+          "f1": 0.7875647668393783,
+          "f2": 0.7436399217221135,
+          "gold_mask_rate": 0.1318407960199005,
+          "predicted_mask_rate": 0.10820895522388059,
+          "residual_sensitive_rate": 0.28301886792452835,
+          "overmask_rate": 0.015759312320916905,
+          "tokens": 804
+        },
+        "triple_space": {
+          "precision": 0.9452503509592888,
+          "recall": 0.9420177211254469,
+          "f1": 0.9436312675179072,
+          "f2": 0.9426624770556575,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.15796087320750998,
+          "residual_sensitive_rate": 0.057982278874553095,
+          "overmask_rate": 0.010277281644365062,
+          "tokens": 40586
+        },
+        "zero_width_inside": {
+          "precision": 0.9410960464851316,
+          "recall": 0.8812546676624347,
+          "f1": 0.9101928374655648,
+          "f2": 0.8926062806630789,
+          "gold_mask_rate": 0.13692806638228247,
+          "predicted_mask_rate": 0.12822123531817917,
+          "residual_sensitive_rate": 0.11874533233756535,
+          "overmask_rate": 0.008750994431185362,
+          "tokens": 68452
+        }
+      },
+      "target_by_noise": {
+        "nbsp": {
+          "pairs": 814,
+          "clean_target_detection": 0.9287469287469288,
+          "noisy_target_detection": 0.9287469287469288,
+          "detection_drop": 0.0
+        },
+        "semicolon_after_number": {
+          "pairs": 15,
+          "clean_target_detection": 0.4666666666666667,
+          "noisy_target_detection": 0.4,
+          "detection_drop": 0.06666666666666665
+        },
+        "triple_space": {
+          "pairs": 814,
+          "clean_target_detection": 0.9287469287469288,
+          "noisy_target_detection": 0.9287469287469288,
+          "detection_drop": 0.0
+        },
+        "zero_width_inside": {
+          "pairs": 1343,
+          "clean_target_detection": 0.9478778853313478,
+          "noisy_target_detection": 0.6857781087118392,
+          "detection_drop": 0.26209977661950856
+        }
+      }
+    },
+    "hybrid_raw_rule_or_student": {
+      "clean": {
+        "precision": 0.9446318535510277,
+        "recall": 1.0,
+        "f1": 0.9715276974673297,
+        "f2": 0.9884131361715345,
+        "gold_mask_rate": 0.14216764707873306,
+        "predicted_mask_rate": 0.15050058553954254,
+        "residual_sensitive_rate": 0.0,
+        "overmask_rate": 0.009713947524166502,
+        "tokens": 147727
+      },
+      "noisy": {
+        "precision": 0.9455509570615623,
+        "recall": 0.9815618706645782,
+        "f1": 0.9632199556443645,
+        "f2": 0.9741419130187606,
+        "gold_mask_rate": 0.14854282447416706,
+        "predicted_mask_rate": 0.15420001595447655,
+        "residual_sensitive_rate": 0.01843812933542177,
+        "overmask_rate": 0.009860793391785014,
+        "tokens": 150428
+      },
+      "robustness": {
+        "clean_target_detection": 1.0,
+        "noisy_target_detection": 0.9266577361018085,
+        "eligible_clean_targets": 2986,
+        "span_survival_rate": 0.9266577361018085,
+        "newly_leaked_span_rate": 0.07334226389819154
+      },
+      "by_noise": {
+        "nbsp": {
+          "precision": 0.9475710900473934,
+          "recall": 0.9945593035908596,
+          "f1": 0.9704967766401214,
+          "f2": 0.984792513237286,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.16636278519686593,
+          "residual_sensitive_rate": 0.005440696409140355,
+          "overmask_rate": 0.010365121658419464,
+          "tokens": 40586
+        },
+        "semicolon_after_number": {
+          "precision": 0.9035087719298246,
+          "recall": 0.9716981132075472,
+          "f1": 0.9363636363636364,
+          "f2": 0.9572490706319703,
+          "gold_mask_rate": 0.1318407960199005,
+          "predicted_mask_rate": 0.1417910447761194,
+          "residual_sensitive_rate": 0.028301886792452824,
+          "overmask_rate": 0.015759312320916905,
+          "tokens": 804
+        },
+        "triple_space": {
+          "precision": 0.9482529854046882,
+          "recall": 0.9998445515311675,
+          "f1": 0.9733656174334141,
+          "f2": 0.9890819621713055,
+          "gold_mask_rate": 0.15850293204553295,
+          "predicted_mask_rate": 0.16712659537771646,
+          "residual_sensitive_rate": 0.00015544846883253083,
+          "overmask_rate": 0.010277281644365062,
+          "tokens": 40586
+        },
+        "zero_width_inside": {
+          "precision": 0.9427045145071751,
+          "recall": 0.9602048436999894,
+          "f1": 0.9513742071881607,
+          "f2": 0.9566529900720678,
+          "gold_mask_rate": 0.13692806638228247,
+          "predicted_mask_rate": 0.13946999357213813,
+          "residual_sensitive_rate": 0.039795156300010626,
+          "overmask_rate": 0.009258789079029774,
+          "tokens": 68452
+        }
+      },
+      "target_by_noise": {
+        "nbsp": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.9914004914004914,
+          "detection_drop": 0.008599508599508643
+        },
+        "semicolon_after_number": {
+          "pairs": 15,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.8,
+          "detection_drop": 0.19999999999999996
+        },
+        "triple_space": {
+          "pairs": 814,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.9987714987714987,
+          "detection_drop": 0.0012285012285012664
+        },
+        "zero_width_inside": {
+          "pairs": 1343,
+          "clean_target_detection": 1.0,
+          "noisy_target_detection": 0.8451228592702904,
+          "detection_drop": 0.1548771407297096
+        }
+      }
+    }
+  }
+}

@@ -27,6 +27,14 @@ FinPhraseBank는 비개인 엔티티 대조이므로 privacy 관련 8개 중 엄
 1/8개다. 따라서 현재 Student는 일부 표면 결함의 규칙 보완 근거를 보였지만 전체 규칙을
 대체한다고 결론 낼 수 없다. 상세 표는 `STRICT_ROBUSTNESS_MATRIX.md`와 대시보드 4-3에 있다.
 
+후속 검증에서는 NFKC·대소문자·아포스트로피·공백·제어문자를 기준으로 split 중복을
+감사해 21행을 제거하고, 10개 데이터셋 모두의 split 교집합을 0으로 만든 뒤 다시
+학습했다. 총 352,905개 unseen-7 pair에서 원시 규칙, 교란 종류를 모르는 일반
+정규화+규칙, ELECTRA-small, 규칙 OR Student를 비교했다. 오염 target 탐지는 각각
+83.1%, 99.4%, 83.7%, 93.8%였다. 알려진 이음매 7종에서는 정규화+규칙이 가장 강하므로
+현재 Student를 규칙 대체재라고 주장할 수 없다. 상세 수치와 데이터셋·교란별 해석은
+`DISJOINT_FOUR_SYSTEM_RESULTS.md`와 대시보드 4-4에 있다.
+
 
 ## 결과 대시보드
 
@@ -83,12 +91,13 @@ python src/build_results_dashboard.py
 
 ## 먼저 읽을 문서
 
-루트 문서는 다섯 개만 사용한다.
+루트 문서는 여섯 개만 사용한다.
 
 - `README.md`: 연구 구조와 실행 방법(현재 문서)
 - `MEDICAL_REDACTOR_ALL_RESULTS.md`: 날짜·실험 순서별 전체 결과와 해석
 - `ROBUSTNESS_EXPERIMENT_V14.md`: 초기 제한 실험과 Drug 전체 확장 결과·합격선
 - `STRICT_ROBUSTNESS_MATRIX.md`: 10개 데이터셋 전체 strict 5/7·3-seed 최종 비교
+- `DISJOINT_FOUR_SYSTEM_RESULTS.md`: split 누수 제거 후 규칙·정규화·Student·Hybrid 비교
 - `PERTURBATION_CATALOG.md`: Seen/Unseen 오염 규칙 12종의 조건·예시·전체 실제 개수
 
 SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.

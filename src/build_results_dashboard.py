@@ -6,6 +6,8 @@ import json
 import statistics
 from pathlib import Path
 
+from dashboard_disjoint_section import render as disjoint_four_system_table
+
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports'
 MODELS = {'bert_tiny':'BERT-tiny','electra_small':'ELECTRA-small','distilroberta':'DistilRoBERTa'}
@@ -346,7 +348,8 @@ def main():
  html=html.replace('__EXAMPLE_COUNT__',f'{example_count:,}')
  html=html.replace('__SPLIT_TABLE__',split_table(data))
  html=html.replace(
-  '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table() + '<h2>5. 결과 분석</h2>'
+  '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table()
+  + disjoint_four_system_table(ROOT, META) + '<h2>5. 결과 분석</h2>'
  )
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')

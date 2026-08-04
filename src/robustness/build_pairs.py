@@ -188,7 +188,7 @@ def zero_width_variant(row: dict) -> Variant | None:
                 point,
                 point,
                 "\u200b",
-                [1],
+                [0],
                 (start, end),
                 {
                     "kind": "zero_width_inside",
