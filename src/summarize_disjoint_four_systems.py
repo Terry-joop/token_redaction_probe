@@ -166,7 +166,38 @@ def main() -> None:
             f"{value['noisy_recall']:.3f} | {value['noisy_f1']:.3f} | {value['noisy_f2']:.3f} | "
             f"{value['noisy_mask_rate']:.1%} | {value['target_detection']:.1%} |"
         )
-    lines += ["", "## 3. 데이터셋별 오염 target 탐지율", "",
+    lines += ["", "## 3. 정규화+규칙 vs Student 직접 비교", "",
+        "Δ는 Student−정규화 규칙이다. F2와 target Δ가 모두 음수면 정규화 규칙이 두 핵심 지표에서 우세하다.", "",
+        "| 데이터셋 | Pair | 정규화 F2 | Student F2 | ΔF2 | 정규화 target | Student target | Δtarget | 정규화 Mask | Student Mask | ΔMask | 판단 |",
+        "|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---|",
+    ]
+    for dataset, data in datasets.items():
+        systems = data["systems"]
+        normalized = systems["normalized_rule"]
+        student_value = systems["student"]
+        f2_delta = student_value["noisy"]["f2"] - normalized["noisy"]["f2"]
+        target_delta = (
+            student_value["robustness"]["noisy_target_detection"]
+            - normalized["robustness"]["noisy_target_detection"]
+        )
+        mask_delta = (
+            student_value["noisy"]["predicted_mask_rate"]
+            - normalized["noisy"]["predicted_mask_rate"]
+        )
+        if f2_delta > 0 and target_delta > 0:
+            verdict = "Student 우세"
+        elif f2_delta < 0 and target_delta < 0:
+            verdict = "정규화 규칙 우세"
+        else:
+            verdict = "지표별 우세가 다름"
+        lines.append(
+            f"| {dataset} | {data['pairs']:,} | "
+            f"{normalized['noisy']['f2']:.3f} | {student_value['noisy']['f2']:.3f} | {f2_delta:+.3f} | "
+            f"{normalized['robustness']['noisy_target_detection']:.1%} | {student_value['robustness']['noisy_target_detection']:.1%} | "
+            f"{target_delta:+.1%}p | {normalized['noisy']['predicted_mask_rate']:.1%} | "
+            f"{student_value['noisy']['predicted_mask_rate']:.1%} | {mask_delta:+.1%}p | {verdict} |"
+        )
+    lines += ["", "## 4. 데이터셋별 네 방식 오염 target 탐지율", "",
         "| 데이터셋 | Pair | 원시 규칙 | 정규화+규칙 | Student | 규칙 OR Student | Student Clean F2 | Student-정규화 | 해석 |",
         "|---|---:|---:|---:|---:|---:|---:|---:|---|",
     ]
@@ -189,7 +220,7 @@ def main() -> None:
             f"{systems['hybrid_raw_rule_or_student']['robustness']['noisy_target_detection']:.1%} | "
             f"{systems['student']['clean']['f2']:.3f} | {target_delta:+.1%}p | {verdict} |"
         )
-    lines += ["", "## 4. 학습에 없던 교란 종류별 결과", "",
+    lines += ["", "## 5. 학습에 없던 교란 종류별 결과", "",
         "| 교란 | Pair | 원시 규칙 탐지 | 정규화 규칙 탐지 | Student 탐지 | Hybrid 탐지 | Student-정규화 |",
         "|---|---:|---:|---:|---:|---:|---:|",
     ]
@@ -202,7 +233,7 @@ def main() -> None:
             f"{systems['hybrid_raw_rule_or_student']['noisy_target_detection']:.1%} | "
             f"{systems['student']['noisy_target_detection'] - systems['normalized_rule']['noisy_target_detection']:+.1%}p |"
         )
-    lines += ["", "## 5. 결과를 논문 주장으로 읽는 순서", "",
+    lines += ["", "## 6. 결과를 논문 주장으로 읽는 순서", "",
         "1. **규칙 결함 확인:** 원시 규칙의 clean→noisy 하락과 target 탐지율을 본다.",
         "2. **값싼 대안 확인:** 정규화+규칙이 회복하면 알려진 이음매는 모델 없이 고칠 수 있다.",
         "3. **Student의 추가 가치 확인:** 같은 정답·pair에서 정규화 규칙보다 noisy F2와 target 탐지가 높아야 단독 대체 근거가 된다.",

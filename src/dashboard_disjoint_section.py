@@ -27,6 +27,7 @@ def render(root: Path, meta: dict) -> str:
         for key, value in source["macro"].items()
     )
     dataset_rows = []
+    direct_rows = []
     for key, item in source["datasets"].items():
         values = item["systems"]
         audit = item["split_audit"]["removed"]
@@ -40,6 +41,34 @@ def render(root: Path, meta: dict) -> str:
             )
             + f"<td>{values['student']['clean']['f2']:.3f}</td>"
             f"<td>{values['hybrid_raw_rule_or_student']['noisy']['predicted_mask_rate']*100:.1f}%</td></tr>"
+        )
+        normalized = values["normalized_rule"]
+        student_value = values["student"]
+        f2_delta = student_value["noisy"]["f2"] - normalized["noisy"]["f2"]
+        target_delta = (
+            student_value["robustness"]["noisy_target_detection"]
+            - normalized["robustness"]["noisy_target_detection"]
+        )
+        mask_delta = (
+            student_value["noisy"]["predicted_mask_rate"]
+            - normalized["noisy"]["predicted_mask_rate"]
+        )
+        if f2_delta > 0 and target_delta > 0:
+            verdict = "Student 우세"
+        elif f2_delta < 0 and target_delta < 0:
+            verdict = "정규화 규칙 우세"
+        else:
+            verdict = "지표별 우세가 다름"
+        direct_rows.append(
+            f"<tr><td class='left meta dataset'>{meta[key][0]}</td><td>{item['pairs']:,}</td>"
+            f"<td>{normalized['noisy']['f2']:.3f}</td><td>{student_value['noisy']['f2']:.3f}</td>"
+            f"<td>{f2_delta:+.3f}</td>"
+            f"<td>{normalized['robustness']['noisy_target_detection']*100:.1f}%</td>"
+            f"<td>{student_value['robustness']['noisy_target_detection']*100:.1f}%</td>"
+            f"<td>{target_delta*100:+.1f}%p</td>"
+            f"<td>{normalized['noisy']['predicted_mask_rate']*100:.1f}%</td>"
+            f"<td>{student_value['noisy']['predicted_mask_rate']*100:.1f}%</td>"
+            f"<td>{mask_delta*100:+.1f}%p</td><td class='left'>{verdict}</td></tr>"
         )
     noise_rows = []
     for noise, item in source["by_noise"].items():
@@ -68,10 +97,15 @@ def render(root: Path, meta: dict) -> str:
         "<h3>4-4-1. 10개 데이터셋 종합</h3><div class='tablewrap solo'><table><thead><tr><th class='left'>방식</th><th>Clean F2</th><th>Noisy P</th><th>Noisy R</th><th>Noisy F1</th><th>Noisy F2</th><th>Mask</th><th>오염 target 탐지</th></tr></thead><tbody>"
         + macro_rows
         + "</tbody></table></div>"
-        "<h3>4-4-2. 데이터셋별 target 탐지</h3><div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Pair</th><th>원시 규칙</th><th>정규화 규칙</th><th>Student</th><th>Hybrid</th><th>Student Clean F2</th><th>Hybrid Mask</th></tr></thead><tbody>"
+        "<h3>4-4-2. 정규화+규칙 vs Student 직접 비교</h3>"
+        "<p class='lede'>Δ는 Student−정규화 규칙이다. F2와 target Δ가 모두 음수면 정규화 규칙이 두 핵심 지표에서 우세하다는 뜻이다.</p>"
+        "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Pair</th><th>정규화 F2</th><th>Student F2</th><th>ΔF2</th><th>정규화 target</th><th>Student target</th><th>Δtarget</th><th>정규화 Mask</th><th>Student Mask</th><th>ΔMask</th><th class='left'>판단</th></tr></thead><tbody>"
+        + "".join(direct_rows)
+        + "</tbody></table></div>"
+        "<h3>4-4-3. 데이터셋별 네 방식 target 탐지</h3><div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Pair</th><th>원시 규칙</th><th>정규화 규칙</th><th>Student</th><th>Hybrid</th><th>Student Clean F2</th><th>Hybrid Mask</th></tr></thead><tbody>"
         + "".join(dataset_rows)
         + "</tbody></table></div>"
-        "<h3>4-4-3. 학습에 없던 교란별 target 탐지</h3><div class='tablewrap solo'><table><thead><tr><th class='left'>교란</th><th>Pair</th><th>원시 규칙</th><th>정규화 규칙</th><th>Student</th><th>Hybrid</th></tr></thead><tbody>"
+        "<h3>4-4-4. 학습에 없던 교란별 target 탐지</h3><div class='tablewrap solo'><table><thead><tr><th class='left'>교란</th><th>Pair</th><th>원시 규칙</th><th>정규화 규칙</th><th>Student</th><th>Hybrid</th></tr></thead><tbody>"
         + "".join(noise_rows)
         + "</tbody></table></div>"
         f"<div class='analysis-grid'><article class='analysis-card'><h3>전처리 baseline</h3><p>정규화 규칙 macro noisy F2는 <strong>{norm['noisy_f2']:.3f}</strong>, target 탐지는 <strong>{norm['target_detection']*100:.1f}%</strong>다. 원시 규칙 대비 각각 {norm['noisy_f2']-raw['noisy_f2']:+.3f}, {(norm['target_detection']-raw['target_detection'])*100:+.1f}%p다.</p></article>"
