@@ -21,6 +21,10 @@ DATASETS = {
     "symptom2dx": ("medterm5", "symptom2dx"),
     "mednli": ("medterm5", "mednli"),
     "redditmh": ("medterm5", "redditmh"),
+    "adr": ("medterm5", "adr"),
+    "mentalhealth": ("medterm5", "mentalhealth"),
+    "qnli": ("piiclean2", "qnli"),
+    "finphrasebank": ("piiclean2", "finphrasebank"),
     "bios": ("piiclean2", "bios"),
     "mrpc": ("piiclean2", "mrpc"),
 }

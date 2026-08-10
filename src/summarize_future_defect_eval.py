@@ -14,6 +14,10 @@ DATASETS = {
     "symptom2dx": ("Symptom2Dx", "의료: 증상·용량", "medterm5 v1.4"),
     "mednli": ("MedNLI", "의료: 임상 문장쌍", "medterm5 v1.4"),
     "redditmh": ("RedditMH", "비정형: 정신건강 서술", "medterm5 v1.4"),
+    "adr": ("ADR", "의료: 약물 부작용", "medterm5 v1.4"),
+    "mentalhealth": ("Mental Health", "비정형: 정신건강 서술", "medterm5 v1.4"),
+    "qnli": ("QNLI", "비개인 엔티티: 질문·문장", "piiclean2 v1.4"),
+    "finphrasebank": ("FinPhraseBank", "비개인 엔티티: 금융", "piiclean2 v1.4"),
     "bios": ("BIOS", "실제 PII: 인명", "piiclean2 v1.4"),
     "mrpc": ("MRPC", "실제 PII: 날짜·연락처·URL", "piiclean2 strict v1.4"),
 }

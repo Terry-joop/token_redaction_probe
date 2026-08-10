@@ -38,6 +38,10 @@
 | Symptom2Dx | `medterm5 v1.4` | 짧은 의료 증상·용량 서술에서 같은 현상이 재현되는지 보는 소규모 확장 검증 |
 | MedNLI | `medterm5 v1.4` | 임상 문장쌍에서도 표면 결함 강건성이 유지되는지 확인 |
 | RedditMH | `medterm5 v1.4` | 오타·구어체가 많은 비정형 정신건강 서술에서의 실패/일반화 확인 |
+| ADR | `medterm5 v1.4` | 약물 부작용 문헌에서 약물·용량·Unicode 결함을 추가 확인 |
+| Mental Health | `medterm5 v1.4` | 비정형 정신건강 서술에서의 별도 표본 확인 |
+| QNLI | `piiclean2 v1.4` | 비개인 엔티티 대조; PII 성공으로는 집계하지 않음 |
+| FinPhraseBank | `piiclean2 v1.4` | 금융 문장의 비개인 엔티티 대조; PII 성공으로는 집계하지 않음 |
 | BIOS | `piiclean2 v1.4` | 인명 중심의 실제 PII 도메인; 아포스트로피·비가시 문자 결함을 확인 |
 | MRPC | `piiclean2 strict v1.4` | 연락처·날짜·URL 같은 정형 PII와 숫자 경계를 확인 |
 
