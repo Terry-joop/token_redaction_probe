@@ -56,6 +56,10 @@ def build() -> dict:
             clean = payload["student"]["clean"]
             rule_noisy = payload["rule_v1_4"]["noisy"]
             student_noisy = payload["student"]["noisy"]
+            rule_or = payload["rule_or_student"]
+            rule_and = payload["rule_and_student"]
+            rule_or_noisy = rule_or["noisy"]
+            rule_and_noisy = rule_and["noisy"]
             quality = payload["acceptance"]["final_student_quality_gate"]["pass"]
             absolute_gate = payload["acceptance"]["absolute_target_robustness_gate"]["pass"]
             run = {
@@ -73,6 +77,20 @@ def build() -> dict:
                 "student_noisy_recall": student_noisy["recall"],
                 "rule_noisy_f2": rule_noisy["f2"],
                 "student_noisy_f2": student_noisy["f2"],
+                "rule_noisy_f1": rule_noisy["f1"],
+                "student_noisy_f1": student_noisy["f1"],
+                "rule_or_noisy_mask": rule_or_noisy["predicted_mask_rate"],
+                "rule_or_noisy_precision": rule_or_noisy["precision"],
+                "rule_or_noisy_recall": rule_or_noisy["recall"],
+                "rule_or_noisy_f1": rule_or_noisy["f1"],
+                "rule_or_noisy_f2": rule_or_noisy["f2"],
+                "rule_or_noisy_target_detection": rule_or["robustness"]["noisy_target_detection"],
+                "rule_and_noisy_mask": rule_and_noisy["predicted_mask_rate"],
+                "rule_and_noisy_precision": rule_and_noisy["precision"],
+                "rule_and_noisy_recall": rule_and_noisy["recall"],
+                "rule_and_noisy_f1": rule_and_noisy["f1"],
+                "rule_and_noisy_f2": rule_and_noisy["f2"],
+                "rule_and_noisy_target_detection": rule_and["robustness"]["noisy_target_detection"],
                 **absolute,
             }
             runs.append(run)
@@ -114,6 +132,20 @@ def build() -> dict:
                     "student_noisy_recall",
                     "rule_noisy_f2",
                     "student_noisy_f2",
+                    "rule_noisy_f1",
+                    "student_noisy_f1",
+                    "rule_or_noisy_mask",
+                    "rule_or_noisy_precision",
+                    "rule_or_noisy_recall",
+                    "rule_or_noisy_f1",
+                    "rule_or_noisy_f2",
+                    "rule_or_noisy_target_detection",
+                    "rule_and_noisy_mask",
+                    "rule_and_noisy_precision",
+                    "rule_and_noisy_recall",
+                    "rule_and_noisy_f1",
+                    "rule_and_noisy_f2",
+                    "rule_and_noisy_target_detection",
                 )
             },
             "all_seeds_quality_gate": all(run["quality_gate"] for run in runs),

@@ -348,6 +348,23 @@ def evaluate_system(
     }
 
 
+def combine_predictions(
+    left: list[list[int]], right: list[list[int]], mode: str
+) -> list[list[int]]:
+    """Combine aligned token masks with logical OR or AND."""
+    if mode not in {"or", "and"}:
+        raise ValueError(f"unsupported combination mode: {mode}")
+    output = []
+    for left_row, right_row in zip(left, right):
+        if len(left_row) != len(right_row):
+            raise ValueError("cannot combine masks with different lengths")
+        if mode == "or":
+            output.append([int(a or b) for a, b in zip(left_row, right_row)])
+        else:
+            output.append([int(a and b) for a, b in zip(left_row, right_row)])
+    return output
+
+
 def shared_target_robustness(
     pairs: list[dict],
     rule_clean: list[list[int]],
@@ -593,6 +610,8 @@ def render_markdown(result: dict) -> str:
     systems = [
         ("rule_v1_4", "규칙 v1.4"),
         ("student", "ELECTRA-small"),
+        ("rule_or_student", "규칙 OR Student"),
+        ("rule_and_student", "규칙 AND Student"),
     ]
     for key, label in systems:
         system = result[key]
@@ -792,6 +811,12 @@ def main() -> None:
         if rule is not None
         else pairs[0].get("teacher_policy", "cached-rule")
     )
+    rule_or_clean = combine_predictions(rule_clean, student_clean, "or")
+    rule_or_noisy = combine_predictions(rule_noisy, student_noisy, "or")
+    rule_and_clean = combine_predictions(rule_clean, student_clean, "and")
+    rule_and_noisy = combine_predictions(
+        rule_noisy, student_noisy, "and"
+    )
 
     result = {
         "pairs": len(pairs),
@@ -805,6 +830,12 @@ def main() -> None:
         ),
         "student": evaluate_system(
             pairs, student_clean, student_noisy
+        ),
+        "rule_or_student": evaluate_system(
+            pairs, rule_or_clean, rule_or_noisy
+        ),
+        "rule_and_student": evaluate_system(
+            pairs, rule_and_clean, rule_and_noisy
         ),
         "absolute_target_robustness": absolute_target_robustness(
             pairs,

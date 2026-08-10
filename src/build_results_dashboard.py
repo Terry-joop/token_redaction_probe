@@ -349,6 +349,19 @@ def future_defect_time_axis_table():
    f"<td>{s['rule_noisy_precision']:.3f} / {s['rule_noisy_recall']:.3f} / {s['rule_noisy_f2']:.3f}</td>"
    f"<td>{s['student_noisy_precision']:.3f} / {s['student_noisy_recall']:.3f} / {s['student_noisy_f2']:.3f}</td></tr>"
   )
+ combo_rows=[]
+ for item in source['datasets'].values():
+  s=item['summary']
+  for prefix,label in (
+   ('rule','Rule only'), ('student','Student only'),
+   ('rule_or','Rule OR Student'), ('rule_and','Rule AND Student'),
+  ):
+   combo_rows.append(
+    f"<tr><td class='left meta dataset'>{item['name']}</td><td class='left meta'>{label}</td>"
+    f"<td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td><td>{s[f'{prefix}_noisy_precision']:.3f}</td>"
+    f"<td>{s[f'{prefix}_noisy_recall']:.3f}</td><td>{s[f'{prefix}_noisy_f1']:.3f}</td>"
+    f"<td>{s[f'{prefix}_noisy_f2']:.3f}</td><td>{s[f'{prefix}_noisy_target_detection']*100:.1f}%</td></tr>"
+   )
  noise_rows=[]
  for name,item in source['pooled_by_noise'].items():
   noise_rows.append(
@@ -371,8 +384,13 @@ def future_defect_time_axis_table():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>규칙 mask</th><th>Student mask</th><th>규칙 P / R / F2</th><th>Student P / R / F2</th></tr></thead><tbody>"
   + ''.join(token_rows)
   + "</tbody></table></div>"
-  "<div class='notice warn'><strong>중요한 trade-off:</strong> 마스킹 비율은 데이터셋별로 비슷하거나 Student가 약간 높다. 따라서 target 탐지 우세와 전체 token 품질은 분리해 읽어야 한다. 일부 데이터셋에서는 Student가 미래 target을 더 잘 보존하지만, 규칙의 token precision/F2가 더 높다. 따라서 현재 실험은 ‘규칙 완전 대체’가 아니라 표면 결함 보완 근거다.</div>"
-  "<h3>4-5-2. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
+  "<h3>4-5-2. Rule/Student 결합 방식 비교</h3>"
+  "<p class='lede'>같은 미래 교란 pair에서 네 방식의 결과를 같은 분모로 비교한다. OR은 둘 중 하나라도 가리고, AND는 둘 다 가린 토큰만 가린다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>Mask</th><th>P</th><th>R</th><th>F1</th><th>F2</th><th>고정 target 탐지</th></tr></thead><tbody>"
+  + ''.join(combo_rows)
+  + "</tbody></table></div>"
+  "<div class='notice warn'><strong>읽는 법:</strong> OR은 누락을 줄이는 대신 mask와 false positive가 늘 수 있고, AND는 precision은 높아질 수 있지만 recall이 떨어질 수 있다. 따라서 F2·target 탐지·mask를 함께 비교한다.</div>"
+  "<h3>4-5-3. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
