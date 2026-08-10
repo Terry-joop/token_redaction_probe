@@ -260,7 +260,13 @@ def marked_excerpt(text: str, target: list[int], context: int = 42) -> str:
 
 
 def validate_catalog() -> None:
-    runtime = [(name, group) for name, group, _ in TRANSFORMS]
+    # This catalog documents the registered strict seen-5/unseen-7 protocol.
+    # Later ``future`` defects live in FUTURE_DEFECT_TIME_AXIS.md instead.
+    runtime = [
+        (name, group)
+        for name, group, _ in TRANSFORMS
+        if group in {"seen", "unseen"}
+    ]
     documented = [(item["name"], item["group"]) for item in CATALOG]
     if runtime != documented:
         raise ValueError(

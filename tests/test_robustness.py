@@ -102,7 +102,9 @@ def test_strict_noise_groups_are_disjoint_five_and_seven():
     assert {name for name, _, _ in seen}.isdisjoint(
         {name for name, _, _ in unseen}
     )
-    assert transforms_for_group("all") == TRANSFORMS
+    assert transforms_for_group("all") == [
+        item for item in TRANSFORMS if item[1] in {"seen", "unseen"}
+    ]
 
 
 def test_zero_width_control_is_not_sensitive_gold():
@@ -233,7 +235,9 @@ def test_perturbation_catalog_matches_runtime_and_documents_counts():
     from build_perturbation_catalog import CATALOG, build_html
 
     assert [(item["name"], item["group"]) for item in CATALOG] == [
-        (name, group) for name, group, _ in TRANSFORMS
+        (name, group)
+        for name, group, _ in TRANSFORMS
+        if group in {"seen", "unseen"}
     ]
     assert sum(item["group"] == "seen" for item in CATALOG) == 5
     assert sum(item["group"] == "unseen" for item in CATALOG) == 7

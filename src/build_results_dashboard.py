@@ -323,6 +323,60 @@ def strict_matrix_table():
   +''.join(seed_rows)+"</tbody></table></div></div></details>"
  )
 
+
+def future_defect_time_axis_table():
+ path=ROOT/'reports/future_defect_time_axis_summary.json'
+ if not path.exists(): return ''
+ source=load(path); rows=[]
+ for item in source['datasets'].values():
+  s=item['summary']
+  verdict='우세 · CI 3/3' if item['all_seeds_absolute_gate'] else '미달'
+  verdict_class='best' if item['all_seeds_absolute_gate'] else 'low'
+  rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']} · {item['policy']}</span></td>"
+   f"<td>{item['pairs']:,}</td><td>{s['clean_f2']:.3f}</td>"
+   f"<td>{s['rule_noisy_target_detection']*100:.1f}%</td><td class='best'>{s['student_noisy_target_detection']*100:.1f}%</td>"
+   f"<td class='best'>{s['student_minus_rule_noisy']*100:+.1f}%p</td>"
+   f"<td>{s['rule_detection_drop']*100:.1f}%p</td><td>{s['student_detection_drop']*100:.1f}%p</td>"
+   f"<td class='best'>{s['student_drop_advantage']*100:+.1f}%p</td><td class='{verdict_class}'>{verdict}</td></tr>"
+  )
+ token_rows=[]
+ for item in source['datasets'].values():
+  s=item['summary']
+  token_rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}</td>"
+   f"<td>{s['rule_noisy_mask']*100:.1f}%</td><td>{s['student_noisy_mask']*100:.1f}%</td>"
+   f"<td>{s['rule_noisy_precision']:.3f} / {s['rule_noisy_recall']:.3f} / {s['rule_noisy_f2']:.3f}</td>"
+   f"<td>{s['student_noisy_precision']:.3f} / {s['student_noisy_recall']:.3f} / {s['student_noisy_f2']:.3f}</td></tr>"
+  )
+ noise_rows=[]
+ for name,item in source['pooled_by_noise'].items():
+  noise_rows.append(
+   f"<tr><td class='left meta dataset'>{name}</td><td>{item['eligible_shared_clean_targets']:,}</td>"
+   f"<td>{item['rule_survival']*100:.1f}%</td><td>{item['student_survival']*100:.1f}%</td>"
+   f"<td class='best'>{item['student_minus_rule']*100:+.1f}%p</td></tr>"
+  )
+ pair_total=sum(item['pairs'] for item in source['datasets'].values())
+ return (
+  "<h2>4-5. 미래 결함 시간축 평가 — 학습 뒤 새로 발견된 입력 결함</h2>"
+  f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 미래 교란 7종을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. 3개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
+  "<div class='notice'><strong>읽는 법:</strong> 여기서 성공은 token F2가 아니라 <strong>오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 가렸는가</strong>다. Student가 규칙보다 미래 target을 더 많이 잡고, clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2</th><th>규칙 미래 탐지</th><th>Student 미래 탐지</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>판정</th></tr></thead><tbody>"
+  + ''.join(rows)
+  + "</tbody></table></div>"
+  "<div class='notice'><strong>결론 범위:</strong> 세 데이터셋 모두 raw 규칙 v1.4 대비 미래 target 탐지와 하락폭에서 3-seed 우세다. 이는 새 규칙 패치를 만들기 전의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. generic normalization 또는 사후 규칙 패치까지 이겼다는 뜻은 아니며, 전체 token F2가 더 좋은지도 아래 표에서 별도로 확인해야 한다.</div>"
+  "<h3>4-5-1. 마스킹 예산과 전체 token 품질</h3>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>규칙 mask</th><th>Student mask</th><th>규칙 P / R / F2</th><th>Student P / R / F2</th></tr></thead><tbody>"
+  + ''.join(token_rows)
+  + "</tbody></table></div>"
+  "<div class='notice warn'><strong>중요한 trade-off:</strong> Student의 mask 비율은 규칙보다 0.2~1.0%p만 높아 미래 target 우세가 단순 과마스킹 결과는 아니다. 하지만 Drug Reviews·BIOS에서는 규칙의 token precision/F2가 더 높다. 따라서 현재 실험은 ‘규칙 완전 대체’가 아니라 표면 결함 보완 근거다.</div>"
+  "<h3>4-5-2. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
+  "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
+  + ''.join(noise_rows)
+  + "</tbody></table></div>"
+ )
+
 HTML = r'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Token Redaction Probe · 전체 결과</title><style>
 :root{--bg:#f4f6f8;--panel:#fff;--ink:#162027;--muted:#62707a;--faint:#8d99a2;--line:#dde3e7;--line2:#edf0f2;--teal:#087f70;--tealbg:#e4f5f1;--blue:#486581;--bluebg:#eaf0f5;--amber:#9a5b08;--red:#b43b33;--redbg:#fbe9e7;--mono:ui-monospace,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}:root[data-theme=dark]{--bg:#11171b;--panel:#192126;--ink:#edf2f4;--muted:#a5b0b7;--faint:#78858d;--line:#303a40;--line2:#253036;--teal:#52cfbb;--tealbg:#173b35;--blue:#b1c9dd;--bluebg:#23313d;--amber:#f4bd6b;--red:#f08a80;--redbg:#3c211f}*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.5}.wrap{max-width:1240px;margin:auto;padding:42px 22px 80px}.hero{display:flex;justify-content:space-between;gap:20px}.eyebrow{color:var(--teal);font:700 12px var(--mono);letter-spacing:.13em}.hero h1{font-size:clamp(27px,4vw,42px);line-height:1.15;margin:8px 0 10px;letter-spacing:-.035em}.hero p{max-width:820px;color:var(--muted);margin:0}.actions{display:flex;gap:8px;align-items:flex-start}.button,button{border:1px solid var(--line);color:var(--ink);background:var(--panel);border-radius:9px;padding:8px 11px;text-decoration:none;cursor:pointer;font:650 12px var(--sans)}.cards{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:24px 0}.card{background:var(--panel);border:1px solid var(--line);border-radius:13px;padding:16px}.card b{font:750 25px var(--mono);display:block}.card span,.lede{font-size:12px;color:var(--muted)}.notice{border:1px solid var(--line);border-left:4px solid var(--teal);background:var(--panel);border-radius:10px;padding:13px 15px;color:var(--muted);font-size:13px;margin:16px 0}.notice strong{color:var(--ink)}.warn{border-left-color:var(--amber)}h2{font-size:21px;margin:34px 0 6px}.lede{margin:0 0 14px}.toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;background:var(--panel);border:1px solid var(--line);padding:10px;border-radius:12px 12px 0 0}.toolbar select,.toolbar input{border:1px solid var(--line);color:var(--ink);background:var(--bg);border-radius:8px;padding:7px 9px;font:12px var(--sans)}.seg{display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}.seg button{border:0;border-radius:0}.seg .active{background:var(--teal);color:#fff}.tablewrap{overflow:auto;background:var(--panel);border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px}.solo{border-top:1px solid var(--line);border-radius:12px}table{width:100%;border-collapse:collapse;font-size:12px;white-space:nowrap}th{position:sticky;top:0;background:var(--panel);color:var(--muted);font-size:11px;text-align:right;padding:9px 8px;border-bottom:1px solid var(--line)}th.left,td.left{text-align:left}td{padding:7px 8px;border-bottom:1px solid var(--line2);text-align:right;font:500 12px var(--mono)}td.meta{font-family:var(--sans)}tr.start td{border-top:2px solid var(--line)}.pill,.policy,.seed{display:inline-block;border-radius:999px;padding:2px 7px;font:700 10px var(--sans)}.g-medical{background:var(--tealbg);color:var(--teal)}.g-pii{background:var(--redbg);color:var(--red)}.g-entity{background:var(--bluebg);color:var(--blue)}.policy{background:var(--bg);color:var(--muted)}.seed{padding:1px 5px;background:var(--tealbg);color:var(--teal)}.best{color:var(--teal);font-weight:800;background:color-mix(in srgb,var(--teal) 7%,transparent)}.low{color:var(--red)}.over{color:var(--amber)}.dataset{font-weight:750}.task{display:block;font-size:10px;color:var(--faint);margin-top:2px}td.merge{vertical-align:middle;text-align:center!important;border-right:1px solid var(--line);background:color-mix(in srgb,var(--panel) 94%,var(--teal) 6%)}td.merge.dataset-cell{text-align:left!important;min-width:140px}.analysis-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}.analysis-card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:16px}.analysis-card h3{font-size:14px;margin:0 0 8px;color:var(--teal)}.analysis-card p{font-size:13px;color:var(--muted);margin:0}.analysis-card strong{color:var(--ink)}.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.macro{border:1px solid var(--line);background:var(--panel);border-radius:12px;overflow:hidden}.macro h3{padding:13px;margin:0;border-bottom:1px solid var(--line);font-size:14px}.macro table{white-space:normal}.help-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.help{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:12px;color:var(--muted)}.help b{display:block;color:var(--ink);font:700 13px var(--mono)}details{background:var(--panel);border:1px solid var(--line);border-radius:11px;margin-top:12px}summary{cursor:pointer;padding:13px 15px;font-weight:700;font-size:13px}details>div{padding:0 15px 15px;color:var(--muted);font-size:12px}.foot{margin-top:36px;border-top:1px solid var(--line);padding-top:14px;color:var(--faint);font-size:11px}@media(max-width:850px){.hero{display:block}.actions{margin-top:14px}.cards,.macro-grid,.help-grid,.analysis-grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.cards,.macro-grid,.help-grid,.analysis-grid{grid-template-columns:1fr}.wrap{padding:24px 12px}}
 </style></head><body><main class="wrap"><div class="hero"><div><div class="eyebrow">TOKEN REDACTION PROBE · 2026-08-03</div><h1>로컬 Student Redactor — 전체 데이터 실험</h1><p>각 데이터셋의 사용 가능한 행을 빈 문장·중복 제거 후 전부 사용해, 규칙 기반 pseudo-teacher를 작은 Transformer+MLP가 얼마나 모방하는지 정리했다. 의미가 다른 Teacher 정책은 그룹별로 분리했다.</p></div><div class="actions"><a class="button" href="perturbations/">오염 규칙 12종</a><a class="button" href="redactor_results.csv">CSV · Excel용</a><button id="theme">다크 모드</button></div></div>
@@ -349,7 +403,8 @@ def main():
  html=html.replace('__SPLIT_TABLE__',split_table(data))
  html=html.replace(
   '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table()
-  + disjoint_four_system_table(ROOT, META) + '<h2>5. 결과 분석</h2>'
+  + disjoint_four_system_table(ROOT, META) + future_defect_time_axis_table()
+  + '<h2>5. 결과 분석</h2>'
  )
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')

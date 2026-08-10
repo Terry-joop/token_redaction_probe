@@ -199,6 +199,33 @@ def zero_width_variant(row: dict) -> Variant | None:
     return None
 
 
+def inside_character_variant(
+    row: dict, replacement: str, name: str
+) -> Variant | None:
+    """Insert a previously unseen character inside a sensitive word."""
+    offsets, mask = char_mask_from_row(row)
+    for index, ((start, end), word, label) in enumerate(
+        zip(offsets, row["words"], row["labels"])
+    ):
+        if label and len(word) >= 5 and word.isalpha():
+            point = start + len(word) // 2
+            return apply_edit(
+                row["text"],
+                mask,
+                point,
+                point,
+                replacement,
+                [0] * len(replacement),
+                (start, end),
+                {
+                    "kind": name,
+                    "word_index": index,
+                    "new": f"U+{ord(replacement):04X}",
+                },
+            )
+    return None
+
+
 TRANSFORMS: list[tuple[str, str, Callable[[dict], Variant | None]]] = [
     (
         "double_space",
@@ -252,6 +279,43 @@ TRANSFORMS: list[tuple[str, str, Callable[[dict], Variant | None]]] = [
         lambda row: punctuation_variant(row, ";", "semicolon_after_number"),
     ),
     ("zero_width_inside", "unseen", zero_width_variant),
+    # These post-date the original seen-5/unseen-7 protocol.  They are never
+    # used for training augmentation or threshold selection.
+    (
+        "zwnj_inside",
+        "future",
+        lambda row: inside_character_variant(row, "\u200c", "zwnj_inside"),
+    ),
+    (
+        "word_joiner_inside",
+        "future",
+        lambda row: inside_character_variant(row, "\u2060", "word_joiner_inside"),
+    ),
+    (
+        "soft_hyphen_inside",
+        "future",
+        lambda row: inside_character_variant(row, "\u00ad", "soft_hyphen_inside"),
+    ),
+    (
+        "fullwidth_apostrophe",
+        "future",
+        lambda row: apostrophe_variant(row, "\uff07", "fullwidth_apostrophe"),
+    ),
+    (
+        "dosage_nb_hyphen",
+        "future",
+        lambda row: dosage_variant(row, "\u2011", "dosage_nb_hyphen"),
+    ),
+    (
+        "narrow_nbsp",
+        "future",
+        lambda row: space_variant(row, "\u202f", "narrow_nbsp"),
+    ),
+    (
+        "right_paren_after_number",
+        "future",
+        lambda row: punctuation_variant(row, ")", "right_paren_after_number"),
+    ),
 ]
 
 
@@ -268,8 +332,11 @@ def limit_reached(count: int, per_noise: int) -> bool:
 
 def transforms_for_group(noise_group: str):
     if noise_group == "all":
-        return TRANSFORMS
-    if noise_group not in {"seen", "unseen"}:
+        # Preserve the original v1.4 pilot semantics: ``all`` means the
+        # registered seen-5 plus unseen-7 protocol, not later time-axis tests.
+        return [item for item in TRANSFORMS if item[1] in {"seen", "unseen"}]
+    groups = {group for _, group, _ in TRANSFORMS}
+    if noise_group not in groups:
         raise ValueError(f"unknown noise group: {noise_group}")
     return [item for item in TRANSFORMS if item[1] == noise_group]
 
@@ -288,7 +355,7 @@ def main() -> None:
     parser.add_argument("--per-noise", type=int, default=100)
     parser.add_argument(
         "--noise-group",
-        choices=["all", "seen", "unseen"],
+        choices=["all"] + sorted({group for _, group, _ in TRANSFORMS}),
         default="all",
         help="Generate only one perturbation group; all preserves legacy behavior.",
     )

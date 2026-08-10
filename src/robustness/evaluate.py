@@ -703,8 +703,8 @@ def main() -> None:
     parser.add_argument("--output", required=True)
     parser.add_argument(
         "--noise-group",
-        choices=["all", "seen", "unseen"],
         default="all",
+        help="Optional group label to retain (for example: unseen or future).",
     )
     parser.add_argument("--bootstrap-repeats", type=int, default=2000)
     parser.add_argument("--student-batch-size", type=int, default=128)

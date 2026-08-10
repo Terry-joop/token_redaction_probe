@@ -1,0 +1,497 @@
+{
+  "protocol": {
+    "student": "ELECTRA-small + hidden-128 MLP; strict seen-5 checkpoints",
+    "seeds": [
+      42,
+      43,
+      44
+    ],
+    "future_noise_training_or_threshold_use": false,
+    "gold": "latest clean v1.4 rule spans projected through a single deterministic future edit",
+    "criterion": "all 3 seeds: clean gate passes; future absolute target-detection delta and smaller-drop delta each have source-cluster 95% CI entirely above 0"
+  },
+  "datasets": {
+    "drug": {
+      "name": "Drug Reviews",
+      "domain": "의료: 약물·용량·증상",
+      "policy": "medterm5 v1.4",
+      "pairs": 9519,
+      "counts": {
+        "zwnj_inside": 2000,
+        "word_joiner_inside": 2000,
+        "soft_hyphen_inside": 2000,
+        "fullwidth_apostrophe": 91,
+        "dosage_nb_hyphen": 124,
+        "narrow_nbsp": 2000,
+        "right_paren_after_number": 1304
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "clean_f1": 0.9171967234429853,
+          "clean_f2": 0.9118557692506561,
+          "clean_recall": 0.9083295562239895,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.09006642420184435,
+          "student_noisy_mask": 0.09312323097056943,
+          "rule_noisy_precision": 0.9971171513653931,
+          "student_noisy_precision": 0.9306009477898521,
+          "rule_noisy_recall": 0.9133601594087946,
+          "student_noisy_recall": 0.8813623261302741,
+          "rule_noisy_f2": 0.9289666408251447,
+          "student_noisy_f2": 0.890788753323948,
+          "target_pairs": 9519,
+          "unique_source_rows": 3109,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.6381972896312638,
+          "rule_detection_drop": 0.36180271036873624,
+          "student_clean_target_detection": 0.9277235003676857,
+          "student_noisy_target_detection": 0.745771614665406,
+          "student_detection_drop": 0.18195188570227971,
+          "student_minus_rule_noisy": 0.10757432503414224,
+          "student_minus_rule_noisy_ci95": [
+            0.09003074404544188,
+            0.12531568730051887
+          ],
+          "student_drop_advantage": 0.17985082466645655,
+          "student_drop_advantage_ci95": [
+            0.16228680943628368,
+            0.1977824756548487
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 43,
+          "clean_f1": 0.9160116622941756,
+          "clean_f2": 0.9091182030698385,
+          "clean_recall": 0.904579916766245,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.09006642420184435,
+          "student_noisy_mask": 0.09165094196061722,
+          "rule_noisy_precision": 0.9971171513653931,
+          "student_noisy_precision": 0.9314162965422772,
+          "rule_noisy_recall": 0.9133601594087946,
+          "student_noisy_recall": 0.8681878857054419,
+          "rule_noisy_f2": 0.9289666408251447,
+          "student_noisy_f2": 0.8801373624218461,
+          "target_pairs": 9519,
+          "unique_source_rows": 3109,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.6381972896312638,
+          "rule_detection_drop": 0.36180271036873624,
+          "student_clean_target_detection": 0.9185838848618553,
+          "student_noisy_target_detection": 0.6678222502363693,
+          "student_detection_drop": 0.25076163462548595,
+          "student_minus_rule_noisy": 0.02962496060510558,
+          "student_minus_rule_noisy_ci95": [
+            0.011721535063781574,
+            0.04834482905422845
+          ],
+          "student_drop_advantage": 0.11104107574325034,
+          "student_drop_advantage_ci95": [
+            0.0919367991575907,
+            0.1300727964613999
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 44,
+          "clean_f1": 0.9170736792723292,
+          "clean_f2": 0.9105042095087078,
+          "clean_recall": 0.9061766038979768,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.09006642420184435,
+          "student_noisy_mask": 0.0916233603189579,
+          "rule_noisy_precision": 0.9971171513653931,
+          "student_noisy_precision": 0.9319458140862615,
+          "rule_noisy_recall": 0.9133601594087946,
+          "student_noisy_recall": 0.868420034435395,
+          "rule_noisy_f2": 0.9289666408251447,
+          "student_noisy_f2": 0.8804227802370441,
+          "target_pairs": 9519,
+          "unique_source_rows": 3109,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.6381972896312638,
+          "rule_detection_drop": 0.36180271036873624,
+          "student_clean_target_detection": 0.9242567496585776,
+          "student_noisy_target_detection": 0.6809538817102637,
+          "student_detection_drop": 0.2433028679483139,
+          "student_minus_rule_noisy": 0.04275659207899989,
+          "student_minus_rule_noisy_ci95": [
+            0.02389367392755917,
+            0.06078656953857065
+          ],
+          "student_drop_advantage": 0.11849984242042232,
+          "student_drop_advantage_ci95": [
+            0.09855502277401523,
+            0.13801029017362518
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        }
+      ],
+      "summary": {
+        "clean_f1": 0.9167606883364967,
+        "clean_f2": 0.9104927272764008,
+        "clean_recall": 0.9063620256294037,
+        "rule_noisy_target_detection": 0.6381972896312638,
+        "student_noisy_target_detection": 0.6981825822040131,
+        "student_minus_rule_noisy": 0.05998529257274924,
+        "rule_detection_drop": 0.36180271036873624,
+        "student_detection_drop": 0.22533879609202653,
+        "student_drop_advantage": 0.13646391427670973,
+        "rule_noisy_mask": 0.09006642420184435,
+        "student_noisy_mask": 0.09213251108338151,
+        "rule_noisy_precision": 0.997117151365393,
+        "student_noisy_precision": 0.9313210194727969,
+        "rule_noisy_recall": 0.9133601594087946,
+        "student_noisy_recall": 0.8726567487570369,
+        "rule_noisy_f2": 0.9289666408251446,
+        "student_noisy_f2": 0.8837829653276127
+      },
+      "all_seeds_quality_gate": true,
+      "all_seeds_absolute_gate": true
+    },
+    "bios": {
+      "name": "BIOS",
+      "domain": "실제 PII: 인명",
+      "policy": "piiclean2 v1.4",
+      "pairs": 12005,
+      "counts": {
+        "zwnj_inside": 2000,
+        "word_joiner_inside": 2000,
+        "soft_hyphen_inside": 2000,
+        "fullwidth_apostrophe": 2000,
+        "dosage_nb_hyphen": 5,
+        "narrow_nbsp": 2000,
+        "right_paren_after_number": 2000
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "clean_f1": 0.9275647400781332,
+          "clean_f2": 0.926449927558502,
+          "clean_recall": 0.9257082067536,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.19218007930054393,
+          "student_noisy_mask": 0.20054295481840262,
+          "rule_noisy_precision": 0.9971959438742801,
+          "student_noisy_precision": 0.9324746646437557,
+          "rule_noisy_recall": 0.9298892221638847,
+          "student_noisy_recall": 0.9073749655606211,
+          "rule_noisy_f2": 0.942613750736417,
+          "student_noisy_f2": 0.9122862217074668,
+          "target_pairs": 12005,
+          "unique_source_rows": 4675,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5784256559766764,
+          "rule_detection_drop": 0.4215743440233236,
+          "student_clean_target_detection": 0.9258642232403166,
+          "student_noisy_target_detection": 0.7156184922948772,
+          "student_detection_drop": 0.2102457309454394,
+          "student_minus_rule_noisy": 0.13719283631820076,
+          "student_minus_rule_noisy_ci95": [
+            0.12564895167323836,
+            0.14839825646514637
+          ],
+          "student_drop_advantage": 0.21132861307788423,
+          "student_drop_advantage_ci95": [
+            0.19916615876911922,
+            0.2238679528651615
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 43,
+          "clean_f1": 0.9280654999038382,
+          "clean_f2": 0.9269133840290827,
+          "clean_recall": 0.9261468946381374,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.19218007930054393,
+          "student_noisy_mask": 0.19995264679760577,
+          "rule_noisy_precision": 0.9971959438742801,
+          "student_noisy_precision": 0.9331861678757809,
+          "rule_noisy_recall": 0.9298892221638847,
+          "student_noisy_recall": 0.9053943763743262,
+          "rule_noisy_f2": 0.942613750736417,
+          "student_noisy_f2": 0.9108195116441065,
+          "target_pairs": 12005,
+          "unique_source_rows": 4675,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5784256559766764,
+          "rule_detection_drop": 0.4215743440233236,
+          "student_clean_target_detection": 0.9276967930029154,
+          "student_noisy_target_detection": 0.6988754685547689,
+          "student_detection_drop": 0.2288213244481465,
+          "student_minus_rule_noisy": 0.12044981257809247,
+          "student_minus_rule_noisy_ci95": [
+            0.1098105733313334,
+            0.13144517803891978
+          ],
+          "student_drop_advantage": 0.19275301957517701,
+          "student_drop_advantage_ci95": [
+            0.1809200181207846,
+            0.20444355073395126
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 44,
+          "clean_f1": 0.9268418837162595,
+          "clean_f2": 0.9249318275916223,
+          "clean_recall": 0.9236628244919446,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.19218007930054393,
+          "student_noisy_mask": 0.19950161290149784,
+          "rule_noisy_precision": 0.9971959438742801,
+          "student_noisy_precision": 0.9329384535246513,
+          "rule_noisy_recall": 0.9298892221638847,
+          "student_noisy_recall": 0.9031122801727947,
+          "rule_noisy_f2": 0.942613750736417,
+          "student_noisy_f2": 0.9089239655325762,
+          "target_pairs": 12005,
+          "unique_source_rows": 4675,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5784256559766764,
+          "rule_detection_drop": 0.4215743440233236,
+          "student_clean_target_detection": 0.9234485630987088,
+          "student_noisy_target_detection": 0.7060391503540192,
+          "student_detection_drop": 0.2174094127446896,
+          "student_minus_rule_noisy": 0.12761349437734276,
+          "student_minus_rule_noisy_ci95": [
+            0.1160158193205762,
+            0.13899137293231664
+          ],
+          "student_drop_advantage": 0.20416493127863392,
+          "student_drop_advantage_ci95": [
+            0.19164022541954112,
+            0.216415028928097
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        }
+      ],
+      "summary": {
+        "clean_f1": 0.9274907078994103,
+        "clean_f2": 0.9260983797264023,
+        "clean_recall": 0.9251726419612273,
+        "rule_noisy_target_detection": 0.5784256559766764,
+        "student_noisy_target_detection": 0.7068443704012218,
+        "student_minus_rule_noisy": 0.12841871442454533,
+        "rule_detection_drop": 0.42157434402332356,
+        "student_detection_drop": 0.21882548937942517,
+        "student_drop_advantage": 0.20274885464389839,
+        "rule_noisy_mask": 0.19218007930054393,
+        "student_noisy_mask": 0.1999990715058354,
+        "rule_noisy_precision": 0.9971959438742801,
+        "student_noisy_precision": 0.9328664286813959,
+        "rule_noisy_recall": 0.9298892221638847,
+        "student_noisy_recall": 0.9052938740359139,
+        "rule_noisy_f2": 0.9426137507364171,
+        "student_noisy_f2": 0.9106765662947165
+      },
+      "all_seeds_quality_gate": true,
+      "all_seeds_absolute_gate": true
+    },
+    "mrpc": {
+      "name": "MRPC",
+      "domain": "실제 PII: 날짜·연락처·URL",
+      "policy": "piiclean2 strict v1.4",
+      "pairs": 4858,
+      "counts": {
+        "zwnj_inside": 1343,
+        "word_joiner_inside": 1343,
+        "soft_hyphen_inside": 1343,
+        "fullwidth_apostrophe": 0,
+        "dosage_nb_hyphen": 0,
+        "narrow_nbsp": 814,
+        "right_paren_after_number": 15
+      },
+      "runs": [
+        {
+          "seed": 42,
+          "clean_f1": 0.9388407120036513,
+          "clean_f2": 0.9396678304564884,
+          "clean_recall": 0.9402200528910509,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.12287129274638697,
+          "student_noisy_mask": 0.1331450155220348,
+          "rule_noisy_precision": 0.9959100204498977,
+          "student_noisy_precision": 0.9417100417009101,
+          "rule_noisy_recall": 0.8711985688729875,
+          "student_noisy_recall": 0.8926654740608229,
+          "rule_noisy_f2": 0.8935779816513761,
+          "student_noisy_f2": 0.9020614047875908,
+          "target_pairs": 4858,
+          "unique_source_rows": 1357,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5942774804446275,
+          "rule_detection_drop": 0.40572251955537253,
+          "student_clean_target_detection": 0.9435981885549609,
+          "student_noisy_target_detection": 0.7280773981062165,
+          "student_detection_drop": 0.2155207904487444,
+          "student_minus_rule_noisy": 0.13379991766158914,
+          "student_minus_rule_noisy_ci95": [
+            0.10988149892695208,
+            0.15886413717271533
+          ],
+          "student_drop_advantage": 0.19020172910662825,
+          "student_drop_advantage_ci95": [
+            0.16459925597244152,
+            0.2158324768756423
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 43,
+          "clean_f1": 0.9379387259725775,
+          "clean_f2": 0.9353063934737241,
+          "clean_recall": 0.9335596983251168,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.12287129274638697,
+          "student_noisy_mask": 0.133943407390596,
+          "rule_noisy_precision": 0.9959100204498977,
+          "student_noisy_precision": 0.9466868381240544,
+          "rule_noisy_recall": 0.8711985688729875,
+          "student_noisy_recall": 0.9027641525766057,
+          "rule_noisy_f2": 0.8935779816513761,
+          "student_noisy_f2": 0.9112195803869946,
+          "target_pairs": 4858,
+          "unique_source_rows": 1357,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5942774804446275,
+          "rule_detection_drop": 0.40572251955537253,
+          "student_clean_target_detection": 0.9398929600658708,
+          "student_noisy_target_detection": 0.7735693701111569,
+          "student_detection_drop": 0.16632358995471386,
+          "student_minus_rule_noisy": 0.17929188966652942,
+          "student_minus_rule_noisy_ci95": [
+            0.1544239029811407,
+            0.2031650456557249
+          ],
+          "student_drop_advantage": 0.2393989296006587,
+          "student_drop_advantage_ci95": [
+            0.21262363973873624,
+            0.26627110025686396
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        },
+        {
+          "seed": 44,
+          "clean_f1": 0.9383869111239004,
+          "clean_f2": 0.9343034144935888,
+          "clean_recall": 0.9316007705116066,
+          "quality_gate": true,
+          "absolute_gate": true,
+          "rule_noisy_mask": 0.12287129274638697,
+          "student_noisy_mask": 0.1316292867969491,
+          "rule_noisy_precision": 0.9959100204498977,
+          "student_noisy_precision": 0.9495982019150836,
+          "rule_noisy_recall": 0.8711985688729875,
+          "student_noisy_recall": 0.8898955508107796,
+          "rule_noisy_f2": 0.8935779816513761,
+          "student_noisy_f2": 0.9012278579401675,
+          "target_pairs": 4858,
+          "unique_source_rows": 1357,
+          "rule_clean_target_detection": 1.0,
+          "rule_noisy_target_detection": 0.5942774804446275,
+          "rule_detection_drop": 0.40572251955537253,
+          "student_clean_target_detection": 0.9413338822560725,
+          "student_noisy_target_detection": 0.7155207904487444,
+          "student_detection_drop": 0.22581309180732811,
+          "student_minus_rule_noisy": 0.12124331000411692,
+          "student_minus_rule_noisy_ci95": [
+            0.0969037329938607,
+            0.1463368491489883
+          ],
+          "student_drop_advantage": 0.17990942774804447,
+          "student_drop_advantage_ci95": [
+            0.15370215451675495,
+            0.2072004371047457
+          ],
+          "repeats": 2000,
+          "unit": "source-cluster bootstrap over fixed target pairs"
+        }
+      ],
+      "summary": {
+        "clean_f1": 0.9383887830333765,
+        "clean_f2": 0.9364258794746004,
+        "clean_recall": 0.9351268405759248,
+        "rule_noisy_target_detection": 0.5942774804446275,
+        "student_noisy_target_detection": 0.7390558528887059,
+        "student_minus_rule_noisy": 0.1447783724440785,
+        "rule_detection_drop": 0.4057225195553726,
+        "student_detection_drop": 0.2025524907369288,
+        "student_drop_advantage": 0.20317002881844382,
+        "rule_noisy_mask": 0.12287129274638697,
+        "student_noisy_mask": 0.13290590323652662,
+        "rule_noisy_precision": 0.9959100204498977,
+        "student_noisy_precision": 0.945998360580016,
+        "rule_noisy_recall": 0.8711985688729875,
+        "student_noisy_recall": 0.8951083924827361,
+        "rule_noisy_f2": 0.8935779816513761,
+        "student_noisy_f2": 0.9048362810382509
+      },
+      "all_seeds_quality_gate": true,
+      "all_seeds_absolute_gate": true
+    }
+  },
+  "pooled_by_noise": {
+    "dosage_nb_hyphen": {
+      "eligible_shared_clean_targets": 315,
+      "rule_survival": 0.0,
+      "student_survival": 0.0,
+      "student_minus_rule": 0.0
+    },
+    "fullwidth_apostrophe": {
+      "eligible_shared_clean_targets": 5842,
+      "rule_survival": 0.0,
+      "student_survival": 0.12598425196850394,
+      "student_minus_rule": 0.12598425196850394
+    },
+    "narrow_nbsp": {
+      "eligible_shared_clean_targets": 12923,
+      "rule_survival": 0.8829993035672832,
+      "student_survival": 1.0,
+      "student_minus_rule": 0.11700069643271686
+    },
+    "right_paren_after_number": {
+      "eligible_shared_clean_targets": 9246,
+      "rule_survival": 0.9161799697166342,
+      "student_survival": 0.981505515898767,
+      "student_minus_rule": 0.06532554618213282
+    },
+    "soft_hyphen_inside": {
+      "eligible_shared_clean_targets": 15036,
+      "rule_survival": 0.5452247938281458,
+      "student_survival": 0.714219207235967,
+      "student_minus_rule": 0.16899441340782123
+    },
+    "word_joiner_inside": {
+      "eligible_shared_clean_targets": 15036,
+      "rule_survival": 0.578611332801277,
+      "student_survival": 0.714219207235967,
+      "student_minus_rule": 0.13560787443469008
+    },
+    "zwnj_inside": {
+      "eligible_shared_clean_targets": 15036,
+      "rule_survival": 0.5573955839318968,
+      "student_survival": 0.714219207235967,
+      "student_minus_rule": 0.15682362330407024
+    }
+  }
+}
