@@ -11,6 +11,9 @@ ROOT = Path(__file__).resolve().parents[1]
 SEEDS = (42, 43, 44)
 DATASETS = {
     "drug": ("Drug Reviews", "의료: 약물·용량·증상", "medterm5 v1.4"),
+    "symptom2dx": ("Symptom2Dx", "의료: 증상·용량", "medterm5 v1.4"),
+    "mednli": ("MedNLI", "의료: 임상 문장쌍", "medterm5 v1.4"),
+    "redditmh": ("RedditMH", "비정형: 정신건강 서술", "medterm5 v1.4"),
     "bios": ("BIOS", "실제 PII: 인명", "piiclean2 v1.4"),
     "mrpc": ("MRPC", "실제 PII: 날짜·연락처·URL", "piiclean2 strict v1.4"),
 }
@@ -138,7 +141,7 @@ def markdown(result: dict) -> str:
         "",
         "학습이 끝난 뒤 새로 발견됐다고 가정한 7개 표면 교란을 test 전용으로 두었다. clean 최신 v1.4 규칙 span을 고정 정답으로 이동했으며, Student는 기존 strict seen-5 checkpoint를 그대로 사용했다. 즉 미래 교란은 학습·validation·threshold 선택에 들어가지 않았다.",
         "",
-        f"- 평가: 3개 데이터셋, {total_pairs:,} future target-pair, ELECTRA-small 3 seed(42/43/44).",
+        f"- 평가: {len(items)}개 데이터셋, {total_pairs:,} future target-pair, ELECTRA-small 3 seed(42/43/44).",
         "- 비교 대상: 현재 RedactFormer raw 규칙 v1.4. 새 normalizer나 사후 규칙 패치는 이 비교에 넣지 않았다.",
         "- 판정: clean quality gate와 미래 절대 탐지 우세·하락폭 우세의 source-cluster 95% CI를 세 seed 모두 통과해야 한다.",
         "",
@@ -160,7 +163,7 @@ def markdown(result: dict) -> str:
         "",
         "## 해석",
         "",
-        "세 데이터셋 모두 clean quality gate와 미래 target 탐지의 엄격 우세 조건을 세 seed에서 통과했다. 따라서 **현재 raw 규칙 v1.4가 아직 알지 못한 표면 결함**에서는, 과거 결함으로 증강한 Student가 규칙보다 더 많은 고정 민감 target을 보존했고 clean→future 하락도 더 작았다.",
+        "데이터셋별 3-seed 판정을 우선 본다. 우세 데이터셋에서는 **현재 raw 규칙 v1.4가 아직 알지 못한 표면 결함**에 대해, 과거 결함으로 증강한 Student가 규칙보다 더 많은 고정 민감 target을 보존했고 clean→future 하락도 더 작았다.",
         "",
         "하지만 전체 token F2까지 규칙을 이겼는지는 별도다. 특히 Drug Reviews와 BIOS에서 Student는 주입 target은 더 잘 보존했지만 token precision이 낮아 전체 noisy F2는 규칙보다 낮다. 즉 이 결과는 ‘완전 대체’가 아니라 **규칙 업데이트 전 새 표면 결함을 덜 놓치는 local fallback/병렬 보완기**의 근거다.",
         "",
@@ -185,7 +188,7 @@ def markdown(result: dict) -> str:
         "",
         "공통 clean-correct span만 분모로 하므로, 이 표는 clean에서 이미 한 쪽이 놓친 span 때문에 생기는 착시를 제거한 보조 분석이다. 너무 적은 적용 사례(예: 특정 데이터셋의 용량/아포스트로피)는 전체 결론보다 사례 분석으로만 해석한다.",
         "",
-        "| 미래 교란 | 공통 span(3데이터셋×3 seed) | 규칙 생존 | Student 생존 | 차이 |",
+        f"| 미래 교란 | 공통 span({len(items)}데이터셋×3 seed) | 규칙 생존 | Student 생존 | 차이 |",
         "|---|---:|---:|---:|---:|",
     ])
     for name, item in result["pooled_by_noise"].items():

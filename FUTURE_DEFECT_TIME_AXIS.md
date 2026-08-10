@@ -35,6 +35,9 @@
 | 데이터셋 | 규칙 | 선택 이유 |
 |---|---|---|
 | Drug Reviews | `medterm5 v1.4` | 약물명·증상·용량이 풍부해 용량/Unicode 결함의 주 평가 도메인 |
+| Symptom2Dx | `medterm5 v1.4` | 짧은 의료 증상·용량 서술에서 같은 현상이 재현되는지 보는 소규모 확장 검증 |
+| MedNLI | `medterm5 v1.4` | 임상 문장쌍에서도 표면 결함 강건성이 유지되는지 확인 |
+| RedditMH | `medterm5 v1.4` | 오타·구어체가 많은 비정형 정신건강 서술에서의 실패/일반화 확인 |
 | BIOS | `piiclean2 v1.4` | 인명 중심의 실제 PII 도메인; 아포스트로피·비가시 문자 결함을 확인 |
 | MRPC | `piiclean2 strict v1.4` | 연락처·날짜·URL 같은 정형 PII와 숫자 경계를 확인 |
 
@@ -62,7 +65,7 @@
 ```bash
 cd /home/jovyan/token_redaction_probe
 python src/run_future_defect_eval.py \
-  --datasets drug,bios,mrpc \
+  --datasets drug,symptom2dx,mednli,redditmh,bios,mrpc \
   --seeds 42,43,44 \
   --per-noise 2000 \
   --device cuda

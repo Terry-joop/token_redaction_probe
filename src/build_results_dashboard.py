@@ -356,20 +356,22 @@ def future_defect_time_axis_table():
    f"<td>{item['rule_survival']*100:.1f}%</td><td>{item['student_survival']*100:.1f}%</td>"
    f"<td class='best'>{item['student_minus_rule']*100:+.1f}%p</td></tr>"
   )
+ dataset_count=len(source['datasets'])
  pair_total=sum(item['pairs'] for item in source['datasets'].values())
+ strict_win_count=sum(item['all_seeds_absolute_gate'] for item in source['datasets'].values())
  return (
   "<h2>4-5. 미래 결함 시간축 평가 — 학습 뒤 새로 발견된 입력 결함</h2>"
-  f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 미래 교란 7종을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. 3개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
+  f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 미래 교란 7종을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
   "<div class='notice'><strong>읽는 법:</strong> 여기서 성공은 token F2가 아니라 <strong>오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 가렸는가</strong>다. Student가 규칙보다 미래 target을 더 많이 잡고, clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2</th><th>규칙 미래 탐지</th><th>Student 미래 탐지</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>판정</th></tr></thead><tbody>"
   + ''.join(rows)
   + "</tbody></table></div>"
-  "<div class='notice'><strong>결론 범위:</strong> 세 데이터셋 모두 raw 규칙 v1.4 대비 미래 target 탐지와 하락폭에서 3-seed 우세다. 이는 새 규칙 패치를 만들기 전의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. generic normalization 또는 사후 규칙 패치까지 이겼다는 뜻은 아니며, 전체 token F2가 더 좋은지도 아래 표에서 별도로 확인해야 한다.</div>"
+  f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 미래 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 새 규칙 패치를 만들기 전의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. generic normalization 또는 사후 규칙 패치까지 이겼다는 뜻은 아니며, 전체 token F2가 더 좋은지도 아래 표에서 별도로 확인해야 한다.</div>"
   "<h3>4-5-1. 마스킹 예산과 전체 token 품질</h3>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>규칙 mask</th><th>Student mask</th><th>규칙 P / R / F2</th><th>Student P / R / F2</th></tr></thead><tbody>"
   + ''.join(token_rows)
   + "</tbody></table></div>"
-  "<div class='notice warn'><strong>중요한 trade-off:</strong> Student의 mask 비율은 규칙보다 0.2~1.0%p만 높아 미래 target 우세가 단순 과마스킹 결과는 아니다. 하지만 Drug Reviews·BIOS에서는 규칙의 token precision/F2가 더 높다. 따라서 현재 실험은 ‘규칙 완전 대체’가 아니라 표면 결함 보완 근거다.</div>"
+  "<div class='notice warn'><strong>중요한 trade-off:</strong> 마스킹 비율은 데이터셋별로 비슷하거나 Student가 약간 높다. 따라서 target 탐지 우세와 전체 token 품질은 분리해 읽어야 한다. 일부 데이터셋에서는 Student가 미래 target을 더 잘 보존하지만, 규칙의 token precision/F2가 더 높다. 따라서 현재 실험은 ‘규칙 완전 대체’가 아니라 표면 결함 보완 근거다.</div>"
   "<h3>4-5-2. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"

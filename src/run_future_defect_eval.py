@@ -18,6 +18,9 @@ ROOT = Path(__file__).resolve().parents[1]
 PYTHON = sys.executable
 DATASETS = {
     "drug": ("medterm5", "drug"),
+    "symptom2dx": ("medterm5", "symptom2dx"),
+    "mednli": ("medterm5", "mednli"),
+    "redditmh": ("medterm5", "redditmh"),
     "bios": ("piiclean2", "bios"),
     "mrpc": ("piiclean2", "mrpc"),
 }
