@@ -363,8 +363,9 @@ def future_defect_time_axis_table():
    )
    combo_rows.append(
     f"<tr>{dataset_cell}<td class='left meta'>{label}</td>"
-    f"<td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td><td>{s[f'{prefix}_noisy_precision']:.3f}</td>"
-    f"<td>{s[f'{prefix}_noisy_recall']:.3f}</td><td>{s[f'{prefix}_noisy_f1']:.3f}</td>"
+    f"<td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td><td class='over'>{s[f'{prefix}_noisy_overmask']*100:.1f}%</td>"
+    f"<td>{s[f'{prefix}_noisy_precision']:.3f}</td><td>{s[f'{prefix}_noisy_recall']:.3f}</td>"
+    f"<td>{s[f'{prefix}_noisy_f1']:.3f}</td>"
     f"<td>{s[f'{prefix}_noisy_f2']:.3f}</td><td>{s[f'{prefix}_noisy_target_detection']*100:.1f}%</td></tr>"
    )
  noise_rows=[]
@@ -389,12 +390,12 @@ def future_defect_time_axis_table():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>규칙 mask</th><th>Student mask</th><th>규칙 P / R / F2</th><th>Student P / R / F2</th></tr></thead><tbody>"
   + ''.join(token_rows)
   + "</tbody></table></div>"
-  "<h3>4-5-2. Rule/Student 결합 방식 비교</h3>"
-  "<p class='lede'>같은 미래 교란 pair에서 네 방식의 결과를 같은 분모로 비교한다. OR은 둘 중 하나라도 가리고, AND는 둘 다 가린 토큰만 가린다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>Mask</th><th>P</th><th>R</th><th>F1</th><th>F2</th><th>고정 target 탐지</th></tr></thead><tbody>"
+  "<h3>4-5-2. 미래 교란에서 Rule/Student 결합 방식 비교</h3>"
+  "<p class='lede'>이 표의 모든 수치는 clean 문장에 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종을 적용한 noisy pair에서 측정했다. token P/R/F1/F2는 이동된 clean v1.4 pseudo-gold token 기준이고, 고정 target 탐지는 교란 전 규칙이 잡은 span을 교란 후에도 전부 가렸는지의 비율이다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th><th>고정 target 탐지</th></tr></thead><tbody>"
   + ''.join(combo_rows)
   + "</tbody></table></div>"
-  "<div class='notice warn'><strong>읽는 법:</strong> OR은 누락을 줄이는 대신 mask와 false positive가 늘 수 있고, AND는 precision은 높아질 수 있지만 recall이 떨어질 수 있다. 따라서 F2·target 탐지·mask를 함께 비교한다.</div>"
+  "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
   "<h3>4-5-3. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
