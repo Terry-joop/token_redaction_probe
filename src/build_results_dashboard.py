@@ -352,12 +352,17 @@ def future_defect_time_axis_table():
  combo_rows=[]
  for item in source['datasets'].values():
   s=item['summary']
-  for prefix,label in (
+  for index,(prefix,label) in enumerate((
    ('rule','Rule only'), ('student','Student only'),
    ('rule_or','Rule OR Student'), ('rule_and','Rule AND Student'),
-  ):
+  )):
+   dataset_cell=(
+    f"<td rowspan='4' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b>"
+    f"<span class='task'>{item['domain']} · {item['policy']}</span></td>"
+    if index == 0 else ''
+   )
    combo_rows.append(
-    f"<tr><td class='left meta dataset'>{item['name']}</td><td class='left meta'>{label}</td>"
+    f"<tr>{dataset_cell}<td class='left meta'>{label}</td>"
     f"<td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td><td>{s[f'{prefix}_noisy_precision']:.3f}</td>"
     f"<td>{s[f'{prefix}_noisy_recall']:.3f}</td><td>{s[f'{prefix}_noisy_f1']:.3f}</td>"
     f"<td>{s[f'{prefix}_noisy_f2']:.3f}</td><td>{s[f'{prefix}_noisy_target_detection']*100:.1f}%</td></tr>"
