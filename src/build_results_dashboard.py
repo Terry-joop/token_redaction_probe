@@ -361,12 +361,14 @@ def future_defect_time_axis_table():
     f"<span class='task'>{item['domain']} · {item['policy']}</span></td>"
     if index == 0 else ''
    )
+   target_detection=s[f'{prefix}_noisy_target_detection']
+   target_delta=target_detection-s['rule_noisy_target_detection']
    combo_rows.append(
     f"<tr>{dataset_cell}<td class='left meta'>{label}</td>"
+    f"<td class='best'>{target_detection*100:.1f}%</td><td class='best'>{target_delta*100:+.1f}%p</td>"
     f"<td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td><td class='over'>{s[f'{prefix}_noisy_overmask']*100:.1f}%</td>"
     f"<td>{s[f'{prefix}_noisy_precision']:.3f}</td><td>{s[f'{prefix}_noisy_recall']:.3f}</td>"
-    f"<td>{s[f'{prefix}_noisy_f1']:.3f}</td>"
-    f"<td>{s[f'{prefix}_noisy_f2']:.3f}</td><td>{s[f'{prefix}_noisy_target_detection']*100:.1f}%</td></tr>"
+    f"<td>{s[f'{prefix}_noisy_f1']:.3f}</td><td>{s[f'{prefix}_noisy_f2']:.3f}</td></tr>"
    )
  noise_rows=[]
  for name,item in source['pooled_by_noise'].items():
@@ -391,8 +393,8 @@ def future_defect_time_axis_table():
   + ''.join(token_rows)
   + "</tbody></table></div>"
   "<h3>4-5-2. 미래 교란에서 Rule/Student 결합 방식 비교</h3>"
-  "<p class='lede'>이 표의 모든 수치는 clean 문장에 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종을 적용한 noisy pair에서 측정했다. token P/R/F1/F2는 이동된 clean v1.4 pseudo-gold token 기준이고, 고정 target 탐지는 교란 전 규칙이 잡은 span을 교란 후에도 전부 가렸는지의 비율이다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th><th>고정 target 탐지</th></tr></thead><tbody>"
+  "<p class='lede'><strong>주 지표는 앞의 두 열</strong>이다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이고, Rule 대비 차이는 그 차이다. 뒤의 Mask·FP·P/R/F1/F2는 OR·AND의 주 지표 변화가 과마스킹 때문인지 점검하는 보조 지표다. 모든 수치는 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종 noisy pair에서 측정했다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
   + ''.join(combo_rows)
   + "</tbody></table></div>"
   "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
