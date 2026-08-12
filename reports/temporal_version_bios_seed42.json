@@ -1,0 +1,162 @@
+{
+  "dataset": "bios",
+  "protocol": "v1.2 code/labels/student replayed on v1.3-v1.4 patch targets",
+  "past_rule_commit": "b8dff7e",
+  "latest_rule_commit": "045f3f3",
+  "candidate_targets": 2146,
+  "latest_validated_targets": 1821,
+  "unique_sources": 1707,
+  "student_model_dir": "artifacts/temporal_v12_v14/bios_electra_small_seed42",
+  "student_threshold": 0.82,
+  "systems": {
+    "past_rule_v1_2": {
+      "target_detection": 0.32948929159802304,
+      "token_audit_against_latest_rule": {
+        "precision": 0.9980485483103284,
+        "recall": 0.7947619769557307,
+        "f1": 0.884879942608769,
+        "f2": 0.8285129518119894,
+        "gold_mask_rate": 0.20782658012477156,
+        "predicted_mask_rate": 0.16549562039195917,
+        "residual_sensitive_rate": 0.2052380230442693,
+        "overmask_rate": 0.0004076843528756662,
+        "tokens": 126952
+      }
+    },
+    "past_student_v1_2": {
+      "target_detection": 0.21911037891268534,
+      "token_audit_against_latest_rule": {
+        "precision": 0.9150102810143934,
+        "recall": 0.7083838690115222,
+        "f1": 0.7985473189489425,
+        "f2": 0.7418904113939124,
+        "gold_mask_rate": 0.20782658012477156,
+        "predicted_mask_rate": 0.16089545655050727,
+        "residual_sensitive_rate": 0.29161613098847783,
+        "overmask_rate": 0.01726195211200382,
+        "tokens": 126952
+      }
+    },
+    "latest_rule_v1_4": {
+      "target_detection": 1.0,
+      "token_audit_against_latest_rule": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0,
+        "gold_mask_rate": 0.20782658012477156,
+        "predicted_mask_rate": 0.20782658012477156,
+        "residual_sensitive_rate": 0.0,
+        "overmask_rate": 0.0,
+        "tokens": 126952
+      }
+    }
+  },
+  "student_minus_past_rule_target_detection": -0.11037891268533773,
+  "student_minus_past_rule_ci95": [
+    -0.1314215973442687,
+    -0.09281292716266355
+  ],
+  "by_defect": {
+    "c1_control": {
+      "introduced_in": "1.3",
+      "targets": 86,
+      "unique_sources": 63,
+      "past_rule_detection": 0.5813953488372093,
+      "past_student_detection": 0.6395348837209303,
+      "student_minus_rule": 0.05813953488372093,
+      "student_minus_rule_ci95": [
+        -0.1582208994708995,
+        0.160595238095238
+      ]
+    },
+    "email": {
+      "introduced_in": "1.4",
+      "targets": 268,
+      "unique_sources": 266,
+      "past_rule_detection": 0.11940298507462686,
+      "past_student_detection": 0.0,
+      "student_minus_rule": -0.11940298507462686,
+      "student_minus_rule_ci95": [
+        -0.15413533834586465,
+        -0.07706766917293233
+      ]
+    },
+    "long_identifier": {
+      "introduced_in": "1.3",
+      "targets": 294,
+      "unique_sources": 292,
+      "past_rule_detection": 0.17346938775510204,
+      "past_student_detection": 0.16326530612244897,
+      "student_minus_rule": -0.01020408163265306,
+      "student_minus_rule_ci95": [
+        -0.0273972602739726,
+        0.00684931506849315
+      ]
+    },
+    "numeric_date": {
+      "introduced_in": "1.4",
+      "targets": 105,
+      "unique_sources": 74,
+      "past_rule_detection": 0.13333333333333333,
+      "past_student_detection": 0.08571428571428572,
+      "student_minus_rule": -0.047619047619047616,
+      "student_minus_rule_ci95": [
+        -0.13063063063063063,
+        0.0427927927927928
+      ]
+    },
+    "possessive": {
+      "introduced_in": "1.3",
+      "targets": 236,
+      "unique_sources": 236,
+      "past_rule_detection": 0.9703389830508474,
+      "past_student_detection": 0.9449152542372882,
+      "student_minus_rule": -0.025423728813559324,
+      "student_minus_rule_ci95": [
+        -0.05084745762711865,
+        -0.00423728813559322
+      ]
+    },
+    "social_handle": {
+      "introduced_in": "1.4",
+      "targets": 265,
+      "unique_sources": 258,
+      "past_rule_detection": 0.32075471698113206,
+      "past_student_detection": 0.08679245283018867,
+      "student_minus_rule": -0.2339622641509434,
+      "student_minus_rule_ci95": [
+        -0.2926356589147287,
+        -0.16472868217054262
+      ]
+    },
+    "url": {
+      "introduced_in": "1.4",
+      "targets": 268,
+      "unique_sources": 260,
+      "past_rule_detection": 0.17537313432835822,
+      "past_student_detection": 0.007462686567164179,
+      "student_minus_rule": -0.16791044776119404,
+      "student_minus_rule_ci95": [
+        -0.2153846153846154,
+        -0.12307692307692308
+      ]
+    },
+    "zip4": {
+      "introduced_in": "1.4",
+      "targets": 299,
+      "unique_sources": 299,
+      "past_rule_detection": 0.3076923076923077,
+      "past_student_detection": 0.13043478260869565,
+      "student_minus_rule": -0.17725752508361203,
+      "student_minus_rule_ci95": [
+        -0.23411371237458195,
+        -0.11705685618729098
+      ]
+    }
+  },
+  "limitations": [
+    "Gold targets are latest-rule-validated pseudo-gold, not human-gold.",
+    "Source corpora are replayed from current stored splits; code and labels are v1.2."
+  ]
+}

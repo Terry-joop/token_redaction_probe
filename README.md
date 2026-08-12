@@ -35,6 +35,12 @@ FinPhraseBank는 비개인 엔티티 대조이므로 privacy 관련 8개 중 엄
 현재 Student를 규칙 대체재라고 주장할 수 없다. 상세 수치와 데이터셋·교란별 해석은
 `DISJOINT_FOUR_SYSTEM_RESULTS.md`와 대시보드 4-4에 있다.
 
+별도의 실제 버전 시간축 실험은 RedactFormer v1.2 코드(`b8dff7e`)로 전체 학습
+split을 다시 라벨링하고, v1.2 라벨만 본 Student를 이후 v1.3/v1.4에서 Git에 실제
+추가된 결함에 평가한다. 합성 교란 실험과 달리 미래 패치 정보를 학습과 threshold
+선택에서 차단한다. 설계는 `TEMPORAL_RULE_VERSION_EVAL.md`, 완료 결과는
+`TEMPORAL_RULE_VERSION_RESULTS.md`와 대시보드 4-5에서 확인한다.
+
 
 ## 결과 대시보드
 
@@ -91,7 +97,7 @@ python src/build_results_dashboard.py
 
 ## 먼저 읽을 문서
 
-루트 문서는 여섯 개만 사용한다.
+루트 문서는 아래 문서만 사용한다.
 
 - `README.md`: 연구 구조와 실행 방법(현재 문서)
 - `MEDICAL_REDACTOR_ALL_RESULTS.md`: 날짜·실험 순서별 전체 결과와 해석
@@ -99,6 +105,8 @@ python src/build_results_dashboard.py
 - `STRICT_ROBUSTNESS_MATRIX.md`: 10개 데이터셋 전체 strict 5/7·3-seed 최종 비교
 - `DISJOINT_FOUR_SYSTEM_RESULTS.md`: split 누수 제거 후 규칙·정규화·Student·Hybrid 비교
 - `PERTURBATION_CATALOG.md`: Seen/Unseen 오염 규칙 12종의 조건·예시·전체 실제 개수
+- `TEMPORAL_RULE_VERSION_EVAL.md`: v1.2→v1.3/v1.4 실제 Git 시간축 실험 설계
+- `TEMPORAL_RULE_VERSION_RESULTS.md`: 실제 버전 시간축 평가 결과
 
 SST-2 사람 검수 방법만 `data/human_review/README.md`에 별도로 둔다.
 

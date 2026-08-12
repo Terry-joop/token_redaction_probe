@@ -1,0 +1,78 @@
+{
+  "dataset": "drug",
+  "protocol": "v1.2 code/labels/student replayed on v1.3-v1.4 patch targets",
+  "past_rule_commit": "b8dff7e",
+  "latest_rule_commit": "045f3f3",
+  "candidate_targets": 300,
+  "latest_validated_targets": 71,
+  "unique_sources": 68,
+  "student_model_dir": "artifacts/temporal_v12_v14/drug_electra_small_seed42",
+  "student_threshold": 0.9099999999999999,
+  "systems": {
+    "past_rule_v1_2": {
+      "target_detection": 0.2676056338028169,
+      "token_audit_against_latest_rule": {
+        "precision": 1.0,
+        "recall": 0.9014373716632443,
+        "f1": 0.9481641468682506,
+        "f2": 0.9195643066610808,
+        "gold_mask_rate": 0.10902171479740318,
+        "predicted_mask_rate": 0.09827624804119095,
+        "residual_sensitive_rate": 0.09856262833675566,
+        "overmask_rate": 0.0,
+        "tokens": 8934
+      }
+    },
+    "past_student_v1_2": {
+      "target_detection": 0.056338028169014086,
+      "token_audit_against_latest_rule": {
+        "precision": 0.9041916167664671,
+        "recall": 0.7751540041067762,
+        "f1": 0.8347153123272526,
+        "f2": 0.7979285563305855,
+        "gold_mask_rate": 0.10902171479740318,
+        "predicted_mask_rate": 0.0934631743899709,
+        "residual_sensitive_rate": 0.22484599589322385,
+        "overmask_rate": 0.010050251256281407,
+        "tokens": 8934
+      }
+    },
+    "latest_rule_v1_4": {
+      "target_detection": 1.0,
+      "token_audit_against_latest_rule": {
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "f2": 1.0,
+        "gold_mask_rate": 0.10902171479740318,
+        "predicted_mask_rate": 0.10902171479740318,
+        "residual_sensitive_rate": 0.0,
+        "overmask_rate": 0.0,
+        "tokens": 8934
+      }
+    }
+  },
+  "student_minus_past_rule_target_detection": -0.2112676056338028,
+  "student_minus_past_rule_ci95": [
+    -0.3382352941176471,
+    -0.1323529411764706
+  ],
+  "by_defect": {
+    "glued_dosage": {
+      "introduced_in": "1.3",
+      "targets": 71,
+      "unique_sources": 68,
+      "past_rule_detection": 0.2676056338028169,
+      "past_student_detection": 0.056338028169014086,
+      "student_minus_rule": -0.2112676056338028,
+      "student_minus_rule_ci95": [
+        -0.3382352941176471,
+        -0.1323529411764706
+      ]
+    }
+  },
+  "limitations": [
+    "Gold targets are latest-rule-validated pseudo-gold, not human-gold.",
+    "Source corpora are replayed from current stored splits; code and labels are v1.2."
+  ]
+}

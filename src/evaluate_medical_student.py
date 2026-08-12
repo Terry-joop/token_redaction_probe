@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from transformers import AutoTokenizer
 
 from common import read_jsonl
-from train import RedactionModel, TokenDataset
+from train import RedactionModel, TokenDataset, pretokenize_rows
 
 
 def collect(model, loader, device):
@@ -45,6 +45,11 @@ def main() -> None:
     parser.add_argument("--validation", required=True)
     parser.add_argument("--test", required=True)
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument(
+        "--pretokenize", action="store_true",
+        help="Tokenize validation/test once in memory before GPU evaluation.",
+    )
+    parser.add_argument("--tokenization-batch-size", type=int, default=1024)
     parser.add_argument("--device", choices=["cpu", "cuda"], default="cpu")
     args = parser.parse_args()
     device = torch.device(args.device)
@@ -55,14 +60,28 @@ def main() -> None:
     model = RedactionModel(config["model_name"], config["hidden_size"], config["freeze_encoder"])
     model.load_state_dict(torch.load(f"{args.model_dir}/model.pt", map_location="cpu", weights_only=True))
     model.to(device)
-    validation_loader = DataLoader(
-        TokenDataset(read_jsonl(args.validation), tokenizer, config["max_length"]),
-        batch_size=args.batch_size,
-    )
-    test_loader = DataLoader(
-        TokenDataset(read_jsonl(args.test), tokenizer, config["max_length"]),
-        batch_size=args.batch_size,
-    )
+    validation_rows = read_jsonl(args.validation)
+    test_rows = read_jsonl(args.test)
+    if args.pretokenize:
+        validation_data = pretokenize_rows(
+            validation_rows, tokenizer, config["max_length"],
+            args.tokenization_batch_size, "validation",
+        )
+        test_data = pretokenize_rows(
+            test_rows, tokenizer, config["max_length"],
+            args.tokenization_batch_size, "test",
+        )
+    else:
+        validation_data = TokenDataset(
+            validation_rows, tokenizer, config["max_length"]
+        )
+        test_data = TokenDataset(test_rows, tokenizer, config["max_length"])
+    loader_kwargs = {
+        "batch_size": args.batch_size,
+        "pin_memory": device.type == "cuda",
+    }
+    validation_loader = DataLoader(validation_data, **loader_kwargs)
+    test_loader = DataLoader(test_data, **loader_kwargs)
     validation_gold, validation_scores = collect(model, validation_loader, device)
     test_gold, test_scores = collect(model, test_loader, device)
     candidates = np.linspace(0.05, 0.95, 91)

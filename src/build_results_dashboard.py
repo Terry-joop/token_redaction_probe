@@ -388,7 +388,69 @@ def future_defect_time_axis_table():
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
-  + "</tbody></table></div>"
+ + "</tbody></table></div>"
+ )
+
+
+def actual_rule_version_time_axis_table():
+ path=ROOT/'reports/temporal_rule_version_summary.json'
+ if not path.exists(): return ''
+ source=load(path); rows=[]; defect_rows=[]
+ defect_names={
+  'glued_dosage':'붙여 쓴 용량','c1_control':'C1 제어문자',
+  'possessive':'소유격','long_identifier':'긴 숫자·식별자',
+  'email':'이메일','url':'URL','social_handle':'소셜 핸들',
+  'zip4':'ZIP+4','numeric_date':'숫자 날짜',
+ }
+ for item in source['datasets'].values():
+  clean=item['clean']; ci=item['student_minus_rule_ci95']
+  verdict_class='best' if item['verdict']=='Student 우세' else ('low' if '규칙' in item['verdict'] else '')
+  student_class='best' if item['past_student_detection']>item['past_rule_detection'] else 'low'
+  delta_class='best' if item['student_minus_rule']>0 else 'low'
+  rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']}</span></td>"
+   f"<td>{item['targets']:,}</td><td>{item['unique_sources']:,}</td><td>{clean['f2']:.3f}</td>"
+   f"<td>{clean['predicted_mask_rate']*100:.1f}%</td>"
+   f"<td>{item['past_rule_detection']*100:.1f}%</td>"
+   f"<td class='{student_class}'>{item['past_student_detection']*100:.1f}%</td>"
+   f"<td class='{delta_class}'>{item['student_minus_rule']*100:+.1f}%p<span class='task'>[{ci[0]*100:+.1f}, {ci[1]*100:+.1f}]</span></td>"
+   f"<td>{item['latest_rule_detection']*100:.1f}%</td>"
+   f"<td class='{verdict_class}'>{item['verdict']}</td></tr>"
+  )
+  first=True
+  for defect,row in item['by_defect'].items():
+   ci=row['student_minus_rule_ci95']
+   dataset_cell=(
+    f"<td rowspan='{len(item['by_defect'])}' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b></td>"
+    if first else ''
+   ); first=False
+   defect_rows.append(
+    f"<tr>{dataset_cell}<td>v{row['introduced_in']}</td>"
+    f"<td class='left meta'>{defect_names.get(defect,defect)}</td><td>{row['targets']:,}</td>"
+    f"<td>{row['past_rule_detection']*100:.1f}%</td>"
+    f"<td>{row['past_student_detection']*100:.1f}%</td>"
+    f"<td>{row['student_minus_rule']*100:+.1f}%p<span class='task'>[{ci[0]*100:+.1f}, {ci[1]*100:+.1f}]</span></td></tr>"
+   )
+ dataset_count=len(source['datasets'])
+ target_count=sum(item['targets'] for item in source['datasets'].values())
+ wins=sum(item['verdict']=='Student 우세' for item in source['datasets'].values())
+ conclusion=(
+  f"{wins}/{dataset_count}개에서 Student가 통계적으로 우세해 일부 미래 표면형의 규칙 유지보수 지연 보완 근거가 있다."
+  if wins else
+  "두 데이터셋 모두 v1.2 규칙이 통계적으로 우세했다. 현재의 단순 규칙 모방 Student가 미래 결함을 선제적으로 일반화한다는 가설은 지지되지 않았다."
+ )
+ return (
+  "<h2>4-5. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
+  f"<p class='lede'>과거 commit b8dff7e의 v1.2 규칙으로 전체 train을 다시 라벨링하고, 그 라벨만 본 ELECTRA-small Student를 이후 Git에서 실제 추가된 패치 target에 평가했다. {dataset_count}개 데이터셋, 최신 규칙 검증 target {target_count:,}개, seed 42 결과다.</p>"
+  "<div class='notice'><strong>4-4와의 차이:</strong> 4-4는 최신 규칙을 기준으로 만든 학습 미포함 합성 교란이다. 이 절은 <strong>실제 Git 시간순서</strong>를 지켜 v1.2 코드·라벨·Student가 나중의 v1.3/v1.4 결함을 잡았는지 본다. 미래 target은 학습과 threshold 선택에 사용하지 않았다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future target</th><th>고유 원문</th><th>v1.2 Clean F2</th><th>Student clean mask</th><th>v1.2 규칙 탐지</th><th>v1.2 Student 탐지</th><th>Student−규칙<br>95% CI</th><th>최신 v1.4<br>참고 상한</th><th>판정</th></tr></thead><tbody>"
+  +''.join(rows)+"</tbody></table></div>"
+  f"<div class='notice'><strong>판정:</strong> target을 구성하는 모든 word를 가려야 성공이다. source 원문 단위 bootstrap 95% CI의 하한이 0보다 클 때만 Student 우세로 표시했다. 현재 데이터셋 단위 우세는 <strong>{wins}/{dataset_count}</strong>다.</div>"
+  "<h3>4-5-1. 실제 후속 패치 결함별 탐지</h3>"
+  "<p class='lede'>최신 v1.4가 실제 민감 구간으로 확인한 후보만 분모로 사용한다. 최신 규칙 탐지는 정의상 100%이며, 아래 표는 패치 전 두 방식의 차이를 보여준다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>추가 버전</th><th class='left'>실제 후속 패치</th><th>Target</th><th>v1.2 규칙</th><th>v1.2 Student</th><th>Student−규칙<br>95% CI</th></tr></thead><tbody>"
+  +''.join(defect_rows)+"</tbody></table></div>"
+  f"<div class='notice warn'><strong>현재 결론:</strong> {conclusion} pseudo-gold는 human-gold가 아니라 최신 규칙으로 검증했으므로 최신 규칙 전체 대체 여부와도 구분해야 한다.</div>"
  )
 
 HTML = r'''<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Token Redaction Probe · 전체 결과</title><style>
@@ -418,6 +480,7 @@ def main():
  html=html.replace(
   '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table()
   + future_defect_time_axis_table()
+  + actual_rule_version_time_axis_table()
   + '<h2>5. 결과 분석</h2>'
  )
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')

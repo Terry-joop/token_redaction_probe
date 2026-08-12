@@ -54,22 +54,32 @@ def main() -> None:
     parser.add_argument("--redactformer-root", required=True)
     parser.add_argument("--workers", type=int, default=4)
     parser.add_argument("--chunksize", type=int, default=32)
+    parser.add_argument(
+        "--start-method", choices=["spawn", "fork"], default="spawn",
+        help="fork loads one large read-only rule adapter before sharing workers.",
+    )
     parser.add_argument("--max-length", type=int, default=128)
     args = parser.parse_args()
 
     input_dir = Path(args.input_dir)
     output_dir = Path(args.output_dir)
-    context = mp.get_context("spawn")
-    with context.Pool(
-        args.workers,
-        initializer=initialize,
-        initargs=(
-            args.masker,
-            args.task,
-            args.redactformer_root,
-            args.max_length,
-        ),
-    ) as pool:
+    context = mp.get_context(args.start_method)
+    pool_kwargs = {}
+    if args.start_method == "fork":
+        initialize(
+            args.masker, args.task, args.redactformer_root, args.max_length
+        )
+    else:
+        pool_kwargs = {
+            "initializer": initialize,
+            "initargs": (
+                args.masker,
+                args.task,
+                args.redactformer_root,
+                args.max_length,
+            ),
+        }
+    with context.Pool(args.workers, **pool_kwargs) as pool:
         splits = {
             split: annotate_split(
                 pool,
@@ -85,6 +95,7 @@ def main() -> None:
         "output_dir": str(output_dir),
         "policy": first["teacher_policy"],
         "workers": args.workers,
+        "start_method": args.start_method,
         "stable_input_order": True,
         "splits": splits,
     }

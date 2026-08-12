@@ -43,6 +43,75 @@ class TokenDataset(Dataset):
         return item
 
 
+class RawRowDataset(Dataset):
+    def __init__(self, rows):
+        self.rows = rows
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __getitem__(self, index):
+        return self.rows[index]
+
+
+class TokenBatchCollator:
+    """Tokenize a full batch while preserving first-subword supervision."""
+
+    def __init__(self, tokenizer, max_length):
+        self.tokenizer = tokenizer
+        self.max_length = max_length
+
+    def __call__(self, rows):
+        encoded = self.tokenizer(
+            [row["words"] for row in rows],
+            is_split_into_words=True,
+            truncation=True,
+            max_length=self.max_length,
+            padding="max_length",
+            return_tensors="pt",
+        )
+        batch_labels = []
+        for batch_index, row in enumerate(rows):
+            labels = []
+            previous = None
+            for word_id in encoded.word_ids(batch_index=batch_index):
+                if word_id is None or word_id == previous:
+                    labels.append(-100)
+                else:
+                    labels.append(row["labels"][word_id])
+                previous = word_id
+            batch_labels.append(labels)
+        encoded["labels"] = torch.tensor(batch_labels, dtype=torch.long)
+        return encoded
+
+
+class TensorDictDataset(Dataset):
+    def __init__(self, tensors):
+        self.tensors = tensors
+        self.length = len(tensors["labels"])
+
+    def __len__(self):
+        return self.length
+
+    def __getitem__(self, index):
+        return {key: value[index] for key, value in self.tensors.items()}
+
+
+def pretokenize_rows(rows, tokenizer, max_length, batch_size, split):
+    collator = TokenBatchCollator(tokenizer, max_length)
+    chunks = {}
+    for start in range(0, len(rows), batch_size):
+        stop = min(start + batch_size, len(rows))
+        encoded = collator(rows[start:stop])
+        for key, value in encoded.items():
+            chunks.setdefault(key, []).append(value)
+        if stop % 10000 < batch_size or stop == len(rows):
+            print(f"pretokenize {split} {stop:,}/{len(rows):,}", flush=True)
+    return TensorDictDataset(
+        {key: torch.cat(values, dim=0) for key, values in chunks.items()}
+    )
+
+
 class RedactionModel(nn.Module):
     def __init__(self, model_name: str, hidden_size: int, freeze_encoder: bool):
         super().__init__()
@@ -92,6 +161,19 @@ def main():
     parser.add_argument("--model-name", default="prajjwal1/bert-tiny")
     parser.add_argument("--epochs", type=int, default=3)
     parser.add_argument("--batch-size", type=int, default=16)
+    parser.add_argument(
+        "--num-workers", type=int, default=0,
+        help="Parallel DataLoader workers for per-example tokenization.",
+    )
+    parser.add_argument(
+        "--batched-tokenization", action="store_true",
+        help="Tokenize each full batch in one tokenizer call without changing alignment.",
+    )
+    parser.add_argument(
+        "--pretokenize", action="store_true",
+        help="Tokenize each split once in memory and reuse it across epochs.",
+    )
+    parser.add_argument("--tokenization-batch-size", type=int, default=1024)
     parser.add_argument("--learning-rate", type=float, default=1e-3)
     parser.add_argument(
         "--encoder-learning-rate", type=float, default=None,
@@ -129,10 +211,36 @@ def main():
         tokenizer_kwargs["add_prefix_space"] = True
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, **tokenizer_kwargs)
     train_rows, val_rows = read_jsonl(args.train), read_jsonl(args.validation)
-    train_data = TokenDataset(train_rows, tokenizer, args.max_length)
-    val_data = TokenDataset(val_rows, tokenizer, args.max_length)
-    train_loader = DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-    val_loader = DataLoader(val_data, batch_size=args.batch_size)
+    if args.pretokenize:
+        train_data = pretokenize_rows(
+            train_rows, tokenizer, args.max_length,
+            args.tokenization_batch_size, "train",
+        )
+        val_data = pretokenize_rows(
+            val_rows, tokenizer, args.max_length,
+            args.tokenization_batch_size, "validation",
+        )
+        collate_fn = None
+    elif args.batched_tokenization:
+        train_data = RawRowDataset(train_rows)
+        val_data = RawRowDataset(val_rows)
+        collate_fn = TokenBatchCollator(tokenizer, args.max_length)
+    else:
+        train_data = TokenDataset(train_rows, tokenizer, args.max_length)
+        val_data = TokenDataset(val_rows, tokenizer, args.max_length)
+        collate_fn = None
+    loader_kwargs = {
+        "num_workers": args.num_workers,
+        "pin_memory": device.type == "cuda",
+        "persistent_workers": args.num_workers > 0,
+    }
+    train_loader = DataLoader(
+        train_data, batch_size=args.batch_size, shuffle=True,
+        collate_fn=collate_fn, **loader_kwargs
+    )
+    val_loader = DataLoader(
+        val_data, batch_size=args.batch_size, collate_fn=collate_fn, **loader_kwargs
+    )
 
     model = RedactionModel(args.model_name, args.hidden_size, not args.unfreeze_encoder).to(device)
     positive = sum(sum(row["labels"]) for row in train_rows)
@@ -192,4 +300,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
