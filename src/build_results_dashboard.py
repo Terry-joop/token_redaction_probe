@@ -6,7 +6,6 @@ import json
 import statistics
 from pathlib import Path
 
-from dashboard_disjoint_section import render as disjoint_four_system_table
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / 'reports'
@@ -340,15 +339,6 @@ def future_defect_time_axis_table():
    f"<td>{s['rule_detection_drop']*100:.1f}%p</td><td>{s['student_detection_drop']*100:.1f}%p</td>"
    f"<td class='best'>{s['student_drop_advantage']*100:+.1f}%p</td><td class='{verdict_class}'>{verdict}</td></tr>"
   )
- token_rows=[]
- for item in source['datasets'].values():
-  s=item['summary']
-  token_rows.append(
-   f"<tr><td class='left meta dataset'>{item['name']}</td>"
-   f"<td>{s['rule_noisy_mask']*100:.1f}%</td><td>{s['student_noisy_mask']*100:.1f}%</td>"
-   f"<td>{s['rule_noisy_precision']:.3f} / {s['rule_noisy_recall']:.3f} / {s['rule_noisy_f2']:.3f}</td>"
-   f"<td>{s['student_noisy_precision']:.3f} / {s['student_noisy_recall']:.3f} / {s['student_noisy_f2']:.3f}</td></tr>"
-  )
  combo_rows=[]
  for item in source['datasets'].values():
   s=item['summary']
@@ -381,24 +371,20 @@ def future_defect_time_axis_table():
  pair_total=sum(item['pairs'] for item in source['datasets'].values())
  strict_win_count=sum(item['all_seeds_absolute_gate'] for item in source['datasets'].values())
  return (
-  "<h2>4-5. 미래 결함 시간축 평가 — 학습 뒤 새로 발견된 입력 결함</h2>"
-  f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 미래 교란 7종을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
+  "<h2>4-4. 학습 미포함 입력 교란 평가</h2>"
+  f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 7종의 입력 교란을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
   "<div class='notice'><strong>읽는 법:</strong> 여기서 성공은 token F2가 아니라 <strong>오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 가렸는가</strong>다. Student가 규칙보다 미래 target을 더 많이 잡고, clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2</th><th>규칙 미래 탐지</th><th>Student 미래 탐지</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>판정</th></tr></thead><tbody>"
   + ''.join(rows)
   + "</tbody></table></div>"
-  f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 미래 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 새 규칙 패치를 만들기 전의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. generic normalization 또는 사후 규칙 패치까지 이겼다는 뜻은 아니며, 전체 token F2가 더 좋은지도 아래 표에서 별도로 확인해야 한다.</div>"
-  "<h3>4-5-1. 마스킹 예산과 전체 token 품질</h3>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>규칙 mask</th><th>Student mask</th><th>규칙 P / R / F2</th><th>Student P / R / F2</th></tr></thead><tbody>"
-  + ''.join(token_rows)
-  + "</tbody></table></div>"
-  "<h3>4-5-2. 미래 교란에서 Rule/Student 결합 방식 비교</h3>"
+  f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
+  "<h3>4-4-1. 입력 교란에서 Rule/Student 결합 방식 비교</h3>"
   "<p class='lede'><strong>주 지표는 앞의 두 열</strong>이다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이고, Rule 대비 차이는 그 차이다. 뒤의 Mask·FP·P/R/F1/F2는 OR·AND의 주 지표 변화가 과마스킹 때문인지 점검하는 보조 지표다. 모든 수치는 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종 noisy pair에서 측정했다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
   + ''.join(combo_rows)
   + "</tbody></table></div>"
   "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
-  "<h3>4-5-3. 미래 교란 종류별 공통 clean-correct span 생존</h3>"
+  "<h3>4-4-2. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
@@ -431,7 +417,7 @@ def main():
  html=html.replace('__SPLIT_TABLE__',split_table(data))
  html=html.replace(
   '<h2>5. 결과 분석</h2>', robustness_table() + strict_matrix_table()
-  + disjoint_four_system_table(ROOT, META) + future_defect_time_axis_table()
+  + future_defect_time_axis_table()
   + '<h2>5. 결과 분석</h2>'
  )
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
