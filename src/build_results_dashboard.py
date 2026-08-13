@@ -432,11 +432,6 @@ def future_defect_time_axis_table():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th><th>Student<br>판정</th><th>OR<br>판정</th><th>전환</th></tr></thead><tbody>"
   + ''.join(combo_summary_rows)
   + "</tbody></table></div>"
-  "<h3>4-2. 학습에 없던 unseen 입력 교란별 공통 clean-correct span 생존</h3>"
-  "<p class='lede'>학습·validation·threshold 선택에 쓰지 않은 <strong>unseen 7종</strong>만 평가했다. clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이며, 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
-  + ''.join(noise_rows)
- + "</tbody></table></div>"
  )
 
 
@@ -467,6 +462,33 @@ def combination_detail_appendix():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
   + ''.join(rows) + "</tbody></table></div>"
   "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. OR은 target 탐지와 FP를 함께 봐야 한다.</div>"
+ )
+
+
+def unseen_perturbation_appendix():
+ path=ROOT/'reports/future_defect_time_axis_summary.json'
+ if not path.exists(): return ''
+ source=load(path)
+ labels={
+  'dosage_nb_hyphen':'붙여 쓴 용량·non-breaking hyphen',
+  'fullwidth_apostrophe':'전각 아포스트로피',
+  'narrow_nbsp':'좁은 non-breaking 공백',
+  'right_paren_after_number':'숫자 뒤 닫는 괄호',
+  'soft_hyphen_inside':'단어 내부 soft hyphen',
+  'word_joiner_inside':'단어 내부 word joiner',
+  'zwnj_inside':'단어 내부 ZWNJ',
+ }
+ rows=[]
+ for name,item in source['pooled_by_noise'].items():
+  rows.append(
+   f"<tr><td class='left meta dataset'>{labels.get(name,name)}<span class='task'>{name}</span></td><td>{item['eligible_shared_clean_targets']:,}</td>"
+   f"<td>{item['rule_survival']*100:.1f}%</td><td>{item['student_survival']*100:.1f}%</td><td class='best'>{item['student_minus_rule']*100:+.1f}%p</td></tr>"
+  )
+ return (
+  "<h2>부록 C. 학습에 없던 unseen 입력 교란별 공통 span 생존</h2>"
+  "<p class='lede'>학습·validation·threshold 선택에 쓰지 않은 unseen 7종의 보조 분석이다. clean에서 규칙과 Student가 모두 맞힌 span만 분모로 두므로, 전체 target 성능이나 OR 결론이 아니라 공통 성공 span의 표면 강건성만 본다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
+  + ''.join(rows) + "</tbody></table></div>"
  )
 
 
@@ -595,7 +617,7 @@ def main():
  )
  html=html.replace('<h2>5. 결과 분석</h2>', '<h2>6. 결과 분석</h2>')
  html=html.replace('<h2>6. 지표 읽는 법</h2>', '<h2>7. 지표 읽는 법</h2>')
- html=html.replace('__APPENDIX__', robustness_table() + combination_detail_appendix())
+ html=html.replace('__APPENDIX__', robustness_table() + combination_detail_appendix() + unseen_perturbation_appendix())
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')
 if __name__=='__main__': main()
