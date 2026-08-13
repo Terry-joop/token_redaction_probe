@@ -329,12 +329,15 @@ def future_defect_time_axis_table():
  source=load(path); rows=[]
  for item in source['datasets'].values():
   s=item['summary']
+  rule_clean_target=sum(run['rule_clean_target_detection'] for run in item['runs'])/len(item['runs'])
+  student_clean_target=sum(run['student_clean_target_detection'] for run in item['runs'])/len(item['runs'])
   verdict='우세 · CI 3/3' if item['all_seeds_absolute_gate'] else '미달'
   verdict_class='best' if item['all_seeds_absolute_gate'] else 'low'
   rows.append(
    f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']} · {item['policy']}</span></td>"
    f"<td>{item['pairs']:,}</td><td>{s['clean_f2']:.3f}</td>"
-   f"<td>{s['rule_noisy_target_detection']*100:.1f}%</td><td class='best'>{s['student_noisy_target_detection']*100:.1f}%</td>"
+   f"<td>{rule_clean_target*100:.1f}%</td><td>{s['rule_noisy_target_detection']*100:.1f}%</td>"
+   f"<td>{student_clean_target*100:.1f}%</td><td class='best'>{s['student_noisy_target_detection']*100:.1f}%</td>"
    f"<td class='best'>{s['student_minus_rule_noisy']*100:+.1f}%p</td>"
    f"<td>{s['rule_detection_drop']*100:.1f}%p</td><td>{s['student_detection_drop']*100:.1f}%p</td>"
    f"<td class='best'>{s['student_drop_advantage']*100:+.1f}%p</td><td class='{verdict_class}'>{verdict}</td></tr>"
@@ -374,8 +377,8 @@ def future_defect_time_axis_table():
   "<h2>4. 학습 미포함 입력 교란 평가</h2>"
   f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 7종의 입력 교란을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
   "<div class='notice warn'><strong>모델 범위:</strong> 이 strict seen-5/unseen-7 프로토콜은 ELECTRA-small만 실행했다. BERT-tiny·DistilRoBERTa의 3모델 결과는 부록 A의 별도 clean-only·제한 표본 조건이므로 이 표의 수치와 직접 비교할 수 없다.</div>"
-  "<div class='notice'><strong>읽는 법:</strong> 여기서 성공은 token F2가 아니라 <strong>오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 가렸는가</strong>다. Student가 규칙보다 미래 target을 더 많이 잡고, clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2</th><th>규칙 미래 탐지</th><th>Student 미래 탐지</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>판정</th></tr></thead><tbody>"
+  "<div class='notice'><strong>읽는 법:</strong> <strong>Clean F2는 토큰 단위</strong>의 기본 재현 품질이다. 그 밖의 clean/noisy target 열과 하락폭은 모두 <strong>span 단위</strong>다. 성공은 오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 전부 가렸는가이며, Student가 규칙보다 noisy target을 더 많이 잡고 clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2<br>(token)</th><th>규칙 clean<br>target</th><th>규칙 noisy<br>target</th><th>Student clean<br>target</th><th>Student noisy<br>target</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>판정</th></tr></thead><tbody>"
   + ''.join(rows)
   + "</tbody></table></div>"
   f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
