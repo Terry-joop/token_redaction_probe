@@ -418,8 +418,8 @@ def future_defect_time_axis_table():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th></tr></thead><tbody>"
   + ''.join(combo_summary_rows)
   + "</tbody></table></div>"
-  "<h3>4-2. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
-  "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
+  "<h3>4-2. 학습에 없던 unseen 입력 교란별 공통 clean-correct span 생존</h3>"
+  "<p class='lede'>학습·validation·threshold 선택에 쓰지 않은 <strong>unseen 7종</strong>만 평가했다. clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이며, 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
  + "</tbody></table></div>"
