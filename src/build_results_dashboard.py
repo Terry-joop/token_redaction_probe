@@ -466,6 +466,17 @@ def actual_rule_version_time_axis_table():
   'email':'이메일','url':'URL','social_handle':'소셜 핸들',
   'zip4':'ZIP+4','numeric_date':'숫자 날짜',
  }
+ defect_examples={
+  'glued_dosage':('25mg','33d34c5'),
+  'c1_control':('문자열 내부 C1 제어문자','33d34c5'),
+  'possessive':("Ahmose's",'33d34c5'),
+  'long_identifier':('123456789 · 555-123-4567','11be653'),
+  'email':('user@example.com','0767cce'),
+  'url':('https://example.org','0767cce'),
+  'social_handle':('@sample_user','0767cce'),
+  'zip4':('12345-6789','0767cce'),
+  'numeric_date':('31/12/2024','0767cce'),
+ }
  for item in source['datasets'].values():
   clean=item['clean']; ci=item['student_minus_rule_ci95']
   verdict_class='best' if item['verdict']=='Student 우세' else ('low' if '규칙' in item['verdict'] else '')
@@ -488,9 +499,10 @@ def actual_rule_version_time_axis_table():
     f"<td rowspan='{len(item['by_defect'])}' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b></td>"
     if first else ''
    ); first=False
+   example,commit=defect_examples[defect]
    defect_rows.append(
     f"<tr>{dataset_cell}<td>v{row['introduced_in']}</td>"
-    f"<td class='left meta'>{defect_names.get(defect,defect)}</td><td>{row['targets']:,}</td>"
+    f"<td class='left meta'>{defect_names.get(defect,defect)}<span class='task'>예: {example} · commit {commit}</span></td><td>{row['targets']:,}</td>"
     f"<td>{row['past_rule_detection']*100:.1f}%</td>"
     f"<td>{row['past_student_detection']*100:.1f}%</td>"
     f"<td>{row['student_minus_rule']*100:+.1f}%p<span class='task'>[{ci[0]*100:+.1f}, {ci[1]*100:+.1f}]</span></td></tr>"
@@ -507,20 +519,12 @@ def actual_rule_version_time_axis_table():
   "<h2>5. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
   f"<p class='lede'>과거 commit b8dff7e의 v1.2 규칙으로 전체 train을 다시 라벨링하고, 그 라벨만 본 ELECTRA-small Student를 이후 Git에서 실제 추가된 패치 target에 평가했다. {dataset_count}개 데이터셋, 최신 규칙 검증 target {target_count:,}개, seed 42 결과다.</p>"
   "<div class='notice'><strong>4-4와의 차이:</strong> 4-4는 최신 규칙을 기준으로 만든 학습 미포함 합성 교란이다. 이 절은 <strong>실제 Git 시간순서</strong>를 지켜 v1.2 코드·라벨·Student가 나중의 v1.3/v1.4 결함을 잡았는지 본다. 미래 target은 학습과 threshold 선택에 사용하지 않았다.</div>"
-  "<h3>5-1. 실제로 추가된 규칙 패치와 예시</h3>"
-  "<p class='lede'>아래는 RedactFormer Git 이력에서 v1.2 이후 실제 추가된 패치 유형이다. 예시는 이해를 위한 대표 표기이며, 평가에서는 held-out 원문에서 최신 v1.4가 실제 민감 처리한 target만 사용했다.</p>"
-  "<div class='analysis-grid'>"
-  "<article class='analysis-card'><h3>v1.3 · commit 33d34c5</h3><p><strong>붙여 쓴 용량</strong> <code>25mg</code>, <strong>C1 제어문자</strong>가 섞인 문자열, <strong>소유격 이름</strong> <code>Ahmose's</code>를 처리하도록 추가됐다. Drug Reviews와 BIOS의 미래 target에 반영했다.</p></article>"
-  "<article class='analysis-card'><h3>v1.3 · commit 11be653</h3><p><strong>긴 숫자열·전화·식별번호</strong>를 추가했다. 예: <code>123456789</code>, <code>555-123-4567</code>, <code>123-45-6789</code>. BIOS의 실제 PII 후보를 대상으로 평가했다.</p></article>"
-  "<article class='analysis-card'><h3>v1.4 · commit 0767cce</h3><p><strong>이메일</strong> <code>user@example.com</code>, <strong>URL</strong> <code>https://example.org</code>, <strong>소셜 핸들</strong> <code>@sample_user</code> 패턴을 추가했다.</p></article>"
-  "<article class='analysis-card'><h3>v1.4 · commit 0767cce</h3><p><strong>ZIP+4</strong> <code>12345-6789</code>와 <strong>숫자 날짜</strong> <code>31/12/2024</code> 패턴도 추가했다. 이들은 v1.2 Student 학습·threshold 선택 이후에 발견된 test-only target이다.</p></article>"
-  "</div>"
-  "<h3>5-2. 과거 규칙과 과거 Student의 미래 target 탐지</h3>"
+  "<h3>5-1. 과거 규칙과 과거 Student의 미래 target 탐지</h3>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future target</th><th>고유 원문</th><th>v1.2 Clean F2</th><th>Student clean mask</th><th>v1.2 규칙 탐지</th><th>v1.2 Student 탐지</th><th>Student−규칙<br>95% CI</th><th>최신 v1.4<br>참고 상한</th><th>판정</th></tr></thead><tbody>"
   +''.join(rows)+"</tbody></table></div>"
   f"<div class='notice'><strong>판정:</strong> target을 구성하는 모든 word를 가려야 성공이다. source 원문 단위 bootstrap 95% CI의 하한이 0보다 클 때만 Student 우세로 표시했다. 현재 데이터셋 단위 우세는 <strong>{wins}/{dataset_count}</strong>다.</div>"
-  "<h3>5-3. 실제 후속 패치 결함별 탐지</h3>"
-  "<p class='lede'>최신 v1.4가 실제 민감 구간으로 확인한 후보만 분모로 사용한다. 최신 규칙 탐지는 정의상 100%이며, 아래 표는 패치 전 두 방식의 차이를 보여준다.</p>"
+  "<h3>5-2. 실제 후속 패치 결함별 탐지</h3>"
+  "<p class='lede'>최신 v1.4가 실제 민감 구간으로 확인한 후보만 분모로 사용한다. 각 행의 예시는 해당 Git 패치가 추가한 대표 표기이며, 평가 target은 held-out 원문에서 뽑았다. 최신 규칙 탐지는 정의상 100%다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>추가 버전</th><th class='left'>실제 후속 패치</th><th>Target</th><th>v1.2 규칙</th><th>v1.2 Student</th><th>Student−규칙<br>95% CI</th></tr></thead><tbody>"
   +''.join(defect_rows)+"</tbody></table></div>"
   f"<div class='notice warn'><strong>현재 결론:</strong> {conclusion} pseudo-gold는 human-gold가 아니라 최신 규칙으로 검증했으므로 최신 규칙 전체 대체 여부와도 구분해야 한다.</div>"
