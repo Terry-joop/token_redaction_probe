@@ -343,7 +343,6 @@ def future_defect_time_axis_table():
    f"<td class='best'>{s['student_drop_advantage']*100:+.1f}%p</td><td class='{verdict_class}'>{verdict}</td></tr>"
   )
  combo_rows=[]
- combo_summary_rows=[]
  for item in source['datasets'].values():
   s=item['summary']
   for index,(prefix,label) in enumerate((
@@ -364,30 +363,33 @@ def future_defect_time_axis_table():
     f"<td>{s[f'{prefix}_noisy_precision']:.3f}</td><td>{s[f'{prefix}_noisy_recall']:.3f}</td>"
     f"<td>{s[f'{prefix}_noisy_f1']:.3f}</td><td>{s[f'{prefix}_noisy_f2']:.3f}</td></tr>"
    )
-  combo_summary_rows.append(
-   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']}</span></td>"
-   f"<td>{s['rule_noisy_target_detection']*100:.1f}%</td>"
-   f"<td>{s['student_noisy_target_detection']*100:.1f}%</td>"
-   f"<td class='best'>{s['rule_or_noisy_target_detection']*100:.1f}%</td>"
-   f"<td class='best'>{(s['rule_or_noisy_target_detection']-s['rule_noisy_target_detection'])*100:+.1f}%p</td>"
-   f"<td class='over'>{s['rule_or_noisy_overmask']*100:.1f}%</td>"
-   f"<td>{s['rule_and_noisy_target_detection']*100:.1f}%</td></tr>"
-  )
+ noise_labels={
+  'dosage_nb_hyphen':'붙여 쓴 용량·non-breaking hyphen',
+  'fullwidth_apostrophe':'전각 아포스트로피',
+  'narrow_nbsp':'좁은 non-breaking 공백',
+  'right_paren_after_number':'숫자 뒤 닫는 괄호',
+  'soft_hyphen_inside':'단어 내부 soft hyphen',
+  'word_joiner_inside':'단어 내부 word joiner',
+  'zwnj_inside':'단어 내부 ZWNJ',
+ }
  noise_rows=[]
  for name,item in source['pooled_by_noise'].items():
+  label=noise_labels.get(name,name)
   noise_rows.append(
-   f"<tr><td class='left meta dataset'>{name}</td><td>{item['eligible_shared_clean_targets']:,}</td>"
+   f"<tr><td class='left meta dataset'>{label}<span class='task'>{name}</span></td><td>{item['eligible_shared_clean_targets']:,}</td>"
    f"<td>{item['rule_survival']*100:.1f}%</td><td>{item['student_survival']*100:.1f}%</td>"
    f"<td class='best'>{item['student_minus_rule']*100:+.1f}%p</td></tr>"
   )
  dataset_count=len(source['datasets'])
  pair_total=sum(item['pairs'] for item in source['datasets'].values())
  strict_win_count=sum(item['all_seeds_absolute_gate'] for item in source['datasets'].values())
- summaries=[item['summary'] for item in source['datasets'].values()]
- macro=lambda key: sum(s[key] for s in summaries)/len(summaries)
- student_better=sum(s['student_noisy_target_detection']>s['rule_noisy_target_detection'] for s in summaries)
- or_better=sum(s['rule_or_noisy_target_detection']>s['rule_noisy_target_detection'] for s in summaries)
- and_lower=sum(s['rule_and_noisy_target_detection']<s['rule_noisy_target_detection'] for s in summaries)
+ noise_items=list(source['pooled_by_noise'].items())
+ noise_better=sum(item['student_minus_rule']>0 for _,item in noise_items)
+ strongest=max(noise_items,key=lambda pair: pair[1]['student_minus_rule'])
+ weakest=min(noise_items,key=lambda pair: pair[1]['student_minus_rule'])
+ weighted_total=sum(item['eligible_shared_clean_targets'] for _,item in noise_items)
+ weighted_rule=sum(item['eligible_shared_clean_targets']*item['rule_survival'] for _,item in noise_items)/weighted_total
+ weighted_student=sum(item['eligible_shared_clean_targets']*item['student_survival'] for _,item in noise_items)/weighted_total
  return (
   "<h2>4. 학습 미포함 입력 교란 평가</h2>"
   f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 7종의 입력 교란을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
@@ -397,25 +399,20 @@ def future_defect_time_axis_table():
   + ''.join(rows)
   + "</tbody></table></div>"
   f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
-  "<h3>4-1. 결합 방식 한눈에 보기</h3>"
-  "<p class='lede'>아래는 데이터셋별 비가중 평균(Macro) 관점의 요약이다. 고정 target 탐지와 OR의 불필요 mask를 먼저 보고, 상세 P/R/F1/F2는 다음 표에서 확인한다.</p>"
-  "<div class='analysis-grid'>"
-  f"<article class='analysis-card'><h3>Student 단독</h3><p>규칙보다 noisy target 탐지가 높은 데이터셋은 <strong>{student_better}/10개</strong>다. 전체 Macro는 규칙 <strong>{macro('rule_noisy_target_detection')*100:.1f}%</strong> 대비 Student <strong>{macro('student_noisy_target_detection')*100:.1f}%</strong>로 +{(macro('student_noisy_target_detection')-macro('rule_noisy_target_detection'))*100:.1f}%p다. 단독 대체 근거로는 일관적이지 않다.</p></article>"
-  f"<article class='analysis-card'><h3>Rule OR Student</h3><p>OR은 <strong>{or_better}/10개</strong>에서 규칙보다 target 탐지가 높다. Macro <strong>{macro('rule_or_noisy_target_detection')*100:.1f}%</strong>로 규칙 대비 <strong>+{(macro('rule_or_noisy_target_detection')-macro('rule_noisy_target_detection'))*100:.1f}%p</strong>지만, 불필요 mask도 {macro('rule_noisy_overmask')*100:.1f}% → <strong>{macro('rule_or_noisy_overmask')*100:.1f}%</strong>로 증가한다.</p></article>"
-  f"<article class='analysis-card'><h3>Rule AND Student</h3><p>AND는 불필요 mask를 {macro('rule_noisy_overmask')*100:.1f}% → <strong>{macro('rule_and_noisy_overmask')*100:.1f}%</strong>로 낮추지만, target 탐지는 <strong>{and_lower}/10개</strong>에서 감소한다. Macro도 {macro('rule_noisy_target_detection')*100:.1f}% → <strong>{macro('rule_and_noisy_target_detection')*100:.1f}%</strong>라 privacy 보완 방식으로 부적합하다.</p></article>"
-  "<article class='analysis-card'><h3>운용 결론</h3><p>현재 결과에서 Student의 가장 설득력 있는 역할은 <strong>규칙 대체가 아니라 OR fallback</strong>이다. 다만 OR은 더 많이 가리는 방식이므로, 실제 배포 전에는 human-gold 기준의 불필요 mask 비용을 추가 검증해야 한다.</p></article>"
-  "</div>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th></tr></thead><tbody>"
-  + ''.join(combo_summary_rows)
-  + "</tbody></table></div>"
-  "<h3>4-2. 입력 교란에서 Rule/Student 결합 방식 상세 비교</h3>"
+  "<h3>4-1. 입력 교란에서 Rule/Student 결합 방식 비교</h3>"
   "<p class='lede'><strong>주 지표는 앞의 두 열</strong>이다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이고, Rule 대비 차이는 그 차이다. 뒤의 Mask·FP·P/R/F1/F2는 OR·AND의 주 지표 변화가 과마스킹 때문인지 점검하는 보조 지표다. 모든 수치는 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종 noisy pair에서 측정했다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
   + ''.join(combo_rows)
   + "</tbody></table></div>"
   "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
-  "<h3>4-3. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
-  "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
+  "<h3>4-2. 입력 교란 종류별 공통 clean-correct span 생존 요약</h3>"
+  "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 즉 여기서는 기본 탐지력 차이를 빼고, <strong>같은 민감 span이 표면 교란 뒤에도 유지되는가</strong>만 본다.</p>"
+  "<div class='analysis-grid'>"
+  f"<article class='analysis-card'><h3>전체 추세</h3><p>7종 중 Student 생존율이 더 높은 교란은 <strong>{noise_better}/7종</strong>이다. 교란별 표본 수로 가중하면 규칙 <strong>{weighted_rule*100:.1f}%</strong>, Student <strong>{weighted_student*100:.1f}%</strong>로 Student가 <strong>+{(weighted_student-weighted_rule)*100:.1f}%p</strong> 높다.</p></article>"
+  f"<article class='analysis-card'><h3>Student 이득이 가장 큰 경우</h3><p><strong>{noise_labels.get(strongest[0], strongest[0])}</strong>에서 규칙 {strongest[1]['rule_survival']*100:.1f}% → Student {strongest[1]['student_survival']*100:.1f}%로 <strong>+{strongest[1]['student_minus_rule']*100:.1f}%p</strong>다. 다만 절대 생존율도 함께 봐야 한다.</p></article>"
+  f"<article class='analysis-card'><h3>보완되지 않은 경우</h3><p><strong>{noise_labels.get(weakest[0], weakest[0])}</strong>은 규칙과 Student가 모두 {weakest[1]['student_survival']*100:.1f}%로 생존하지 못했다. 이 유형은 학습 모델도 일반화하지 못했으므로 규칙·정규화·추가 학습 데이터가 필요하다.</p></article>"
+  "<article class='analysis-card'><h3>해석 범위</h3><p>이 표의 생존율은 <strong>공통 clean-correct span</strong>만 대상으로 한다. 전체 민감정보 탐지 성능이나 과마스킹은 4번 메인 표·4-1의 P/R/FP를 함께 봐야 하며, 이 결과만으로 규칙 대체를 주장할 수는 없다.</p></article>"
+  "</div>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
  + "</tbody></table></div>"
