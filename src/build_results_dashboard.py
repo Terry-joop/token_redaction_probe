@@ -346,6 +346,13 @@ def future_defect_time_axis_table():
  combo_summary_rows=[]
  for item in source['datasets'].values():
   s=item['summary']
+  student_verdict='우세' if item['all_seeds_absolute_gate'] else '미달'
+  or_verdict='우세' if item['all_seeds_rule_or_absolute_gate'] else '미달'
+  transition=(
+   '미달 → OR 우세' if not item['all_seeds_absolute_gate'] and item['all_seeds_rule_or_absolute_gate']
+   else ('둘 다 우세' if item['all_seeds_absolute_gate'] and item['all_seeds_rule_or_absolute_gate'] else '미달 유지')
+  )
+  transition_class='best' if 'OR 우세' in transition else ('warn' if '둘 다 우세' in transition else 'low')
   for index,(prefix,label) in enumerate((
    ('rule','Rule only'), ('student','Student only'),
    ('rule_or','Rule OR Student'), ('rule_and','Rule AND Student'),
@@ -371,7 +378,9 @@ def future_defect_time_axis_table():
    f"<td class='best'>{s['rule_or_noisy_target_detection']*100:.1f}%</td>"
    f"<td class='best'>{(s['rule_or_noisy_target_detection']-s['rule_noisy_target_detection'])*100:+.1f}%p</td>"
    f"<td class='over'>{s['rule_or_noisy_overmask']*100:.1f}%</td>"
-   f"<td>{s['rule_and_noisy_target_detection']*100:.1f}%</td></tr>"
+   f"<td>{s['rule_and_noisy_target_detection']*100:.1f}%</td>"
+   f"<td class='{'best' if student_verdict == '우세' else 'low'}'>{student_verdict}</td>"
+   f"<td class='best'>{or_verdict}</td><td class='{transition_class}'>{transition}</td></tr>"
   )
  noise_labels={
   'dosage_nb_hyphen':'붙여 쓴 용량·non-breaking hyphen',
@@ -393,6 +402,11 @@ def future_defect_time_axis_table():
  dataset_count=len(source['datasets'])
  pair_total=sum(item['pairs'] for item in source['datasets'].values())
  strict_win_count=sum(item['all_seeds_absolute_gate'] for item in source['datasets'].values())
+ or_strict_win_count=sum(item['all_seeds_rule_or_absolute_gate'] for item in source['datasets'].values())
+ upgraded_count=sum(
+  not item['all_seeds_absolute_gate'] and item['all_seeds_rule_or_absolute_gate']
+  for item in source['datasets'].values()
+ )
  summaries=[item['summary'] for item in source['datasets'].values()]
  macro=lambda key: sum(s[key] for s in summaries)/len(summaries)
  student_better=sum(s['student_noisy_target_detection']>s['rule_noisy_target_detection'] for s in summaries)
@@ -408,14 +422,14 @@ def future_defect_time_axis_table():
   + "</tbody></table></div>"
   f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
   "<h3>4-1. 결합 방식 한눈에 보기</h3>"
-  "<p class='lede'>4-1의 40개 행을 데이터셋 단위로 압축한 요약이다. 고정 target 탐지와 OR의 불필요 mask를 우선 본다.</p>"
+  "<p class='lede'>데이터셋별 결합 효과와 엄격 판정을 한 행으로 압축했다. OR 판정도 Student 단독과 동일하게, 고정 target 탐지 차이와 clean→noisy 하락폭 차이의 source-cluster bootstrap 95% CI가 seed 42·43·44 모두 0보다 큰지를 사용한다.</p>"
   "<div class='analysis-grid'>"
   f"<article class='analysis-card'><h3>Student 단독</h3><p>규칙보다 noisy target 탐지가 높은 데이터셋은 <strong>{student_better}/10개</strong>다. Macro는 규칙 <strong>{macro('rule_noisy_target_detection')*100:.1f}%</strong>, Student <strong>{macro('student_noisy_target_detection')*100:.1f}%</strong>로 +{(macro('student_noisy_target_detection')-macro('rule_noisy_target_detection'))*100:.1f}%p다. 단독 대체 근거로는 일관적이지 않다.</p></article>"
-  f"<article class='analysis-card'><h3>Rule OR Student</h3><p>OR은 <strong>{or_better}/10개</strong> 모두에서 target 탐지를 높인다. Macro <strong>{macro('rule_or_noisy_target_detection')*100:.1f}%</strong>로 규칙 대비 <strong>+{(macro('rule_or_noisy_target_detection')-macro('rule_noisy_target_detection'))*100:.1f}%p</strong>다.</p></article>"
+  f"<article class='analysis-card'><h3>Rule OR Student</h3><p>OR은 <strong>{or_better}/10개</strong> 모두에서 target 탐지를 높이고, 엄격 우세도 <strong>{or_strict_win_count}/10개</strong>다. Student 단독 미달 중 <strong>{upgraded_count}개</strong>가 OR에서 우세로 전환됐다. 단, OR은 규칙을 포함하므로 이는 독립 Student의 대체 우세가 아니라 결합 보완의 우세다.</p></article>"
   f"<article class='analysis-card'><h3>OR의 비용</h3><p>OR의 불필요 mask는 Macro 기준 규칙 {macro('rule_noisy_overmask')*100:.1f}%에서 <strong>{macro('rule_or_noisy_overmask')*100:.1f}%</strong>로 증가한다. 따라서 OR은 민감 누락을 줄이는 fallback 후보이지 무비판적 기본값은 아니다.</p></article>"
   f"<article class='analysis-card'><h3>Rule AND Student</h3><p>AND는 불필요 mask를 <strong>{macro('rule_and_noisy_overmask')*100:.1f}%</strong>로 낮추지만, target 탐지는 <strong>{and_lower}/10개</strong>에서 감소한다. Macro도 {macro('rule_noisy_target_detection')*100:.1f}% → <strong>{macro('rule_and_noisy_target_detection')*100:.1f}%</strong>라 privacy 보완에는 부적합하다.</p></article>"
   "</div>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th></tr></thead><tbody>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th><th>Student<br>판정</th><th>OR<br>판정</th><th>전환</th></tr></thead><tbody>"
   + ''.join(combo_summary_rows)
   + "</tbody></table></div>"
   "<h3>4-2. 학습에 없던 unseen 입력 교란별 공통 clean-correct span 생존</h3>"

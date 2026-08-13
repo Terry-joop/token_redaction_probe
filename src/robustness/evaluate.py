@@ -846,6 +846,15 @@ def main() -> None:
             args.bootstrap_repeats,
             args.seed,
         ),
+        "absolute_target_rule_or_robustness": absolute_target_robustness(
+            pairs,
+            rule_clean,
+            rule_noisy,
+            rule_or_clean,
+            rule_or_noisy,
+            args.bootstrap_repeats,
+            args.seed,
+        ),
         "paired_bootstrap": bootstrap_delta(
             pairs,
             rule_noisy,

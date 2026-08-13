@@ -53,6 +53,7 @@ def build() -> dict:
         for seed in SEEDS:
             payload = load(ROOT / "reports" / f"future_v14_{key}_seed{seed}.json")
             absolute = payload["absolute_target_robustness"]
+            absolute_or = payload["absolute_target_rule_or_robustness"]
             clean = payload["student"]["clean"]
             rule_noisy = payload["rule_v1_4"]["noisy"]
             student_noisy = payload["student"]["noisy"]
@@ -69,6 +70,10 @@ def build() -> dict:
                 "clean_recall": clean["recall"],
                 "quality_gate": quality,
                 "absolute_gate": absolute_gate,
+                "rule_or_absolute_gate": (
+                    absolute_or["student_minus_rule_noisy_ci95"][0] > 0
+                    and absolute_or["student_drop_advantage_ci95"][0] > 0
+                ),
                 "rule_noisy_mask": rule_noisy["predicted_mask_rate"],
                 "student_noisy_mask": student_noisy["predicted_mask_rate"],
                 "rule_noisy_overmask": rule_noisy["overmask_rate"],
@@ -88,6 +93,12 @@ def build() -> dict:
                 "rule_or_noisy_f1": rule_or_noisy["f1"],
                 "rule_or_noisy_f2": rule_or_noisy["f2"],
                 "rule_or_noisy_target_detection": rule_or["robustness"]["noisy_target_detection"],
+                "rule_or_clean_target_detection": absolute_or["student_clean_target_detection"],
+                "rule_or_detection_drop": absolute_or["student_detection_drop"],
+                "rule_or_minus_rule_noisy": absolute_or["student_minus_rule_noisy"],
+                "rule_or_minus_rule_noisy_ci95": absolute_or["student_minus_rule_noisy_ci95"],
+                "rule_or_drop_advantage": absolute_or["student_drop_advantage"],
+                "rule_or_drop_advantage_ci95": absolute_or["student_drop_advantage_ci95"],
                 "rule_and_noisy_mask": rule_and_noisy["predicted_mask_rate"],
                 "rule_and_noisy_overmask": rule_and_noisy["overmask_rate"],
                 "rule_and_noisy_precision": rule_and_noisy["precision"],
@@ -147,6 +158,10 @@ def build() -> dict:
                     "rule_or_noisy_f1",
                     "rule_or_noisy_f2",
                     "rule_or_noisy_target_detection",
+                    "rule_or_clean_target_detection",
+                    "rule_or_detection_drop",
+                    "rule_or_minus_rule_noisy",
+                    "rule_or_drop_advantage",
                     "rule_and_noisy_mask",
                     "rule_and_noisy_overmask",
                     "rule_and_noisy_precision",
@@ -158,6 +173,7 @@ def build() -> dict:
             },
             "all_seeds_quality_gate": all(run["quality_gate"] for run in runs),
             "all_seeds_absolute_gate": all(run["absolute_gate"] for run in runs),
+            "all_seeds_rule_or_absolute_gate": all(run["rule_or_absolute_gate"] for run in runs),
         }
 
     for noise, rows in sorted(noise_runs.items()):

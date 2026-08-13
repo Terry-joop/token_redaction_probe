@@ -33,6 +33,7 @@
           "clean_recall": 0.9083295562239895,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.09006642420184435,
           "student_noisy_mask": 0.09312323097056943,
           "rule_noisy_overmask": 0.0002879619257374673,
@@ -52,6 +53,18 @@
           "rule_or_noisy_f1": 0.9533783399389376,
           "rule_or_noisy_f2": 0.9648171674874011,
           "rule_or_noisy_target_detection": 0.8831810064082362,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.11681899359176384,
+          "rule_or_minus_rule_noisy": 0.24498371677697237,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.2337418692302038,
+            0.256081923196486
+          ],
+          "rule_or_drop_advantage": 0.24498371677697237,
+          "rule_or_drop_advantage_ci95": [
+            0.2337418692302038,
+            0.256081923196486
+          ],
           "rule_and_noisy_mask": 0.08089980826003591,
           "rule_and_noisy_overmask": 7.067197444838941e-05,
           "rule_and_noisy_precision": 0.9992123207147896,
@@ -87,6 +100,7 @@
           "clean_recall": 0.904579916766245,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.09006642420184435,
           "student_noisy_mask": 0.09165094196061722,
           "rule_noisy_overmask": 0.0002879619257374673,
@@ -106,6 +120,18 @@
           "rule_or_noisy_f1": 0.9516906144619,
           "rule_or_noisy_f2": 0.9612505884952777,
           "rule_or_noisy_target_detection": 0.8513499317155163,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14865006828448368,
+          "rule_or_minus_rule_noisy": 0.21315264208425255,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.20264176573319795,
+            0.2240230653402278
+          ],
+          "rule_or_drop_advantage": 0.21315264208425255,
+          "rule_or_drop_advantage_ci95": [
+            0.20264176573319795,
+            0.2240230653402278
+          ],
           "rule_and_noisy_mask": 0.08007711446571507,
           "rule_and_noisy_overmask": 6.434314091569783e-05,
           "rule_and_noisy_precision": 0.9992754914187303,
@@ -141,6 +167,7 @@
           "clean_recall": 0.9061766038979768,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.09006642420184435,
           "student_noisy_mask": 0.0916233603189579,
           "rule_noisy_overmask": 0.0002879619257374673,
@@ -160,6 +187,18 @@
           "rule_or_noisy_f1": 0.9521657859565178,
           "rule_or_noisy_f2": 0.9617250808523559,
           "rule_or_noisy_target_detection": 0.8582834331337326,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14171656686626743,
+          "rule_or_minus_rule_noisy": 0.22008614350246875,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.20946152404914067,
+            0.23074676345092862
+          ],
+          "rule_or_drop_advantage": 0.22008614350246875,
+          "rule_or_drop_advantage_ci95": [
+            0.20946152404914067,
+            0.23074676345092862
+          ],
           "rule_and_noisy_mask": 0.08005143500623915,
           "rule_and_noisy_overmask": 6.223352973813396e-05,
           "rule_and_noisy_precision": 0.9992990210056079,
@@ -218,6 +257,10 @@
         "rule_or_noisy_f1": 0.9524115801191185,
         "rule_or_noisy_f2": 0.962597612278345,
         "rule_or_noisy_target_detection": 0.8642714570858283,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.13572854291417166,
+        "rule_or_minus_rule_noisy": 0.22607416745456455,
+        "rule_or_drop_advantage": 0.22607416745456455,
         "rule_and_noisy_mask": 0.08034278591066338,
         "rule_and_noisy_overmask": 6.574954836740706e-05,
         "rule_and_noisy_precision": 0.9992622777130427,
@@ -227,7 +270,8 @@
         "rule_and_noisy_target_detection": 0.4721084147494485
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": true
+      "all_seeds_absolute_gate": true,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "symptom2dx": {
       "name": "Symptom2Dx",
@@ -251,6 +295,7 @@
           "clean_recall": 0.932033426183844,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.13752440452948067,
           "student_noisy_mask": 0.13447871925029287,
           "rule_noisy_overmask": 0.00028050490883590464,
@@ -270,6 +315,18 @@
           "rule_or_noisy_f1": 0.8884068450228971,
           "rule_or_noisy_f2": 0.8793778032254986,
           "rule_or_noisy_target_detection": 0.6415094339622641,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.3584905660377359,
+          "rule_or_minus_rule_noisy": 0.04851752021563342,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.02972972972972973,
+            0.07105731842799609
+          ],
+          "rule_or_drop_advantage": 0.04851752021563342,
+          "rule_or_drop_advantage_ci95": [
+            0.02972972972972973,
+            0.07105731842799609
+          ],
           "rule_and_noisy_mask": 0.11276844982428738,
           "rule_and_noisy_overmask": 0.00028050490883590464,
           "rule_and_noisy_precision": 0.9979224376731302,
@@ -305,6 +362,7 @@
           "clean_recall": 0.9337047353760446,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.13752440452948067,
           "student_noisy_mask": 0.1280749707145646,
           "rule_noisy_overmask": 0.00028050490883590464,
@@ -324,6 +382,18 @@
           "rule_or_noisy_f1": 0.8834385624089364,
           "rule_or_noisy_f2": 0.8705015313935681,
           "rule_or_noisy_target_detection": 0.6361185983827493,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.3638814016172507,
+          "rule_or_minus_rule_noisy": 0.0431266846361186,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.02452316076294278,
+            0.06233485772357721
+          ],
+          "rule_or_drop_advantage": 0.0431266846361186,
+          "rule_or_drop_advantage_ci95": [
+            0.02452316076294278,
+            0.06233485772357721
+          ],
           "rule_and_noisy_mask": 0.10878563061304178,
           "rule_and_noisy_overmask": 0.00028050490883590464,
           "rule_and_noisy_precision": 0.9978463747307968,
@@ -359,6 +429,7 @@
           "clean_recall": 0.9376044568245125,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.13752440452948067,
           "student_noisy_mask": 0.13697774306911362,
           "rule_noisy_overmask": 0.00028050490883590464,
@@ -378,6 +449,18 @@
           "rule_or_noisy_f1": 0.8861671469740634,
           "rule_or_noisy_f2": 0.8790737564322469,
           "rule_or_noisy_target_detection": 0.6442048517520216,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.3557951482479784,
+          "rule_or_minus_rule_noisy": 0.05121293800539083,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.0319127772447655,
+            0.07397513952308471
+          ],
+          "rule_or_drop_advantage": 0.05121293800539083,
+          "rule_or_drop_advantage_ci95": [
+            0.0319127772447655,
+            0.07397513952308471
+          ],
           "rule_and_noisy_mask": 0.11409605622803592,
           "rule_and_noisy_overmask": 0.00028050490883590464,
           "rule_and_noisy_precision": 0.997946611909651,
@@ -436,6 +519,10 @@
         "rule_or_noisy_f1": 0.8860041848019656,
         "rule_or_noisy_f2": 0.8763176970171046,
         "rule_or_noisy_target_detection": 0.6406109613656783,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.3593890386343217,
+        "rule_or_minus_rule_noisy": 0.047619047619047616,
+        "rule_or_drop_advantage": 0.047619047619047616,
         "rule_and_noisy_mask": 0.11188337888845502,
         "rule_and_noisy_overmask": 0.00028050490883590464,
         "rule_and_noisy_precision": 0.9979051414378594,
@@ -445,7 +532,8 @@
         "rule_and_noisy_target_detection": 0.19946091644204852
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": false
+      "all_seeds_absolute_gate": false,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "mednli": {
       "name": "MedNLI",
@@ -469,6 +557,7 @@
           "clean_recall": 0.9130119705834988,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.22032926093692715,
           "student_noisy_mask": 0.23254645015552375,
           "rule_noisy_overmask": 0.0007984344422700587,
@@ -488,6 +577,18 @@
           "rule_or_noisy_f1": 0.9436572999099654,
           "rule_or_noisy_f2": 0.955199539524175,
           "rule_or_noisy_target_detection": 0.8588498879761016,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14115011202389838,
+          "rule_or_minus_rule_noisy": 0.16971620612397312,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.15617945209671372,
+            0.1834726937602176
+          ],
+          "rule_or_drop_advantage": 0.16971620612397312,
+          "rule_or_drop_advantage_ci95": [
+            0.15617945209671372,
+            0.1834726937602176
+          ],
           "rule_and_noisy_mask": 0.1982661762444857,
           "rule_and_noisy_overmask": 0.0002426614481409002,
           "rule_and_noisy_precision": 0.9990753996659508,
@@ -523,6 +624,7 @@
           "clean_recall": 0.9136024477964464,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.22032926093692715,
           "student_noisy_mask": 0.23105034711955816,
           "rule_noisy_overmask": 0.0007984344422700587,
@@ -542,6 +644,18 @@
           "rule_or_noisy_f1": 0.9442928657856652,
           "rule_or_noisy_f2": 0.9550742443584845,
           "rule_or_noisy_target_detection": 0.8592233009708737,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14077669902912626,
+          "rule_or_minus_rule_noisy": 0.17008961911874534,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.15692112709983674,
+            0.18323075996095914
+          ],
+          "rule_or_drop_advantage": 0.17008961911874534,
+          "rule_or_drop_advantage_ci95": [
+            0.15692112709983674,
+            0.18323075996095914
+          ],
           "rule_and_noisy_mask": 0.19744420659231487,
           "rule_and_noisy_overmask": 0.00014090019569471625,
           "rule_and_noisy_precision": 0.9994609002965048,
@@ -577,6 +691,7 @@
           "clean_recall": 0.9129851307101831,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.22032926093692715,
           "student_noisy_mask": 0.23075467458280605,
           "rule_noisy_overmask": 0.0007984344422700587,
@@ -596,6 +711,18 @@
           "rule_or_noisy_f1": 0.9426031294452347,
           "rule_or_noisy_f2": 0.9537826011860211,
           "rule_or_noisy_target_detection": 0.8566094100074683,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14339058999253174,
+          "rule_or_minus_rule_noisy": 0.16747572815533981,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.1538132314171014,
+            0.1805433437110867
+          ],
+          "rule_or_drop_advantage": 0.16747572815533981,
+          "rule_or_drop_advantage_ci95": [
+            0.1538132314171014,
+            0.1805433437110867
+          ],
           "rule_and_noisy_mask": 0.1967819001099902,
           "rule_and_noisy_overmask": 0.000187866927592955,
           "rule_and_noisy_precision": 0.9992787811401268,
@@ -654,6 +781,10 @@
         "rule_or_noisy_f1": 0.9435177650469551,
         "rule_or_noisy_f2": 0.9546854616895603,
         "rule_or_noisy_target_detection": 0.8582275329848145,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.14177246701518545,
+        "rule_or_minus_rule_noisy": 0.16909385113268607,
+        "rule_or_drop_advantage": 0.16909385113268607,
         "rule_and_noisy_mask": 0.19749742764893027,
         "rule_and_noisy_overmask": 0.00019047619047619048,
         "rule_and_noisy_precision": 0.9992716937008609,
@@ -663,7 +794,8 @@
         "rule_and_noisy_target_detection": 0.5088996763754046
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": false
+      "all_seeds_absolute_gate": false,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "redditmh": {
       "name": "RedditMH",
@@ -687,6 +819,7 @@
           "clean_recall": 0.8556553986592498,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.05372426730039628,
           "student_noisy_mask": 0.05332617572727108,
           "rule_noisy_overmask": 0.00019096622472647843,
@@ -706,6 +839,18 @@
           "rule_or_noisy_f1": 0.907627901053771,
           "rule_or_noisy_f2": 0.9091735336888027,
           "rule_or_noisy_target_detection": 0.6989737742303307,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.3010262257696693,
+          "rule_or_minus_rule_noisy": 0.12542759407069556,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.11603665521191295,
+            0.1345515401827767
+          ],
+          "rule_or_drop_advantage": 0.12542759407069556,
+          "rule_or_drop_advantage_ci95": [
+            0.11603665521191295,
+            0.1345515401827767
+          ],
           "rule_and_noisy_mask": 0.04371769275774921,
           "rule_and_noisy_overmask": 4.398660232463829e-05,
           "rule_and_noisy_precision": 0.9990572111846946,
@@ -741,6 +886,7 @@
           "clean_recall": 0.8471687348452432,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.05372426730039628,
           "student_noisy_mask": 0.05307385000794172,
           "rule_noisy_overmask": 0.00019096622472647843,
@@ -760,6 +906,18 @@
           "rule_or_noisy_f1": 0.912128890376249,
           "rule_or_noisy_f2": 0.9130630371944333,
           "rule_or_noisy_target_detection": 0.703648802736602,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.296351197263398,
+          "rule_or_minus_rule_noisy": 0.13010262257696692,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.12013243733429406,
+            0.1399269915638343
+          ],
+          "rule_or_drop_advantage": 0.13010262257696692,
+          "rule_or_drop_advantage_ci95": [
+            0.12013243733429406,
+            0.1399269915638343
+          ],
           "rule_and_noisy_mask": 0.04360811704696475,
           "rule_and_noisy_overmask": 5.04236660794634e-05,
           "rule_and_noisy_precision": 0.9989165264298393,
@@ -795,6 +953,7 @@
           "clean_recall": 0.8526957637997432,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.05372426730039628,
           "student_noisy_mask": 0.053844901110434225,
           "rule_noisy_overmask": 0.00019096622472647843,
@@ -814,6 +973,18 @@
           "rule_or_noisy_f1": 0.9118114238515789,
           "rule_or_noisy_f2": 0.9145307859955901,
           "rule_or_noisy_target_detection": 0.7120866590649944,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.28791334093500565,
+          "rule_or_minus_rule_noisy": 0.13854047890535917,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.12876172352439186,
+            0.14796409168763047
+          ],
+          "rule_or_drop_advantage": 0.13854047890535917,
+          "rule_or_drop_advantage_ci95": [
+            0.12876172352439186,
+            0.14796409168763047
+          ],
           "rule_and_noisy_mask": 0.04396700263182762,
           "rule_and_noisy_overmask": 4.9350822120325884e-05,
           "rule_and_noisy_precision": 0.9989482348637279,
@@ -872,6 +1043,10 @@
         "rule_or_noisy_f1": 0.9105227384271997,
         "rule_or_noisy_f2": 0.9122557856262753,
         "rule_or_noisy_target_detection": 0.704903078677309,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.295096921322691,
+        "rule_or_minus_rule_noisy": 0.13135689851767388,
+        "rule_or_drop_advantage": 0.13135689851767388,
         "rule_and_noisy_mask": 0.04376427081218053,
         "rule_and_noisy_overmask": 4.792036350814253e-05,
         "rule_and_noisy_precision": 0.9989739908260873,
@@ -881,7 +1056,8 @@
         "rule_and_noisy_target_detection": 0.30277461041429116
       },
       "all_seeds_quality_gate": false,
-      "all_seeds_absolute_gate": false
+      "all_seeds_absolute_gate": false,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "adr": {
       "name": "ADR",
@@ -905,6 +1081,7 @@
           "clean_recall": 0.9241806005233513,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.2674308902427935,
           "student_noisy_mask": 0.27181845048649633,
           "rule_noisy_overmask": 0.001394040875842233,
@@ -924,6 +1101,18 @@
           "rule_or_noisy_f1": 0.9619246619072495,
           "rule_or_noisy_f2": 0.9681282347855549,
           "rule_or_noisy_target_detection": 0.9066479877738156,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.09335201222618439,
+          "rule_or_minus_rule_noisy": 0.14034640855832908,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.1293228126684361,
+            0.15117788266660706
+          ],
+          "rule_or_drop_advantage": 0.14034640855832908,
+          "rule_or_drop_advantage_ci95": [
+            0.1293228126684361,
+            0.15117788266660706
+          ],
           "rule_and_noisy_mask": 0.242355869782668,
           "rule_and_noisy_overmask": 0.0006569617920635811,
           "rule_and_noisy_precision": 0.9980770583683136,
@@ -959,6 +1148,7 @@
           "clean_recall": 0.9253780990819178,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.2674308902427935,
           "student_noisy_mask": 0.27778598708738744,
           "rule_noisy_overmask": 0.001394040875842233,
@@ -978,6 +1168,18 @@
           "rule_or_noisy_f1": 0.9632219781913459,
           "rule_or_noisy_f2": 0.9718836624328874,
           "rule_or_noisy_target_detection": 0.9312277126846663,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.06877228731533369,
+          "rule_or_minus_rule_noisy": 0.16492613346917984,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.15300384748828785,
+            0.17679309821276792
+          ],
+          "rule_or_drop_advantage": 0.16492613346917984,
+          "rule_or_drop_advantage_ci95": [
+            0.15300384748828785,
+            0.17679309821276792
+          ],
           "rule_and_noisy_mask": 0.24583409111575885,
           "rule_and_noisy_overmask": 0.0006088914170345386,
           "rule_and_noisy_precision": 0.9982429776904405,
@@ -1013,6 +1215,7 @@
           "clean_recall": 0.9233379163525081,
           "quality_gate": true,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.2674308902427935,
           "student_noisy_mask": 0.2728812403382741,
           "rule_noisy_overmask": 0.001394040875842233,
@@ -1032,6 +1235,18 @@
           "rule_or_noisy_f1": 0.9626034496094052,
           "rule_or_noisy_f2": 0.9691360668439516,
           "rule_or_noisy_target_detection": 0.9151808456444218,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.08481915435557819,
+          "rule_or_minus_rule_noisy": 0.14887926642893531,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.13760691689175825,
+            0.16007182650758245
+          ],
+          "rule_or_drop_advantage": 0.14887926642893531,
+          "rule_or_drop_advantage_ci95": [
+            0.13760691689175825,
+            0.16007182650758245
+          ],
           "rule_and_noisy_mask": 0.24308902427934892,
           "rule_and_noisy_overmask": 0.0006329266045490598,
           "rule_and_noisy_precision": 0.9981529972879454,
@@ -1090,6 +1305,10 @@
         "rule_or_noisy_f1": 0.9625833632360002,
         "rule_or_noisy_f2": 0.969715988020798,
         "rule_or_noisy_target_detection": 0.9176855153676345,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.08231448463236542,
+        "rule_or_minus_rule_noisy": 0.15138393615214807,
+        "rule_or_drop_advantage": 0.15138393615214807,
         "rule_and_noisy_mask": 0.24375966172592525,
         "rule_and_noisy_overmask": 0.0006329266045490598,
         "rule_and_noisy_precision": 0.9981576777822331,
@@ -1099,7 +1318,8 @@
         "rule_and_noisy_target_detection": 0.6349125488198336
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": false
+      "all_seeds_absolute_gate": false,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "mentalhealth": {
       "name": "Mental Health",
@@ -1123,6 +1343,7 @@
           "clean_recall": 0.8068427460431833,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.0601065206648521,
           "student_noisy_mask": 0.061843168323044706,
           "rule_noisy_overmask": 0.0005126495862427184,
@@ -1142,6 +1363,18 @@
           "rule_or_noisy_f1": 0.8886561733096386,
           "rule_or_noisy_f2": 0.8986949080017116,
           "rule_or_noisy_target_detection": 0.7367175170962651,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.2632824829037349,
+          "rule_or_minus_rule_noisy": 0.18371909521304577,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.17187346653362995,
+            0.19630302706826916
+          ],
+          "rule_or_drop_advantage": 0.18371909521304577,
+          "rule_or_drop_advantage_ci95": [
+            0.17187346653362995,
+            0.19630302706826916
+          ],
           "rule_and_noisy_mask": 0.04641571297465624,
           "rule_and_noisy_overmask": 0.00021825675453897913,
           "rule_and_noisy_precision": 0.9956399770169331,
@@ -1177,6 +1410,7 @@
           "clean_recall": 0.811787213953835,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.0601065206648521,
           "student_noisy_mask": 0.06288798073529066,
           "rule_noisy_overmask": 0.0005126495862427184,
@@ -1196,6 +1430,18 @@
           "rule_or_noisy_f1": 0.8875046035671068,
           "rule_or_noisy_f2": 0.9003454327302849,
           "rule_or_noisy_target_detection": 0.7467122567069964,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.25328774329300363,
+          "rule_or_minus_rule_noisy": 0.19371383482377696,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.18166150710339873,
+            0.20619148505899115
+          ],
+          "rule_or_drop_advantage": 0.19371383482377696,
+          "rule_or_drop_advantage_ci95": [
+            0.18166150710339873,
+            0.20619148505899115
+          ],
           "rule_and_noisy_mask": 0.04667770047142061,
           "rule_and_noisy_overmask": 0.0002402516212754654,
           "rule_and_noisy_precision": 0.9952275324326141,
@@ -1231,6 +1477,7 @@
           "clean_recall": 0.8314656993067806,
           "quality_gate": false,
           "absolute_gate": false,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.0601065206648521,
           "student_noisy_mask": 0.06511095248927341,
           "rule_noisy_overmask": 0.0005126495862427184,
@@ -1250,6 +1497,18 @@
           "rule_or_noisy_f1": 0.8827985413815082,
           "rule_or_noisy_f2": 0.8993234584090841,
           "rule_or_noisy_target_detection": 0.7463177275118359,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.2536822724881641,
+          "rule_or_minus_rule_noisy": 0.19331930562861652,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.18056754075874085,
+            0.2061239142098844
+          ],
+          "rule_or_drop_advantage": 0.19331930562861652,
+          "rule_or_drop_advantage_ci95": [
+            0.18056754075874085,
+            0.2061239142098844
+          ],
           "rule_and_noisy_mask": 0.04784644708872277,
           "rule_and_noisy_overmask": 0.00024194353410134897,
           "rule_and_noisy_precision": 0.9953113216826781,
@@ -1308,6 +1567,10 @@
         "rule_or_noisy_f1": 0.8863197727527513,
         "rule_or_noisy_f2": 0.8994545997136935,
         "rule_or_noisy_target_detection": 0.7432491671050325,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.25675083289496753,
+        "rule_or_minus_rule_noisy": 0.1902507452218131,
+        "rule_or_drop_advantage": 0.1902507452218131,
         "rule_and_noisy_mask": 0.04697995351159987,
         "rule_and_noisy_overmask": 0.00023348396997193116,
         "rule_and_noisy_precision": 0.9953929437107417,
@@ -1317,7 +1580,8 @@
         "rule_and_noisy_target_detection": 0.30931088900578646
       },
       "all_seeds_quality_gate": false,
-      "all_seeds_absolute_gate": false
+      "all_seeds_absolute_gate": false,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "qnli": {
       "name": "QNLI",
@@ -1341,6 +1605,7 @@
           "clean_recall": 0.9128141657641946,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.1372967917995187,
           "student_noisy_mask": 0.1511308715228371,
           "rule_noisy_overmask": 0.0006639756078852496,
@@ -1360,6 +1625,18 @@
           "rule_or_noisy_f1": 0.9393771237958662,
           "rule_or_noisy_f2": 0.9479627816606305,
           "rule_or_noisy_target_detection": 0.7795275590551181,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.22047244094488194,
+          "rule_or_minus_rule_noisy": 0.2665051483949122,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.25559263894452716,
+            0.2778513965415891
+          ],
+          "rule_or_drop_advantage": 0.2665051483949122,
+          "rule_or_drop_advantage_ci95": [
+            0.25559263894452716,
+            0.2778513965415891
+          ],
           "rule_and_noisy_mask": 0.12436362024000032,
           "rule_and_noisy_overmask": 0.00026367262406995474,
           "rule_and_noisy_precision": 0.9982173243659347,
@@ -1395,6 +1672,7 @@
           "clean_recall": 0.911182683787851,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.1372967917995187,
           "student_noisy_mask": 0.15012515972476953,
           "rule_noisy_overmask": 0.0006639756078852496,
@@ -1414,6 +1692,18 @@
           "rule_or_noisy_f1": 0.9357095082418098,
           "rule_or_noisy_f2": 0.9428277020983918,
           "rule_or_noisy_target_detection": 0.7575206945285685,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.24247930547143148,
+          "rule_or_minus_rule_noisy": 0.24449828386836261,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.23331274055403672,
+            0.2554446190119095
+          ],
+          "rule_or_drop_advantage": 0.24449828386836261,
+          "rule_or_drop_advantage_ci95": [
+            0.23331274055403672,
+            0.2554446190119095
+          ],
           "rule_and_noisy_mask": 0.12418021388003209,
           "rule_and_noisy_overmask": 0.0002852458387665874,
           "rule_and_noisy_precision": 0.9980686207680073,
@@ -1449,6 +1739,7 @@
           "clean_recall": 0.9117593282794897,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.1372967917995187,
           "student_noisy_mask": 0.14927866883260843,
           "rule_noisy_overmask": 0.0006639756078852496,
@@ -1468,6 +1759,18 @@
           "rule_or_noisy_f1": 0.9339064076137011,
           "rule_or_noisy_f2": 0.9397104548446236,
           "rule_or_noisy_target_detection": 0.7362204724409449,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.2637795275590551,
+          "rule_or_minus_rule_noisy": 0.22319806178073895,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.2118890986855585,
+            0.23408608993160038
+          ],
+          "rule_or_drop_advantage": 0.22319806178073895,
+          "rule_or_drop_advantage_ci95": [
+            0.2118890986855585,
+            0.23408608993160038
+          ],
           "rule_and_noisy_mask": 0.12407944115477482,
           "rule_and_noisy_overmask": 0.00026606964792513614,
           "rule_and_noisy_precision": 0.998196998245728,
@@ -1526,6 +1829,10 @@
         "rule_or_noisy_f1": 0.9363310132171258,
         "rule_or_noisy_f2": 0.943500312867882,
         "rule_or_noisy_target_detection": 0.7577562420082105,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.24224375799178952,
+        "rule_or_minus_rule_noisy": 0.2447338313480046,
+        "rule_or_drop_advantage": 0.2447338313480046,
         "rule_and_noisy_mask": 0.12420775842493574,
         "rule_and_noisy_overmask": 0.00027166270358722607,
         "rule_and_noisy_precision": 0.9981609811265567,
@@ -1535,7 +1842,8 @@
         "rule_and_noisy_target_detection": 0.41893801736321423
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": true
+      "all_seeds_absolute_gate": true,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "finphrasebank": {
       "name": "FinPhraseBank",
@@ -1559,6 +1867,7 @@
           "clean_recall": 0.9476958973361851,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.24514801019407959,
           "student_noisy_mask": 0.27509311899627525,
           "rule_noisy_overmask": 0.0010117361392148927,
@@ -1578,6 +1887,18 @@
           "rule_or_noisy_f1": 0.9567186275363581,
           "rule_or_noisy_f2": 0.9733493992982953,
           "rule_or_noisy_target_detection": 0.9326500732064422,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.06734992679355778,
+          "rule_or_minus_rule_noisy": 0.28989751098096633,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.24455815301727896,
+            0.33477677398365835
+          ],
+          "rule_or_drop_advantage": 0.28989751098096633,
+          "rule_or_drop_advantage_ci95": [
+            0.24455815301727896,
+            0.33477677398365835
+          ],
           "rule_and_noisy_mask": 0.23083709076651637,
           "rule_and_noisy_overmask": 0.0004046944556859571,
           "rule_and_noisy_precision": 0.9987261146496815,
@@ -1613,6 +1934,7 @@
           "clean_recall": 0.9508069220299437,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.24514801019407959,
           "student_noisy_mask": 0.27582826896686924,
           "rule_noisy_overmask": 0.0010117361392148927,
@@ -1632,6 +1954,18 @@
           "rule_or_noisy_f1": 0.9578323749782192,
           "rule_or_noisy_f2": 0.9742308237629378,
           "rule_or_noisy_target_detection": 0.9341142020497804,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.06588579795021965,
+          "rule_or_minus_rule_noisy": 0.2913616398243045,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.2484932829477419,
+            0.33656787497321194
+          ],
+          "rule_or_drop_advantage": 0.2913616398243045,
+          "rule_or_drop_advantage_ci95": [
+            0.2484932829477419,
+            0.33656787497321194
+          ],
           "rule_and_noisy_mask": 0.23181729072730836,
           "rule_and_noisy_overmask": 0.00033724537973829757,
           "rule_and_noisy_precision": 0.9989429175475687,
@@ -1667,6 +2001,7 @@
           "clean_recall": 0.9475014582928252,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.24514801019407959,
           "student_noisy_mask": 0.27499509900019603,
           "rule_noisy_overmask": 0.0010117361392148927,
@@ -1686,6 +2021,18 @@
           "rule_or_noisy_f1": 0.9511072514112028,
           "rule_or_noisy_f2": 0.9692378491274027,
           "rule_or_noisy_target_detection": 0.9150805270863837,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.08491947291361635,
+          "rule_or_minus_rule_noisy": 0.27232796486090777,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.22806772175193227,
+            0.3179825895524184
+          ],
+          "rule_or_drop_advantage": 0.27232796486090777,
+          "rule_or_drop_advantage_ci95": [
+            0.22806772175193227,
+            0.3179825895524184
+          ],
           "rule_and_noisy_mask": 0.22917075083316996,
           "rule_and_noisy_overmask": 0.00033724537973829757,
           "rule_and_noisy_precision": 0.9989307100085543,
@@ -1744,6 +2091,10 @@
         "rule_or_noisy_f1": 0.9552194179752599,
         "rule_or_noisy_f2": 0.9722726907295453,
         "rule_or_noisy_target_detection": 0.9272816007808687,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.07271839921913126,
+        "rule_or_minus_rule_noisy": 0.28452903855539285,
+        "rule_or_drop_advantage": 0.28452903855539285,
         "rule_and_noisy_mask": 0.23060837744233156,
         "rule_and_noisy_overmask": 0.00035972840505418406,
         "rule_and_noisy_precision": 0.9988665807352682,
@@ -1753,7 +2104,8 @@
         "rule_and_noisy_target_detection": 0.554904831625183
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": true
+      "all_seeds_absolute_gate": true,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "bios": {
       "name": "BIOS",
@@ -1777,6 +2129,7 @@
           "clean_recall": 0.9257082067536,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.19218007930054393,
           "student_noisy_mask": 0.20054295481840262,
           "rule_noisy_overmask": 0.0006787721106978802,
@@ -1796,6 +2149,18 @@
           "rule_or_noisy_f1": 0.9542762981960621,
           "rule_or_noisy_f2": 0.9659476438062907,
           "rule_or_noisy_target_detection": 0.7713452728029988,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.2286547271970012,
+          "rule_or_minus_rule_noisy": 0.19291961682632236,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.1845716605849508,
+            0.20125202212372406
+          ],
+          "rule_or_drop_advantage": 0.19291961682632236,
+          "rule_or_drop_advantage_ci95": [
+            0.1845716605849508,
+            0.20125202212372406
+          ],
           "rule_and_noisy_mask": 0.1781616029808948,
           "rule_and_noisy_overmask": 0.00028743232520606066,
           "rule_and_noisy_precision": 0.9987191667969548,
@@ -1831,6 +2196,7 @@
           "clean_recall": 0.9261468946381374,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.19218007930054393,
           "student_noisy_mask": 0.19995264679760577,
           "rule_noisy_overmask": 0.0006787721106978802,
@@ -1850,6 +2216,18 @@
           "rule_or_noisy_f1": 0.9538731415779154,
           "rule_or_noisy_f2": 0.9648953576903793,
           "rule_or_noisy_target_detection": 0.7579341940857975,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.24206580591420246,
+          "rule_or_minus_rule_noisy": 0.1795085381091212,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.17125652681560788,
+            0.1881619150348072
+          ],
+          "rule_or_drop_advantage": 0.1795085381091212,
+          "rule_or_drop_advantage_ci95": [
+            0.17125652681560788,
+            0.1881619150348072
+          ],
           "rule_and_noisy_mask": 0.1780426843051989,
           "rule_and_noisy_overmask": 0.00026179282201866554,
           "rule_and_noisy_precision": 0.9988326403388953,
@@ -1885,6 +2263,7 @@
           "clean_recall": 0.9236628244919446,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.19218007930054393,
           "student_noisy_mask": 0.19950161290149784,
           "rule_noisy_overmask": 0.0006787721106978802,
@@ -1904,6 +2283,18 @@
           "rule_or_noisy_f1": 0.9537609542046043,
           "rule_or_noisy_f2": 0.9647818739670402,
           "rule_or_noisy_target_detection": 0.768179925031237,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.231820074968763,
+          "rule_or_minus_rule_noisy": 0.1897542690545606,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.18079343807910664,
+            0.1983733858793101
+          ],
+          "rule_or_drop_advantage": 0.1897542690545606,
+          "rule_or_drop_advantage_ci95": [
+            0.18079343807910664,
+            0.1983733858793101
+          ],
           "rule_and_noisy_mask": 0.17759165040909095,
           "rule_and_noisy_overmask": 0.0002563950318739508,
           "rule_and_noisy_precision": 0.9988538059674481,
@@ -1962,6 +2353,10 @@
         "rule_or_noisy_f1": 0.9539701313261939,
         "rule_or_noisy_f2": 0.9652082918212367,
         "rule_or_noisy_target_detection": 0.7658197973066777,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.2341802026933222,
+        "rule_or_minus_rule_noisy": 0.1873941413300014,
+        "rule_or_drop_advantage": 0.1873941413300014,
         "rule_and_noisy_mask": 0.1779319792317282,
         "rule_and_noisy_overmask": 0.000268540059699559,
         "rule_and_noisy_precision": 0.9988018710344327,
@@ -1971,7 +2366,8 @@
         "rule_and_noisy_target_detection": 0.5194779952797446
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": true
+      "all_seeds_absolute_gate": true,
+      "all_seeds_rule_or_absolute_gate": true
     },
     "mrpc": {
       "name": "MRPC",
@@ -1995,6 +2391,7 @@
           "clean_recall": 0.9402200528910509,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.12287129274638697,
           "student_noisy_mask": 0.1331450155220348,
           "rule_noisy_overmask": 0.0005846629700878881,
@@ -2014,6 +2411,18 @@
           "rule_or_noisy_f1": 0.9536431407272,
           "rule_or_noisy_f2": 0.9594473436170946,
           "rule_or_noisy_target_detection": 0.8579662412515439,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.14203375874845614,
+          "rule_or_minus_rule_noisy": 0.26368876080691644,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.2479018357389965,
+            0.28014912510677165
+          ],
+          "rule_or_drop_advantage": 0.26368876080691644,
+          "rule_or_drop_advantage_ci95": [
+            0.2479018357389965,
+            0.28014912510677165
+          ],
           "rule_and_noisy_mask": 0.11269483598518315,
           "rule_and_noisy_overmask": 0.0002970465089962657,
           "rule_and_noisy_precision": 0.9977343834286331,
@@ -2049,6 +2458,7 @@
           "clean_recall": 0.9335596983251168,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.12287129274638697,
           "student_noisy_mask": 0.133943407390596,
           "rule_noisy_overmask": 0.0005846629700878881,
@@ -2068,6 +2478,18 @@
           "rule_or_noisy_f1": 0.9594685143207448,
           "rule_or_noisy_f2": 0.9663042666712612,
           "rule_or_noisy_target_detection": 0.8880197612186085,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.11198023878139152,
+          "rule_or_minus_rule_noisy": 0.29374228077398107,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.2769010043041607,
+            0.3112359505567238
+          ],
+          "rule_or_drop_advantage": 0.29374228077398107,
+          "rule_or_drop_advantage_ci95": [
+            0.2769010043041607,
+            0.3112359505567238
+          ],
           "rule_and_noisy_mask": 0.11300284503092249,
           "rule_and_noisy_overmask": 0.00024046622156840557,
           "rule_and_noisy_precision": 0.9981709285227558,
@@ -2103,6 +2525,7 @@
           "clean_recall": 0.9316007705116066,
           "quality_gate": true,
           "absolute_gate": true,
+          "rule_or_absolute_gate": true,
           "rule_noisy_mask": 0.12287129274638697,
           "student_noisy_mask": 0.1316292867969491,
           "rule_noisy_overmask": 0.0005846629700878881,
@@ -2122,6 +2545,18 @@
           "rule_or_noisy_f1": 0.9589911684296408,
           "rule_or_noisy_f2": 0.9635175480478839,
           "rule_or_noisy_target_detection": 0.8583779333058872,
+          "rule_or_clean_target_detection": 1.0,
+          "rule_or_detection_drop": 0.1416220666941128,
+          "rule_or_minus_rule_noisy": 0.26410045286125977,
+          "rule_or_minus_rule_noisy_ci95": [
+            0.24804272999593074,
+            0.28048792183550114
+          ],
+          "rule_or_drop_advantage": 0.26410045286125977,
+          "rule_or_drop_advantage_ci95": [
+            0.24804272999593074,
+            0.28048792183550114
+          ],
           "rule_and_noisy_mask": 0.11182349460578894,
           "rule_and_noisy_overmask": 0.00025932631737769226,
           "rule_and_noisy_precision": 0.9980066685995941,
@@ -2180,6 +2615,10 @@
         "rule_or_noisy_f1": 0.9573676078258618,
         "rule_or_noisy_f2": 0.9630897194454132,
         "rule_or_noisy_target_detection": 0.8681213119253465,
+        "rule_or_clean_target_detection": 1.0,
+        "rule_or_detection_drop": 0.1318786880746535,
+        "rule_or_minus_rule_noisy": 0.27384383148071906,
+        "rule_or_drop_advantage": 0.27384383148071906,
         "rule_and_noisy_mask": 0.11250705854063153,
         "rule_and_noisy_overmask": 0.00026561301598078787,
         "rule_and_noisy_precision": 0.997970660183661,
@@ -2189,7 +2628,8 @@
         "rule_and_noisy_target_detection": 0.46521202140798684
       },
       "all_seeds_quality_gate": true,
-      "all_seeds_absolute_gate": true
+      "all_seeds_absolute_gate": true,
+      "all_seeds_rule_or_absolute_gate": true
     }
   },
   "pooled_by_noise": {
