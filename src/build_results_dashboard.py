@@ -371,7 +371,7 @@ def future_defect_time_axis_table():
  pair_total=sum(item['pairs'] for item in source['datasets'].values())
  strict_win_count=sum(item['all_seeds_absolute_gate'] for item in source['datasets'].values())
  return (
-  "<h2>4-4. 학습 미포함 입력 교란 평가</h2>"
+  "<h2>4. 학습 미포함 입력 교란 평가</h2>"
   f"<p class='lede'>ELECTRA-small + hidden-128 MLP의 기존 strict seen-5 checkpoint를 그대로 사용했다. 학습·validation·threshold 선택에 없던 7종의 입력 교란을 test 전용으로 두고, clean 최신 v1.4 span을 고정 정답으로 이동했다. {dataset_count}개 데이터셋, {pair_total:,} pair, seed 42·43·44 결과다.</p>"
   "<div class='notice warn'><strong>모델 범위:</strong> 이 strict seen-5/unseen-7 프로토콜은 ELECTRA-small만 실행했다. BERT-tiny·DistilRoBERTa의 3모델 결과는 부록 A의 별도 clean-only·제한 표본 조건이므로 이 표의 수치와 직접 비교할 수 없다.</div>"
   "<div class='notice'><strong>읽는 법:</strong> 여기서 성공은 token F2가 아니라 <strong>오염 전 최신 규칙이 잡은 고정 target span을 오염 후에도 가렸는가</strong>다. Student가 규칙보다 미래 target을 더 많이 잡고, clean→future 하락도 더 작아야 우세다. 각 seed에서 source-cluster bootstrap 95% CI가 모두 0보다 큰 경우만 ‘우세’로 표시했다.</div>"
@@ -379,13 +379,13 @@ def future_defect_time_axis_table():
   + ''.join(rows)
   + "</tbody></table></div>"
   f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
-  "<h3>4-4-1. 입력 교란에서 Rule/Student 결합 방식 비교</h3>"
+  "<h3>4-1. 입력 교란에서 Rule/Student 결합 방식 비교</h3>"
   "<p class='lede'><strong>주 지표는 앞의 두 열</strong>이다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이고, Rule 대비 차이는 그 차이다. 뒤의 Mask·FP·P/R/F1/F2는 OR·AND의 주 지표 변화가 과마스킹 때문인지 점검하는 보조 지표다. 모든 수치는 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종 noisy pair에서 측정했다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
   + ''.join(combo_rows)
   + "</tbody></table></div>"
   "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
-  "<h3>4-4-2. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
+  "<h3>4-2. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
@@ -441,13 +441,13 @@ def actual_rule_version_time_axis_table():
   "두 데이터셋 모두 v1.2 규칙이 통계적으로 우세했다. 현재의 단순 규칙 모방 Student가 미래 결함을 선제적으로 일반화한다는 가설은 지지되지 않았다."
  )
  return (
-  "<h2>4-5. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
+  "<h2>5. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
   f"<p class='lede'>과거 commit b8dff7e의 v1.2 규칙으로 전체 train을 다시 라벨링하고, 그 라벨만 본 ELECTRA-small Student를 이후 Git에서 실제 추가된 패치 target에 평가했다. {dataset_count}개 데이터셋, 최신 규칙 검증 target {target_count:,}개, seed 42 결과다.</p>"
   "<div class='notice'><strong>4-4와의 차이:</strong> 4-4는 최신 규칙을 기준으로 만든 학습 미포함 합성 교란이다. 이 절은 <strong>실제 Git 시간순서</strong>를 지켜 v1.2 코드·라벨·Student가 나중의 v1.3/v1.4 결함을 잡았는지 본다. 미래 target은 학습과 threshold 선택에 사용하지 않았다.</div>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future target</th><th>고유 원문</th><th>v1.2 Clean F2</th><th>Student clean mask</th><th>v1.2 규칙 탐지</th><th>v1.2 Student 탐지</th><th>Student−규칙<br>95% CI</th><th>최신 v1.4<br>참고 상한</th><th>판정</th></tr></thead><tbody>"
   +''.join(rows)+"</tbody></table></div>"
   f"<div class='notice'><strong>판정:</strong> target을 구성하는 모든 word를 가려야 성공이다. source 원문 단위 bootstrap 95% CI의 하한이 0보다 클 때만 Student 우세로 표시했다. 현재 데이터셋 단위 우세는 <strong>{wins}/{dataset_count}</strong>다.</div>"
-  "<h3>4-5-1. 실제 후속 패치 결함별 탐지</h3>"
+  "<h3>5-1. 실제 후속 패치 결함별 탐지</h3>"
   "<p class='lede'>최신 v1.4가 실제 민감 구간으로 확인한 후보만 분모로 사용한다. 최신 규칙 탐지는 정의상 100%이며, 아래 표는 패치 전 두 방식의 차이를 보여준다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>추가 버전</th><th class='left'>실제 후속 패치</th><th>Target</th><th>v1.2 규칙</th><th>v1.2 Student</th><th>Student−규칙<br>95% CI</th></tr></thead><tbody>"
   +''.join(defect_rows)+"</tbody></table></div>"
@@ -481,6 +481,8 @@ def main():
   + actual_rule_version_time_axis_table()
   + '<h2>5. 결과 분석</h2>'
  )
+ html=html.replace('<h2>5. 결과 분석</h2>', '<h2>6. 결과 분석</h2>')
+ html=html.replace('<h2>6. 지표 읽는 법</h2>', '<h2>7. 지표 읽는 법</h2>')
  html=html.replace('__APPENDIX__', robustness_table())
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')
