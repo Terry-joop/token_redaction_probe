@@ -407,13 +407,7 @@ def future_defect_time_axis_table():
   + ''.join(rows)
   + "</tbody></table></div>"
   f"<div class='notice'><strong>결론 범위:</strong> {dataset_count}개 중 {strict_win_count}개 데이터셋이 raw 규칙 v1.4 대비 고정 target 탐지와 하락폭에서 3-seed 우세다. 우세 행은 입력 교란 상황에서의 <strong>로컬 fallback/병렬 보완 redactor</strong> 근거다. 최신 규칙 전체를 대체한다는 뜻은 아니며, 아래 결합 방식의 과마스킹도 함께 확인해야 한다.</div>"
-  "<h3>4-1. 입력 교란에서 Rule/Student 결합 방식 비교</h3>"
-  "<p class='lede'><strong>주 지표는 앞의 두 열</strong>이다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이고, Rule 대비 차이는 그 차이다. 뒤의 Mask·FP·P/R/F1/F2는 OR·AND의 주 지표 변화가 과마스킹 때문인지 점검하는 보조 지표다. 모든 수치는 학습·검증·threshold 선택에 쓰지 않은 미래 교란 7종 noisy pair에서 측정했다.</p>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
-  + ''.join(combo_rows)
-  + "</tbody></table></div>"
-  "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. 즉 <strong>가리지 않아도 되는 것을 가린 비율</strong>이며 낮을수록 좋다. Mask는 전체 토큰 중 가린 비율이라 민감 토큰을 많이 찾은 결과와 과마스킹을 구분하지 못하므로, OR은 F2·고정 target 탐지와 함께 이 FP 열을 반드시 같이 본다.</div>"
-  "<h3>4-2. 결합 방식 한눈에 보기</h3>"
+  "<h3>4-1. 결합 방식 한눈에 보기</h3>"
   "<p class='lede'>4-1의 40개 행을 데이터셋 단위로 압축한 요약이다. 고정 target 탐지와 OR의 불필요 mask를 우선 본다.</p>"
   "<div class='analysis-grid'>"
   f"<article class='analysis-card'><h3>Student 단독</h3><p>규칙보다 noisy target 탐지가 높은 데이터셋은 <strong>{student_better}/10개</strong>다. Macro는 규칙 <strong>{macro('rule_noisy_target_detection')*100:.1f}%</strong>, Student <strong>{macro('student_noisy_target_detection')*100:.1f}%</strong>로 +{(macro('student_noisy_target_detection')-macro('rule_noisy_target_detection'))*100:.1f}%p다. 단독 대체 근거로는 일관적이지 않다.</p></article>"
@@ -424,11 +418,41 @@ def future_defect_time_axis_table():
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>Student only<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th></tr></thead><tbody>"
   + ''.join(combo_summary_rows)
   + "</tbody></table></div>"
-  "<h3>4-3. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
+  "<h3>4-2. 입력 교란 종류별 공통 clean-correct span 생존</h3>"
   "<p class='lede'>clean에서 규칙과 Student가 모두 맞힌 span만 분모로 둔 보조 분석이다. 특정 교란이 한 데이터셋에 거의 없으면 사례 수준으로만 해석한다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>미래 교란</th><th>공통 span</th><th>규칙 생존</th><th>Student 생존</th><th>차이</th></tr></thead><tbody>"
   + ''.join(noise_rows)
  + "</tbody></table></div>"
+ )
+
+
+def combination_detail_appendix():
+ path=ROOT/'reports/future_defect_time_axis_summary.json'
+ if not path.exists(): return ''
+ source=load(path); rows=[]
+ for item in source['datasets'].values():
+  s=item['summary']
+  for index,(prefix,label) in enumerate((
+   ('rule','Rule only'), ('student','Student only'),
+   ('rule_or','Rule OR Student'), ('rule_and','Rule AND Student'),
+  )):
+   dataset_cell=(
+    f"<td rowspan='4' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['domain']} · {item['policy']}</span></td>"
+    if index == 0 else ''
+   )
+   target=s[f'{prefix}_noisy_target_detection']
+   rows.append(
+    f"<tr>{dataset_cell}<td class='left meta'>{label}</td><td class='best'>{target*100:.1f}%</td>"
+    f"<td class='best'>{(target-s['rule_noisy_target_detection'])*100:+.1f}%p</td><td>{s[f'{prefix}_noisy_mask']*100:.1f}%</td>"
+    f"<td class='over'>{s[f'{prefix}_noisy_overmask']*100:.1f}%</td><td>{s[f'{prefix}_noisy_precision']:.3f}</td>"
+    f"<td>{s[f'{prefix}_noisy_recall']:.3f}</td><td>{s[f'{prefix}_noisy_f1']:.3f}</td><td>{s[f'{prefix}_noisy_f2']:.3f}</td></tr>"
+   )
+ return (
+  "<h2>부록 B. 입력 교란 결합 방식 상세</h2>"
+  "<p class='lede'>본문 4-1의 압축 표에 대한 40행 원자료다. 고정 target 탐지는 clean 최신 규칙이 잡은 span을 미래 교란 후에도 전부 가린 비율이다.</p>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>방식</th><th>고정 target<br>탐지</th><th>Rule 대비<br>차이</th><th>Mask</th><th>불필요 mask<br>(FP)</th><th>P</th><th>R</th><th>F1</th><th>F2</th></tr></thead><tbody>"
+  + ''.join(rows) + "</tbody></table></div>"
+  "<div class='notice warn'><strong>불필요 mask(FP):</strong> pseudo-gold가 0인 토큰 중 실제로 1로 가린 비율이다. OR은 target 탐지와 FP를 함께 봐야 한다.</div>"
  )
 
 
@@ -522,7 +546,7 @@ def main():
  )
  html=html.replace('<h2>5. 결과 분석</h2>', '<h2>6. 결과 분석</h2>')
  html=html.replace('<h2>6. 지표 읽는 법</h2>', '<h2>7. 지표 읽는 법</h2>')
- html=html.replace('__APPENDIX__', robustness_table())
+ html=html.replace('__APPENDIX__', robustness_table() + combination_detail_appendix())
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')
 if __name__=='__main__': main()
