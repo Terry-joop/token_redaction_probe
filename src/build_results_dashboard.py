@@ -492,6 +492,36 @@ def unseen_perturbation_appendix():
  )
 
 
+def seen_augmentation_ablation_table():
+ path=ROOT/'reports/future_seen_ablation_summary.json'
+ if not path.exists(): return ''
+ source=load(path); rows=[]
+ for item in source['datasets'].values():
+  clean=item['clean_only']; seen=item['seen5']; delta=item['seen5_minus_clean_only']
+  rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']} · {item['policy']}</span></td>"
+   f"<td>{item['pairs']:,}</td><td>{clean['clean_f2']:.3f}</td><td>{seen['clean_f2']:.3f}</td>"
+   f"<td>{clean['future_target']*100:.1f}%</td><td class='best'>{seen['future_target']*100:.1f}%</td>"
+   f"<td class='best'>{delta['future_target']*100:+.1f}%p</td><td>{clean['drop']*100:.1f}%p</td>"
+   f"<td>{seen['drop']*100:.1f}%p</td><td class='best'>{(clean['drop']-seen['drop'])*100:+.1f}%p</td>"
+   f"<td>{clean['future_precision']:.3f} / {seen['future_precision']:.3f}</td>"
+   f"<td>{clean['future_f2']:.3f} / {seen['future_f2']:.3f}</td></tr>"
+  )
+ values=list(source['datasets'].values())
+ macro=lambda arm,key: sum(x[arm][key] for x in values)/len(values)
+ return (
+  "<h2>5. Seen 교란 증강의 기여 — clean-only vs Seen-5 Student</h2>"
+  "<p class='lede'>4번과 <strong>완전히 같은</strong> clean split·ELECTRA-small·hidden-128 MLP·5 epoch·seed 42/43/44·Future 7 pair·rule cache를 사용했다. 차이는 학습 입력 하나뿐이다: clean-only는 clean v1.4 라벨만, Seen-5는 각 eligible clean train 행에 과거 교란 한 개를 추가로 본다. Future 7은 양쪽 모두 학습·validation·threshold 선택에 없다.</p>"
+  "<div class='notice'><strong>읽는 법:</strong> Future target과 하락폭은 모두 4번과 동일한 <strong>고정 target span</strong> 기준이다. Seen-5−clean-only가 양수이고 Seen-5 하락폭이 더 작으면, 과거 교란 증강이 학습하지 않은 Future 표면형에도 도움이 된 것이다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean-only<br>Clean F2</th><th>Seen-5<br>Clean F2</th><th>Clean-only<br>Future target</th><th>Seen-5<br>Future target</th><th>Seen−Clean<br>탐지 차이</th><th>Clean-only<br>하락</th><th>Seen-5<br>하락</th><th>하락폭 개선</th><th>Future P<br>Clean / Seen</th><th>Future F2<br>Clean / Seen</th></tr></thead><tbody>"
+  + ''.join(rows) + "</tbody></table></div>"
+  f"<div class='analysis-grid'><article class='analysis-card'><h3>평균 Future target</h3><p>clean-only <strong>{macro('clean_only','future_target')*100:.1f}%</strong> → Seen-5 <strong>{macro('seen5','future_target')*100:.1f}%</strong> ({(macro('seen5','future_target')-macro('clean_only','future_target'))*100:+.1f}%p)다.</p></article>"
+  f"<article class='analysis-card'><h3>평균 하락폭</h3><p>clean-only <strong>{macro('clean_only','drop')*100:.1f}%p</strong>, Seen-5 <strong>{macro('seen5','drop')*100:.1f}%p</strong>다. 차이는 {(macro('clean_only','drop')-macro('seen5','drop'))*100:+.1f}%p다.</p></article>"
+  f"<article class='analysis-card'><h3>Clean 기본 품질</h3><p>Clean F2는 clean-only <strong>{macro('clean_only','clean_f2'):.3f}</strong>, Seen-5 <strong>{macro('seen5','clean_f2'):.3f}</strong>다. Future 강건성 변화가 clean 품질 희생인지 함께 확인한다.</p></article>"
+  "<article class='analysis-card'><h3>해석 범위</h3><p>이 표는 Seen 교란 증강의 <strong>인과적 기여</strong>를 보는 ablation이다. 규칙과의 우세가 아니라, Student가 과거 표면 결함을 본 것이 Future 7 일반화를 실제로 높였는지를 확인한다.</p></article></div>"
+ )
+
+
 def actual_rule_version_time_axis_table():
  path=ROOT/'reports/temporal_rule_version_summary.json'
  if not path.exists(): return ''
@@ -552,14 +582,14 @@ def actual_rule_version_time_axis_table():
   "두 데이터셋 모두 v1.2 규칙이 통계적으로 우세했다. 현재의 단순 규칙 모방 Student가 미래 결함을 선제적으로 일반화한다는 가설은 지지되지 않았다."
  )
  return (
-  "<h2>5. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
+  "<h2>6. 실제 규칙 버전 시간축 평가 — v1.2 → v1.3/v1.4</h2>"
   f"<p class='lede'>과거 commit b8dff7e의 v1.2 규칙으로 전체 train을 다시 라벨링하고, 그 라벨만 본 ELECTRA-small Student를 이후 Git에서 실제 추가된 패치 target에 평가했다. {dataset_count}개 데이터셋, 최신 규칙 검증 target {target_count:,}개, seed 42 결과다.</p>"
   "<div class='notice'><strong>4-4와의 차이:</strong> 4-4는 최신 규칙을 기준으로 만든 학습 미포함 합성 교란이다. 이 절은 <strong>실제 Git 시간순서</strong>를 지켜 v1.2 코드·라벨·Student가 나중의 v1.3/v1.4 결함을 잡았는지 본다. 미래 target은 학습과 threshold 선택에 사용하지 않았다.</div>"
-  "<h3>5-1. 과거 규칙과 과거 Student의 미래 target 탐지</h3>"
+  "<h3>6-1. 과거 규칙과 과거 Student의 미래 target 탐지</h3>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future target</th><th>고유 원문</th><th>v1.2 Clean F2</th><th>Student clean mask</th><th>v1.2 규칙 탐지</th><th>v1.2 Student 탐지</th><th>Student−규칙<br>95% CI</th><th>최신 v1.4<br>참고 상한</th><th>판정</th></tr></thead><tbody>"
   +''.join(rows)+"</tbody></table></div>"
   f"<div class='notice'><strong>판정:</strong> target을 구성하는 모든 word를 가려야 성공이다. source 원문 단위 bootstrap 95% CI의 하한이 0보다 클 때만 Student 우세로 표시했다. 현재 데이터셋 단위 우세는 <strong>{wins}/{dataset_count}</strong>다.</div>"
-  "<h3>5-2. 실제 후속 패치 결함별 탐지</h3>"
+  "<h3>6-2. 실제 후속 패치 결함별 탐지</h3>"
   "<p class='lede'>최신 v1.4가 실제 민감 구간으로 확인한 후보만 분모로 사용한다. 각 행의 예시는 해당 Git 패치가 추가한 대표 표기이며, 평가 target은 held-out 원문에서 뽑았다. 최신 규칙 탐지는 정의상 100%다.</p>"
   "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>추가 버전</th><th class='left'>실제 후속 패치</th><th>Target</th><th>v1.2 규칙</th><th>v1.2 Student</th><th>Student−규칙<br>95% CI</th></tr></thead><tbody>"
   +''.join(defect_rows)+"</tbody></table></div>"
@@ -612,11 +642,12 @@ def main():
  html=html.replace('__ANALYSIS_45__', robustness_and_temporal_analysis())
  html=html.replace(
   '<h2>5. 결과 분석</h2>', future_defect_time_axis_table()
+  + seen_augmentation_ablation_table()
   + actual_rule_version_time_axis_table()
   + '<h2>5. 결과 분석</h2>'
  )
- html=html.replace('<h2>5. 결과 분석</h2>', '<h2>6. 결과 분석</h2>')
- html=html.replace('<h2>6. 지표 읽는 법</h2>', '<h2>7. 지표 읽는 법</h2>')
+ html=html.replace('<h2>5. 결과 분석</h2>', '<h2>7. 결과 분석</h2>')
+ html=html.replace('<h2>6. 지표 읽는 법</h2>', '<h2>8. 지표 읽는 법</h2>')
  html=html.replace('__APPENDIX__', robustness_table() + combination_detail_appendix() + unseen_perturbation_appendix())
  OUT.mkdir(exist_ok=True); write_csv(data,OUT/'redactor_results.csv')
  (OUT/'redactor_results_dashboard.html').write_text(html,encoding='utf-8'); print(f'wrote dashboard; rows={len(data)}, csv_rows={len(data)*2}, examples={example_count:,}')

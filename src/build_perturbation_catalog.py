@@ -156,6 +156,35 @@ CATALOG = [
     },
 ]
 
+# These are evaluated by dashboard section 4 (not the earlier strict 5/7
+# protocol).  They were intentionally not used in Student training,
+# validation, or threshold selection.
+FUTURE_CATALOG = [
+    ("F-01", "zwnj_inside", "단어 내부 ZWNJ", "U+200C", "없음"),
+    ("F-02", "word_joiner_inside", "단어 내부 word joiner", "U+2060", "없음"),
+    ("F-03", "soft_hyphen_inside", "단어 내부 soft hyphen", "U+00AD", "없음"),
+    ("F-04", "fullwidth_apostrophe", "전각 아포스트로피", "U+FF07", "없음"),
+    ("F-05", "dosage_nb_hyphen", "용량 non-breaking hyphen", "U+2011", "없음"),
+    ("F-06", "narrow_nbsp", "좁은 non-breaking 공백", "U+202F", "없음"),
+    ("F-07", "right_paren_after_number", "숫자 뒤 닫는 괄호", "U+0029", "전용 패치 없음"),
+]
+
+V14_COVERAGE = {
+    "double_space": "부분: token render의 중복 공백 축약. raw 이중 공백 전체 보장은 아님",
+    "curly_apostrophe": "부분: 소유격 처리에서 U+2019 인식. 범용 정규화는 아님",
+    "c1_apostrophe": "직접: v1.3 C1 U+0091~U+0097 → ASCII 1:1 정규화",
+    "dosage_join": "직접: v1.3 glued dosage(예: 25mg) 규칙",
+    "comma_after_number": "전용 패치 없음",
+    "triple_space": "전용 패치 없음",
+    "nbsp": "전용 패치 없음",
+    "modifier_apostrophe": "전용 패치 없음",
+    "dosage_hyphen": "전용 패치 없음",
+    "dosage_thin_space": "전용 패치 없음",
+    "semicolon_after_number": "전용 패치 없음",
+    "zero_width_inside": "전용 패치 없음",
+    **{name: coverage for _, name, _, _, coverage in FUTURE_CATALOG},
+}
+
 
 GENERALIZATION_PAIRS = [
     (
@@ -336,6 +365,25 @@ def generalization_rows() -> str:
     )
 
 
+def future_coverage_section() -> str:
+    rows = []
+    for item in CATALOG:
+        rows.append(
+            f"<tr><td class='left'><code>{item['id']}</code></td><td class='left'>{escape(item['title'])}</td>"
+            f"<td>Seen/Unseen</td><td class='left'>{escape(V14_COVERAGE[item['name']])}</td></tr>"
+        )
+    for identifier, name, title, codepoint, coverage in FUTURE_CATALOG:
+        rows.append(
+            f"<tr><td class='left'><code>{identifier}</code></td><td class='left'>{escape(title)} <code>{codepoint}</code></td>"
+            f"<td>Future</td><td class='left'>{escape(coverage)}</td></tr>"
+        )
+    return """
+<h2>5. Future 7종과 v1.4 규칙의 직접 커버 범위</h2>
+<p class='lede'>현재 실험 대시보드의 ‘학습 미포함 입력 교란 평가’는 <strong>Future 7종만</strong> 사용한다. v1.4가 clean 정답을 생성했더라도 이 7종을 정규화하도록 추가된 규칙은 없다. 따라서 noisy에서 raw 규칙 탐지율이 떨어질 수 있다.</p>
+<div class='notice warn'><strong>중요:</strong> v1.3/v1.4의 실제 패치와 실험 교란을 구분해야 한다. 명시적으로 겹치는 것은 C1 <code>U+0092</code>와 <code>25 mg → 25mg</code>뿐이며, 둘 다 Seen 학습 교란이다. Future 7종은 전부 학습·검증·threshold 선택에 없고 전용 v1.4 패치도 없다.</div>
+<div class='tablewrap'><table><thead><tr><th class='left'>ID</th><th class='left'>교란</th><th>실험 그룹</th><th class='left'>v1.4 직접 커버 여부</th></tr></thead><tbody>""" + "".join(rows) + "</tbody></table></div>"
+
+
 def build_html() -> str:
     validate_catalog()
     examples = load_examples()
@@ -438,7 +486,11 @@ def build_markdown() -> str:
 
 def main() -> None:
     OUT.parent.mkdir(parents=True, exist_ok=True)
-    html = "\n".join(line.rstrip() for line in build_html().splitlines()) + "\n"
+    html = build_html()
+    html = html.replace("입력 오염 규칙 12종", "입력 교란 19종")
+    html = html.replace("<b>12</b><span>전체 교란</span>", "<b>19</b><span>등록 교란 · Seen 5 / Unseen 7 / Future 7</span>")
+    html = html.replace("<h2>5. 해석 범위와 재현성 주의</h2>", future_coverage_section() + "<h2>6. 해석 범위와 재현성 주의</h2>")
+    html = "\n".join(line.rstrip() for line in html.splitlines()) + "\n"
     markdown = "\n".join(line.rstrip() for line in build_markdown().splitlines()) + "\n"
     OUT.write_text(html, encoding="utf-8")
     MARKDOWN_OUT.write_text(markdown, encoding="utf-8")
