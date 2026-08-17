@@ -1,0 +1,1189 @@
+{
+  "protocol": {
+    "comparison": "Same clean split, ELECTRA-small + hidden-128 MLP, 5 epochs, seed 42/43/44, and fixed Future-7 pairs/rule cache.",
+    "only_difference": "clean-only trains on clean v1.4 teacher labels; seen-5 additionally trains on one Seen perturbation per eligible clean train row.",
+    "future_noise_use": "Future-7 never enters either training, validation, or threshold selection."
+  },
+  "datasets": {
+    "drug": {
+      "name": "Drug Reviews",
+      "domain": "의료: 약물·용량·증상",
+      "policy": "medterm5 v1.4",
+      "pairs": 9519,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.9099999999999999,
+          "clean_f2": 0.8945476531634876,
+          "clean_recall": 0.8900655156784375,
+          "clean_target": 0.9111251181846832,
+          "future_target": 0.6714991070490598,
+          "drop": 0.23962601113562343,
+          "future_precision": 0.9172206689448069,
+          "future_recall": 0.8567835793465013,
+          "future_f2": 0.8682253214088274,
+          "future_mask": 0.0918468667255075
+        },
+        {
+          "seed": 43,
+          "threshold": 0.9199999999999999,
+          "clean_f2": 0.9017581663123588,
+          "clean_recall": 0.8983991923853476,
+          "clean_target": 0.9094442693560247,
+          "future_target": 0.6706586826347305,
+          "drop": 0.23878558672129424,
+          "future_precision": 0.9198787353832828,
+          "future_recall": 0.8628968292352633,
+          "future_f2": 0.8737213666440747,
+          "future_mask": 0.09223491189092127
+        },
+        {
+          "seed": 44,
+          "threshold": 0.9199999999999999,
+          "clean_f2": 0.9049301894444123,
+          "clean_recall": 0.901067205076435,
+          "clean_target": 0.9207899989494694,
+          "future_target": 0.6794831389851875,
+          "drop": 0.24130685996428192,
+          "future_precision": 0.9245325896085115,
+          "future_recall": 0.8657599969046836,
+          "future_f2": 0.8769090289180895,
+          "future_mask": 0.0920751285875156
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9118557692506561,
+          "clean_recall": 0.9083295562239895,
+          "clean_target": 0.9277235003676857,
+          "future_target": 0.745771614665406,
+          "drop": 0.18195188570227971,
+          "future_precision": 0.9306009477898521,
+          "future_recall": 0.8813623261302741,
+          "future_f2": 0.890788753323948,
+          "future_mask": 0.09312323097056943
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9091182030698385,
+          "clean_recall": 0.904579916766245,
+          "clean_target": 0.9185838848618553,
+          "future_target": 0.6678222502363693,
+          "drop": 0.25076163462548595,
+          "future_precision": 0.9314162965422772,
+          "future_recall": 0.8681878857054419,
+          "future_f2": 0.8801373624218461,
+          "future_mask": 0.09165094196061722
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9105042095087078,
+          "clean_recall": 0.9061766038979768,
+          "clean_target": 0.9242567496585776,
+          "future_target": 0.6809538817102637,
+          "drop": 0.2433028679483139,
+          "future_precision": 0.9319458140862615,
+          "future_recall": 0.868420034435395,
+          "future_f2": 0.8804227802370441,
+          "future_mask": 0.0916233603189579
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9004120029734196,
+        "clean_recall": 0.8965106377134067,
+        "clean_target": 0.9137864621633924,
+        "future_target": 0.6738803095563259,
+        "drop": 0.23990615260706652,
+        "future_precision": 0.920543997978867,
+        "future_recall": 0.8618134684954827,
+        "future_f2": 0.8729519056569973,
+        "future_mask": 0.09205230240131479
+      },
+      "seen5": {
+        "clean_f2": 0.9104927272764008,
+        "clean_recall": 0.9063620256294037,
+        "clean_target": 0.9235213782960395,
+        "future_target": 0.6981825822040131,
+        "drop": 0.22533879609202653,
+        "future_precision": 0.9313210194727969,
+        "future_recall": 0.8726567487570369,
+        "future_f2": 0.8837829653276127,
+        "future_mask": 0.09213251108338151
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.010080724302981237,
+        "clean_recall": 0.009851387915997045,
+        "clean_target": 0.009734916132647098,
+        "future_target": 0.02430227264768714,
+        "drop": -0.014567356515039986,
+        "future_precision": 0.010777021493929895,
+        "future_recall": 0.010843280261554233,
+        "future_f2": 0.010831059670615373,
+        "future_mask": 8.020868206672083e-05
+      }
+    },
+    "symptom2dx": {
+      "name": "Symptom2Dx",
+      "domain": "의료: 증상·용량",
+      "policy": "medterm5 v1.4",
+      "pairs": 371,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.8999999999999999,
+          "clean_f2": 0.9018391313981831,
+          "clean_recall": 0.9069637883008357,
+          "clean_target": 0.9433962264150944,
+          "future_target": 0.20754716981132076,
+          "drop": 0.7358490566037736,
+          "future_precision": 0.8705882352941177,
+          "future_recall": 0.6663507109004739,
+          "future_f2": 0.6991546494281452,
+          "future_mask": 0.1261226083561109
+        },
+        {
+          "seed": 43,
+          "threshold": 0.84,
+          "clean_f2": 0.9171368514216174,
+          "clean_recall": 0.9236768802228412,
+          "clean_target": 0.9514824797843666,
+          "future_target": 0.19137466307277629,
+          "drop": 0.7601078167115903,
+          "future_precision": 0.8819487820112429,
+          "future_recall": 0.6691943127962086,
+          "future_f2": 0.7031172194004581,
+          "future_mask": 0.1250292854353768
+        },
+        {
+          "seed": 44,
+          "threshold": 0.8699999999999999,
+          "clean_f2": 0.9151047409040793,
+          "clean_recall": 0.924791086350975,
+          "clean_target": 0.9326145552560647,
+          "future_target": 0.21293800539083557,
+          "drop": 0.7196765498652291,
+          "future_precision": 0.867505995203837,
+          "future_recall": 0.685781990521327,
+          "future_f2": 0.7157696873763356,
+          "future_mask": 0.1302616165560328
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9244115371864294,
+          "clean_recall": 0.932033426183844,
+          "clean_target": 0.9326145552560647,
+          "future_target": 0.24528301886792453,
+          "drop": 0.6873315363881403,
+          "future_precision": 0.8861788617886179,
+          "future_recall": 0.7232227488151659,
+          "future_f2": 0.7508364495178115,
+          "future_mask": 0.13447871925029287
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9258645453541046,
+          "clean_recall": 0.9337047353760446,
+          "clean_target": 0.9460916442048517,
+          "future_target": 0.2183288409703504,
+          "drop": 0.7277628032345013,
+          "future_precision": 0.8847560975609756,
+          "future_recall": 0.6876777251184835,
+          "future_f2": 0.7197420634920635,
+          "future_mask": 0.1280749707145646
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9285004965243296,
+          "clean_recall": 0.9376044568245125,
+          "clean_target": 0.9487870619946092,
+          "future_target": 0.2776280323450135,
+          "drop": 0.6711590296495957,
+          "future_precision": 0.8808437856328393,
+          "future_recall": 0.7322274881516587,
+          "future_f2": 0.7577987051206592,
+          "future_mask": 0.13697774306911362
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9113602412412932,
+        "clean_recall": 0.9184772516248839,
+        "clean_target": 0.9424977538185085,
+        "future_target": 0.20395327942497754,
+        "drop": 0.7385444743935311,
+        "future_precision": 0.8733476708363992,
+        "future_recall": 0.6737756714060031,
+        "future_f2": 0.7060138520683129,
+        "future_mask": 0.1271378367825068
+      },
+      "seen5": {
+        "clean_f2": 0.9262588596882879,
+        "clean_recall": 0.9344475394614671,
+        "clean_target": 0.9424977538185085,
+        "future_target": 0.24707996406109614,
+        "drop": 0.6954177897574124,
+        "future_precision": 0.8839262483274776,
+        "future_recall": 0.7143759873617693,
+        "future_f2": 0.7427924060435114,
+        "future_mask": 0.13317714434465702
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.014898618446994694,
+        "clean_recall": 0.015970287836583164,
+        "clean_target": 0.0,
+        "future_target": 0.0431266846361186,
+        "drop": -0.043126684636118684,
+        "future_precision": 0.010578577491078378,
+        "future_recall": 0.040600315955766186,
+        "future_f2": 0.03677855397519847,
+        "future_mask": 0.006039307562150209
+      }
+    },
+    "mednli": {
+      "name": "MedNLI",
+      "domain": "의료: 임상 문장쌍",
+      "policy": "medterm5 v1.4",
+      "pairs": 5356,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.8099999999999999,
+          "clean_f2": 0.9147584061779375,
+          "clean_recall": 0.915642278168447,
+          "clean_target": 0.8971247199402539,
+          "future_target": 0.7059372666168783,
+          "drop": 0.1911874533233756,
+          "future_precision": 0.9172848287775632,
+          "future_recall": 0.8731018473740207,
+          "future_f2": 0.8815946246850401,
+          "future_mask": 0.23277707473419038
+        },
+        {
+          "seed": 43,
+          "threshold": 0.8099999999999999,
+          "clean_f2": 0.9140966801063739,
+          "clean_recall": 0.9151860003220785,
+          "clean_target": 0.8960044809559373,
+          "future_target": 0.6992158327109783,
+          "drop": 0.196788648244959,
+          "future_precision": 0.9188646132716128,
+          "future_recall": 0.8735612728503723,
+          "future_f2": 0.8822610029256476,
+          "future_mask": 0.2324991425496434
+        },
+        {
+          "seed": 44,
+          "threshold": 0.84,
+          "clean_f2": 0.9088323674608285,
+          "clean_recall": 0.9091738686993397,
+          "clean_target": 0.8829350261389096,
+          "future_target": 0.5894324122479462,
+          "drop": 0.29350261389096344,
+          "future_precision": 0.9155073757152606,
+          "future_recall": 0.8433842731405359,
+          "future_f2": 0.8568852507345643,
+          "future_mask": 0.2252906461036273
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9128698629769374,
+          "clean_recall": 0.9130119705834988,
+          "clean_target": 0.8948842419716206,
+          "future_target": 0.6852128454070202,
+          "drop": 0.20967139656460043,
+          "future_precision": 0.9197202797202797,
+          "future_recall": 0.8745526646677628,
+          "future_f2": 0.8832277569121216,
+          "future_mask": 0.23254645015552375
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9130682031555963,
+          "clean_recall": 0.9136024477964464,
+          "clean_target": 0.9017923823749067,
+          "future_target": 0.6840926064227035,
+          "drop": 0.21769977595220313,
+          "future_precision": 0.921759828009828,
+          "future_recall": 0.8708530805687204,
+          "future_f2": 0.8805795712385572,
+          "future_mask": 0.23105034711955816
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9127107638478958,
+          "clean_recall": 0.9129851307101831,
+          "clean_target": 0.883495145631068,
+          "future_target": 0.6646751306945482,
+          "drop": 0.2188200149365198,
+          "future_precision": 0.9188406539900569,
+          "future_recall": 0.8669842344520746,
+          "future_f2": 0.8768819150289074,
+          "future_mask": 0.23075467458280605
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9125624845817133,
+        "clean_recall": 0.9133340490632884,
+        "clean_target": 0.8920214090117002,
+        "future_target": 0.6648618371919343,
+        "drop": 0.227159571819766,
+        "future_precision": 0.9172189392548122,
+        "future_recall": 0.8633491311216429,
+        "future_f2": 0.8735802927817508,
+        "future_mask": 0.23018895446248702
+      },
+      "seen5": {
+        "clean_f2": 0.9128829433268099,
+        "clean_recall": 0.9131998496967094,
+        "clean_target": 0.8933905899925317,
+        "future_target": 0.6779935275080907,
+        "drop": 0.21539706248444113,
+        "future_precision": 0.9201069205733882,
+        "future_recall": 0.8707966598961859,
+        "future_f2": 0.8802297477265287,
+        "future_mask": 0.23145049061929598
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.00032045874509656347,
+        "clean_recall": -0.0001341993665789909,
+        "clean_target": 0.001369180980831497,
+        "future_target": 0.013131690316156464,
+        "drop": -0.011762509335324883,
+        "future_precision": 0.0028879813185759273,
+        "future_recall": 0.007447528774543022,
+        "future_f2": 0.006649454944777977,
+        "future_mask": 0.0012615361568089623
+      }
+    },
+    "redditmh": {
+      "name": "RedditMH",
+      "domain": "비정형: 정신건강 서술",
+      "policy": "medterm5 v1.4",
+      "pairs": 8770,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.95,
+          "clean_f2": 0.8656657940196969,
+          "clean_recall": 0.8666381400656111,
+          "clean_target": 0.8468643101482326,
+          "future_target": 0.5155074116305587,
+          "drop": 0.3313568985176739,
+          "future_precision": 0.8697782226202392,
+          "future_recall": 0.7907062128855118,
+          "future_f2": 0.8053491586049915,
+          "future_mask": 0.05724979039875506
+        },
+        {
+          "seed": 43,
+          "threshold": 0.95,
+          "clean_f2": 0.8524048045713957,
+          "clean_recall": 0.844690486378548,
+          "clean_target": 0.8199543899657925,
+          "future_target": 0.403078677309008,
+          "drop": 0.4168757126567845,
+          "future_precision": 0.8865579903794762,
+          "future_recall": 0.741411787242194,
+          "future_f2": 0.7665102124344807,
+          "future_mask": 0.05266470033556305
+        },
+        {
+          "seed": 44,
+          "threshold": 0.95,
+          "clean_f2": 0.8545197993673681,
+          "clean_recall": 0.8486663814006561,
+          "clean_target": 0.829418472063854,
+          "future_target": 0.39828962371721777,
+          "drop": 0.43112884834663623,
+          "future_precision": 0.8809640924741761,
+          "future_recall": 0.7433433369516633,
+          "future_f2": 0.7673167805849048,
+          "future_mask": 0.053137182758211644
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.8617736102481962,
+          "clean_recall": 0.8556553986592498,
+          "clean_target": 0.8411630558722919,
+          "future_target": 0.4346636259977195,
+          "drop": 0.4064994298745724,
+          "future_precision": 0.8898314670286167,
+          "future_recall": 0.7534959453419322,
+          "future_f2": 0.7773152143125334,
+          "future_mask": 0.05332617572727108
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.8556014923868105,
+          "clean_recall": 0.8471687348452432,
+          "clean_target": 0.83557582668187,
+          "future_target": 0.42782212086659066,
+          "drop": 0.40775370581527937,
+          "future_precision": 0.8960128800075765,
+          "future_recall": 0.7551401570780921,
+          "future_f2": 0.7796559328347139,
+          "future_mask": 0.05307385000794172
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.8596418069265999,
+          "clean_recall": 0.8526957637997432,
+          "clean_target": 0.8384264538198404,
+          "future_target": 0.43990877993158495,
+          "drop": 0.39851767388825543,
+          "future_precision": 0.8929838318210672,
+          "future_recall": 0.7635208479662857,
+          "future_f2": 0.7863206833739947,
+          "future_mask": 0.053844901110434225
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.8575301326528203,
+        "clean_recall": 0.8533316692816051,
+        "clean_target": 0.8320790573926263,
+        "future_target": 0.4389585708855948,
+        "drop": 0.3931204865070315,
+        "future_precision": 0.8791001018246304,
+        "future_recall": 0.7584871123597897,
+        "future_f2": 0.7797253838747924,
+        "future_mask": 0.05435055783084325
+      },
+      "seen5": {
+        "clean_f2": 0.8590056365205355,
+        "clean_recall": 0.8518399657680787,
+        "clean_target": 0.8383884454580007,
+        "future_target": 0.43413150893196506,
+        "drop": 0.4042569365260357,
+        "future_precision": 0.8929427262857534,
+        "future_recall": 0.75738565012877,
+        "future_f2": 0.781097276840414,
+        "future_mask": 0.05341497561521568
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.0014755038677152221,
+        "clean_recall": -0.0014917035135263434,
+        "clean_target": 0.0063093880653743994,
+        "future_target": -0.004827061953629752,
+        "drop": 0.011136450019004207,
+        "future_precision": 0.013842624461123054,
+        "future_recall": -0.0011014622310197009,
+        "future_f2": 0.0013718929656215684,
+        "future_mask": -0.0009355822156275687
+      }
+    },
+    "adr": {
+      "name": "ADR",
+      "domain": "의료: 약물 부작용",
+      "policy": "medterm5 v1.4",
+      "pairs": 7852,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.7999999999999999,
+          "clean_f2": 0.9218855728480359,
+          "clean_recall": 0.9184592185213111,
+          "clean_target": 0.9122516556291391,
+          "future_target": 0.7345899133978604,
+          "drop": 0.17766174223127873,
+          "future_precision": 0.944266778876499,
+          "future_recall": 0.8776962941233989,
+          "future_f2": 0.8902487404292458,
+          "future_mask": 0.2701304901336728
+        },
+        {
+          "seed": 43,
+          "threshold": 0.7799999999999999,
+          "clean_f2": 0.9212376933895922,
+          "clean_recall": 0.917993524637424,
+          "clean_target": 0.9094498217014774,
+          "future_target": 0.750509424350484,
+          "drop": 0.1589403973509934,
+          "future_precision": 0.9445492662473794,
+          "future_recall": 0.881099051530263,
+          "future_f2": 0.8930978433238186,
+          "future_mask": 0.27109666272619803
+        },
+        {
+          "seed": 44,
+          "threshold": 0.82,
+          "clean_f2": 0.9197244744845028,
+          "clean_recall": 0.9161307491018761,
+          "clean_target": 0.9069026999490576,
+          "future_target": 0.7376464595007641,
+          "drop": 0.16925624044829346,
+          "future_precision": 0.9436619718309859,
+          "future_recall": 0.8765620416544441,
+          "future_f2": 0.8892076226298311,
+          "future_mask": 0.26995430571974177
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9272485359819156,
+          "clean_recall": 0.9241806005233513,
+          "clean_target": 0.9271523178807947,
+          "future_target": 0.7591696383087112,
+          "drop": 0.16798267957208346,
+          "future_precision": 0.9492336964476132,
+          "future_recall": 0.8878263420357876,
+          "future_f2": 0.8994638760218253,
+          "future_mask": 0.27181845048649633
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9278348223219328,
+          "clean_recall": 0.9253780990819178,
+          "clean_target": 0.9238410596026491,
+          "future_target": 0.8245033112582781,
+          "drop": 0.09933774834437092,
+          "future_precision": 0.9471735171962272,
+          "future_recall": 0.905348587073433,
+          "future_f2": 0.9134154377962015,
+          "future_mask": 0.27778598708738744
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9267989743041829,
+          "clean_recall": 0.9233379163525081,
+          "clean_target": 0.9186194600101885,
+          "future_target": 0.7749617931737137,
+          "drop": 0.14365766683647474,
+          "future_precision": 0.9495980339067772,
+          "future_recall": 0.8916397770607216,
+          "future_f2": 0.9026584413630352,
+          "future_mask": 0.2728812403382741
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9209492469073769,
+        "clean_recall": 0.9175278307535372,
+        "clean_target": 0.9095347257598915,
+        "future_target": 0.7409152657497028,
+        "drop": 0.16861946001018854,
+        "future_precision": 0.9441593389849547,
+        "future_recall": 0.8784524624360354,
+        "future_f2": 0.8908514021276318,
+        "future_mask": 0.27039381952653757
+      },
+      "seen5": {
+        "clean_f2": 0.9272941108693438,
+        "clean_recall": 0.9242988719859256,
+        "clean_target": 0.9232042791645441,
+        "future_target": 0.7862115809135677,
+        "drop": 0.13699269825097637,
+        "future_precision": 0.9486684158502059,
+        "future_recall": 0.8949382353899807,
+        "future_f2": 0.9051792517270206,
+        "future_mask": 0.27416189263738594
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.006344863961966873,
+        "clean_recall": 0.006771041232388475,
+        "clean_target": 0.01366955340465259,
+        "future_target": 0.0452963151638649,
+        "drop": -0.03162676175921217,
+        "future_precision": 0.004509076865251149,
+        "future_recall": 0.016485772953945377,
+        "future_f2": 0.01432784959938882,
+        "future_mask": 0.003768073110848369
+      }
+    },
+    "mentalhealth": {
+      "name": "Mental Health",
+      "domain": "비정형: 정신건강 서술",
+      "policy": "medterm5 v1.4",
+      "pairs": 7604,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.94,
+          "clean_f2": 0.8161579981593413,
+          "clean_recall": 0.815265734091982,
+          "clean_target": 0.7957653866386113,
+          "future_target": 0.5353761178327197,
+          "drop": 0.26038926880589164,
+          "future_precision": 0.8321164353754654,
+          "future_recall": 0.7419591273605243,
+          "future_f2": 0.7583930475863102,
+          "future_mask": 0.06488818467765341
+        },
+        {
+          "seed": 43,
+          "threshold": 0.94,
+          "clean_f2": 0.7953482321981579,
+          "clean_recall": 0.789996769945586,
+          "clean_target": 0.7630194634402946,
+          "future_target": 0.45594423987375066,
+          "drop": 0.30707522356654393,
+          "future_precision": 0.8282053230013422,
+          "future_recall": 0.7050314736569803,
+          "future_f2": 0.726645366844264,
+          "future_mask": 0.06194984586663738
+        },
+        {
+          "seed": 44,
+          "threshold": 0.9099999999999999,
+          "clean_f2": 0.8085804466738802,
+          "clean_recall": 0.8058240365741546,
+          "clean_target": 0.7835349815886375,
+          "future_target": 0.4852709100473435,
+          "drop": 0.29826407154129403,
+          "future_precision": 0.8293666501731816,
+          "future_recall": 0.7226653444856428,
+          "future_f2": 0.7417511904129716,
+          "future_mask": 0.06341038694141364
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.8130893539453851,
+          "clean_recall": 0.8068427460431833,
+          "clean_target": 0.7860336664913203,
+          "future_target": 0.4855339295107838,
+          "drop": 0.30049973698053656,
+          "future_precision": 0.8485832424342356,
+          "future_recall": 0.7211347762352333,
+          "future_f2": 0.7434669938170358,
+          "future_mask": 0.061843168323044706
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.8158291632956781,
+          "clean_recall": 0.811787213953835,
+          "clean_target": 0.7981325618095739,
+          "future_target": 0.5055234087322462,
+          "drop": 0.2926091530773277,
+          "future_precision": 0.8424925786414549,
+          "future_recall": 0.7280546693110287,
+          "future_f2": 0.7483856957352231,
+          "future_mask": 0.06288798073529066
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.8298944528212047,
+          "clean_recall": 0.8314656993067806,
+          "clean_target": 0.8300894266175697,
+          "future_target": 0.5076275644397685,
+          "drop": 0.32246186217780115,
+          "future_precision": 0.8334136468774094,
+          "future_recall": 0.7456669828403898,
+          "future_f2": 0.761706363187936,
+          "future_mask": 0.06511095248927341
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.8066955590104598,
+        "clean_recall": 0.8036955135372409,
+        "clean_target": 0.7807732772225146,
+        "future_target": 0.49219708925127126,
+        "drop": 0.2885761879712432,
+        "future_precision": 0.8298961361833297,
+        "future_recall": 0.7232186485010491,
+        "future_f2": 0.7422632016145152,
+        "future_mask": 0.06341613916190147
+      },
+      "seen5": {
+        "clean_f2": 0.8196043233540893,
+        "clean_recall": 0.8166985531012663,
+        "clean_target": 0.8047518849728214,
+        "future_target": 0.4995616342275995,
+        "drop": 0.3051902507452218,
+        "future_precision": 0.8414964893176999,
+        "future_recall": 0.7316188094622172,
+        "future_f2": 0.7511863509133984,
+        "future_mask": 0.06328070051586959
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.01290876434362953,
+        "clean_recall": 0.013003039564025376,
+        "clean_target": 0.023978607750306802,
+        "future_target": 0.007364544976328269,
+        "drop": 0.016614062773978644,
+        "future_precision": 0.011600353134370245,
+        "future_recall": 0.008400160961168135,
+        "future_f2": 0.00892314929888316,
+        "future_mask": -0.00013543864603188238
+      }
+    },
+    "qnli": {
+      "name": "QNLI",
+      "domain": "비개인 엔티티: 질문·문장",
+      "policy": "piiclean2 v1.4",
+      "pairs": 9906,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.8699999999999999,
+          "clean_f2": 0.9126700575016597,
+          "clean_recall": 0.9125750692676615,
+          "clean_target": 0.9031899858671513,
+          "future_target": 0.6498081970522915,
+          "drop": 0.25338178881485973,
+          "future_precision": 0.9178394570306702,
+          "future_recall": 0.8612342052619584,
+          "future_f2": 0.8719897241045126,
+          "future_mask": 0.14936734883083483
+        },
+        {
+          "seed": 43,
+          "threshold": 0.8899999999999999,
+          "clean_f2": 0.9134290730653221,
+          "clean_recall": 0.9131798427588923,
+          "clean_target": 0.9081364829396326,
+          "future_target": 0.5800524934383202,
+          "drop": 0.32808398950131235,
+          "future_precision": 0.9175369201921629,
+          "future_recall": 0.8487756704059153,
+          "future_f2": 0.8616908874498381,
+          "future_mask": 0.1472551525094424
+        },
+        {
+          "seed": 44,
+          "threshold": 0.8899999999999999,
+          "clean_f2": 0.9141411726990751,
+          "clean_recall": 0.9144034542411499,
+          "clean_target": 0.9024833434282253,
+          "future_target": 0.5891378962245104,
+          "drop": 0.31334544720371493,
+          "future_precision": 0.9159219480200049,
+          "future_recall": 0.8486617203919881,
+          "future_f2": 0.8613117113412659,
+          "future_mask": 0.1474949915955547
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9134899589575557,
+          "clean_recall": 0.9128141657641946,
+          "clean_target": 0.9067231980617807,
+          "future_target": 0.6889763779527559,
+          "drop": 0.2177468201090248,
+          "future_precision": 0.9212519670338463,
+          "future_recall": 0.8746423235673951,
+          "future_f2": 0.8835830898867781,
+          "future_mask": 0.1511308715228371
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9119702250575735,
+          "clean_recall": 0.911182683787851,
+          "clean_target": 0.9061175045427013,
+          "future_target": 0.6634363012315768,
+          "drop": 0.24268120331112453,
+          "future_precision": 0.9195698578275404,
+          "future_recall": 0.8672355726621256,
+          "future_f2": 0.8772203936836444,
+          "future_mask": 0.15012515972476953
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9124677320826847,
+          "clean_recall": 0.9117593282794897,
+          "clean_target": 0.9052089642640824,
+          "future_target": 0.6385019180294771,
+          "drop": 0.2667070462346053,
+          "future_precision": 0.9199373540173087,
+          "future_recall": 0.8626902332176952,
+          "future_f2": 0.8735624815702765,
+          "future_mask": 0.14927866883260843
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9134134344220189,
+        "clean_recall": 0.9133861220892346,
+        "clean_target": 0.9046032707450031,
+        "future_target": 0.606332862238374,
+        "drop": 0.298270408506629,
+        "future_precision": 0.9170994417476127,
+        "future_recall": 0.8528905320199539,
+        "future_f2": 0.8649974409652055,
+        "future_mask": 0.14803916431194397
+      },
+      "seen5": {
+        "clean_f2": 0.9126426386992713,
+        "clean_recall": 0.9119187259438452,
+        "clean_target": 0.9060165556228549,
+        "future_target": 0.66363819907127,
+        "drop": 0.24237835655158488,
+        "future_precision": 0.9202530596262317,
+        "future_recall": 0.8681893764824054,
+        "future_f2": 0.8781219883802329,
+        "future_mask": 0.1501782333600717
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": -0.0007707957227476303,
+        "clean_recall": -0.001467396145389488,
+        "clean_target": 0.0014132848778517504,
+        "future_target": 0.05730533683289596,
+        "drop": -0.055892051955044125,
+        "future_precision": 0.0031536178786190083,
+        "future_recall": 0.015298844462451444,
+        "future_f2": 0.013124547415027443,
+        "future_mask": 0.0021390690481277175
+      }
+    },
+    "finphrasebank": {
+      "name": "FinPhraseBank",
+      "domain": "비개인 엔티티: 금융",
+      "policy": "piiclean2 v1.4",
+      "pairs": 683,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.83,
+          "clean_f2": 0.9358360984643876,
+          "clean_recall": 0.9432237993389072,
+          "clean_target": 0.9370424597364568,
+          "future_target": 0.8140556368960469,
+          "drop": 0.12298682284040996,
+          "future_precision": 0.9144631765749778,
+          "future_recall": 0.9238078164216565,
+          "future_f2": 0.921923641177944,
+          "future_mask": 0.27617133895314644
+        },
+        {
+          "seed": 43,
+          "threshold": 0.7799999999999999,
+          "clean_f2": 0.9423618885843339,
+          "clean_recall": 0.9492514096830643,
+          "clean_target": 0.9399707174231332,
+          "future_target": 0.828696925329429,
+          "drop": 0.11127379209370425,
+          "future_precision": 0.9206096048201311,
+          "future_recall": 0.9313373969164576,
+          "future_f2": 0.92917188338401,
+          "future_mask": 0.2765634189374632
+        },
+        {
+          "seed": 44,
+          "threshold": 0.7799999999999999,
+          "clean_f2": 0.9446110086100861,
+          "clean_recall": 0.9556678981139413,
+          "clean_target": 0.9458272327964861,
+          "future_target": 0.808199121522694,
+          "drop": 0.13762811127379204,
+          "future_precision": 0.9079453972698635,
+          "future_recall": 0.9300824668339907,
+          "future_f2": 0.9255691143937772,
+          "future_mask": 0.28004312879827487
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9425643009089151,
+          "clean_recall": 0.9476958973361851,
+          "clean_target": 0.9458272327964861,
+          "future_target": 0.8521229868228404,
+          "drop": 0.09370424597364568,
+          "future_precision": 0.9282023873151612,
+          "future_recall": 0.9340265328074578,
+          "future_f2": 0.9328558639212176,
+          "future_mask": 0.27509311899627525
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9449640565818969,
+          "clean_recall": 0.9508069220299437,
+          "clean_target": 0.9355783308931186,
+          "future_target": 0.8594436310395315,
+          "drop": 0.07613469985358712,
+          "future_precision": 0.9301705756929638,
+          "future_recall": 0.9385084259591251,
+          "future_f2": 0.9368289191123836,
+          "future_mask": 0.27582826896686924
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.94062463807281,
+          "clean_recall": 0.9475014582928252,
+          "clean_target": 0.9385065885797951,
+          "future_target": 0.8067349926793558,
+          "drop": 0.1317715959004393,
+          "future_precision": 0.9196221707360542,
+          "future_recall": 0.9250627465041233,
+          "future_f2": 0.9239694875192493,
+          "future_mask": 0.27499509900019603
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9409363318862692,
+        "clean_recall": 0.949381035711971,
+        "clean_target": 0.940946803318692,
+        "future_target": 0.8169838945827234,
+        "drop": 0.12396290873596875,
+        "future_precision": 0.9143393928883241,
+        "future_recall": 0.9284092267240349,
+        "future_f2": 0.9255548796519104,
+        "future_mask": 0.2775926288962948
+      },
+      "seen5": {
+        "clean_f2": 0.942717665187874,
+        "clean_recall": 0.9486680925529846,
+        "clean_target": 0.9399707174231332,
+        "future_target": 0.8394338701805758,
+        "drop": 0.10053684724255736,
+        "future_precision": 0.9259983779147264,
+        "future_recall": 0.9325325684235688,
+        "future_f2": 0.9312180901842835,
+        "future_mask": 0.27530549565444684
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.0017813333016047928,
+        "clean_recall": -0.000712943158986401,
+        "clean_target": -0.0009760858955587537,
+        "future_target": 0.022449975597852445,
+        "drop": -0.023426061493411393,
+        "future_precision": 0.01165898502640228,
+        "future_recall": 0.004123341699533878,
+        "future_f2": 0.005663210532373064,
+        "future_mask": -0.002287133241847983
+      }
+    },
+    "bios": {
+      "name": "BIOS",
+      "domain": "실제 PII: 인명",
+      "policy": "piiclean2 v1.4",
+      "pairs": 12005,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.82,
+          "clean_f2": 0.9244121671818811,
+          "clean_recall": 0.9238657176385431,
+          "clean_target": 0.9251145356101624,
+          "future_target": 0.6775510204081633,
+          "drop": 0.24756351520199915,
+          "future_precision": 0.9294873856776781,
+          "future_recall": 0.9013032380813757,
+          "future_f2": 0.9068024962290874,
+          "future_mask": 0.19984122749785466
+        },
+        {
+          "seed": 43,
+          "threshold": 0.7899999999999999,
+          "clean_f2": 0.9199406341077045,
+          "clean_recall": 0.9184040534760531,
+          "clean_target": 0.9234485630987088,
+          "future_target": 0.6897126197417742,
+          "drop": 0.2337359433569346,
+          "future_precision": 0.9291792641455541,
+          "future_recall": 0.8962659915682004,
+          "future_f2": 0.9026607791870546,
+          "future_mask": 0.19879024352616373
+        },
+        {
+          "seed": 44,
+          "threshold": 0.8499999999999999,
+          "clean_f2": 0.9213669829780089,
+          "clean_recall": 0.9207839352496683,
+          "clean_target": 0.9191170345689296,
+          "future_target": 0.6764681382757185,
+          "drop": 0.24264889629321107,
+          "future_precision": 0.9266331011629965,
+          "future_recall": 0.8983765406748558,
+          "future_f2": 0.9038891428487744,
+          "future_mask": 0.19980587329697208
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.926449927558502,
+          "clean_recall": 0.9257082067536,
+          "clean_target": 0.9258642232403166,
+          "future_target": 0.7156184922948772,
+          "drop": 0.2102457309454394,
+          "future_precision": 0.9324746646437557,
+          "future_recall": 0.9073749655606211,
+          "future_f2": 0.9122862217074668,
+          "future_mask": 0.20054295481840262
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9269133840290827,
+          "clean_recall": 0.9261468946381374,
+          "clean_target": 0.9276967930029154,
+          "future_target": 0.6988754685547689,
+          "drop": 0.2288213244481465,
+          "future_precision": 0.9331861678757809,
+          "future_recall": 0.9053943763743262,
+          "future_f2": 0.9108195116441065,
+          "future_mask": 0.19995264679760577
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9249318275916223,
+          "clean_recall": 0.9236628244919446,
+          "clean_target": 0.9234485630987088,
+          "future_target": 0.7060391503540192,
+          "drop": 0.2174094127446896,
+          "future_precision": 0.9329384535246513,
+          "future_recall": 0.9031122801727947,
+          "future_f2": 0.9089239655325762,
+          "future_mask": 0.19950161290149784
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9219065947558649,
+        "clean_recall": 0.9210179021214215,
+        "clean_target": 0.9225600444259335,
+        "future_target": 0.6812439261418853,
+        "drop": 0.24131611828404828,
+        "future_precision": 0.9284332503287428,
+        "future_recall": 0.8986485901081439,
+        "future_f2": 0.9044508060883055,
+        "future_mask": 0.1994791147736635
+      },
+      "seen5": {
+        "clean_f2": 0.9260983797264023,
+        "clean_recall": 0.9251726419612273,
+        "clean_target": 0.9256698597806469,
+        "future_target": 0.7068443704012218,
+        "drop": 0.21882548937942517,
+        "future_precision": 0.9328664286813959,
+        "future_recall": 0.9052938740359139,
+        "future_f2": 0.9106765662947165,
+        "future_mask": 0.1999990715058354
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": 0.004191784970537404,
+        "clean_recall": 0.004154739839805743,
+        "clean_target": 0.00310981535471333,
+        "future_target": 0.025600444259336497,
+        "drop": -0.02249062890462311,
+        "future_precision": 0.004433178352653111,
+        "future_recall": 0.006645283927769974,
+        "future_f2": 0.0062257602064109685,
+        "future_mask": 0.0005199567321718945
+      }
+    },
+    "mrpc": {
+      "name": "MRPC",
+      "domain": "실제 PII: 날짜·연락처·URL",
+      "policy": "piiclean2 strict v1.4",
+      "pairs": 4858,
+      "clean_only_runs": [
+        {
+          "seed": 42,
+          "threshold": 0.83,
+          "clean_f2": 0.9400149881072627,
+          "clean_recall": 0.9419177903294264,
+          "clean_target": 0.9473034170440511,
+          "future_target": 0.8095924248662001,
+          "drop": 0.137710992177851,
+          "future_precision": 0.9381924542795521,
+          "future_recall": 0.9162386750533787,
+          "future_f2": 0.9205468491816395,
+          "future_mask": 0.13717344962025727
+        },
+        {
+          "seed": 43,
+          "threshold": 0.9299999999999999,
+          "clean_f2": 0.9332579924484916,
+          "clean_recall": 0.9328740735903882,
+          "clean_target": 0.9370111156854672,
+          "future_target": 0.662412515438452,
+          "drop": 0.2745986002470152,
+          "future_precision": 0.9401974787306713,
+          "future_recall": 0.8736799584511512,
+          "future_f2": 0.8862196935108114,
+          "future_mask": 0.13052288588264854
+        },
+        {
+          "seed": 44,
+          "threshold": 0.9299999999999999,
+          "clean_f2": 0.9362512079818215,
+          "clean_recall": 0.936269548467139,
+          "clean_target": 0.9374228077398106,
+          "future_target": 0.7706875257307534,
+          "drop": 0.16673528200905718,
+          "future_precision": 0.9422440257629567,
+          "future_recall": 0.9033123665531767,
+          "future_f2": 0.9108391811844663,
+          "future_mask": 0.13465669149651868
+        }
+      ],
+      "seen5_runs": [
+        {
+          "seed": 42,
+          "clean_f2": 0.9396678304564884,
+          "clean_recall": 0.9402200528910509,
+          "clean_target": 0.9435981885549609,
+          "future_target": 0.7280773981062165,
+          "drop": 0.2155207904487444,
+          "future_precision": 0.9417100417009101,
+          "future_recall": 0.8926654740608229,
+          "future_f2": 0.9020614047875908,
+          "future_mask": 0.1331450155220348
+        },
+        {
+          "seed": 43,
+          "clean_f2": 0.9353063934737241,
+          "clean_recall": 0.9335596983251168,
+          "clean_target": 0.9398929600658708,
+          "future_target": 0.7735693701111569,
+          "drop": 0.16632358995471386,
+          "future_precision": 0.9466868381240544,
+          "future_recall": 0.9027641525766057,
+          "future_f2": 0.9112195803869946,
+          "future_mask": 0.133943407390596
+        },
+        {
+          "seed": 44,
+          "clean_f2": 0.9343034144935888,
+          "clean_recall": 0.9316007705116066,
+          "clean_target": 0.9413338822560725,
+          "future_target": 0.7155207904487444,
+          "drop": 0.22581309180732811,
+          "future_precision": 0.9495982019150836,
+          "future_recall": 0.8898955508107796,
+          "future_f2": 0.9012278579401675,
+          "future_mask": 0.1316292867969491
+        }
+      ],
+      "clean_only": {
+        "clean_f2": 0.9365080628458586,
+        "clean_recall": 0.9370204707956512,
+        "clean_target": 0.9405791134897763,
+        "future_target": 0.7475641553451352,
+        "drop": 0.19301495814464112,
+        "future_precision": 0.94021131959106,
+        "future_recall": 0.8977436666859022,
+        "future_f2": 0.9058685746256391,
+        "future_mask": 0.13411767566647484
+      },
+      "seen5": {
+        "clean_f2": 0.9364258794746004,
+        "clean_recall": 0.9351268405759248,
+        "clean_target": 0.9416083436256347,
+        "future_target": 0.7390558528887059,
+        "drop": 0.2025524907369288,
+        "future_precision": 0.945998360580016,
+        "future_recall": 0.8951083924827361,
+        "future_f2": 0.9048362810382509,
+        "future_mask": 0.13290590323652662
+      },
+      "seen5_minus_clean_only": {
+        "clean_f2": -8.21833712582043e-05,
+        "clean_recall": -0.0018936302197264387,
+        "clean_target": 0.0010292301358584277,
+        "future_target": -0.008508302456429306,
+        "drop": 0.009537532592287679,
+        "future_precision": 0.005787040988955994,
+        "future_recall": -0.002635274203166116,
+        "future_f2": -0.001032293587388211,
+        "future_mask": -0.0012117724299482158
+      }
+    }
+  }
+}
