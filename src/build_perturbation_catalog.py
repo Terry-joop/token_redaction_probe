@@ -418,7 +418,8 @@ def future_coverage_section() -> str:
 <h2>5. 현재 메인 대시보드용 Future 7과 v1.4 규칙의 직접 커버 범위</h2>
 <p class='lede'>현재 실험 대시보드의 ‘학습 미포함 입력 교란 평가’는 <strong>Future 7종만</strong> 사용한다. v1.4가 clean 정답을 생성했더라도 이 7종을 정규화하도록 추가된 규칙은 없다. 따라서 noisy에서 raw 규칙 탐지율이 떨어질 수 있다.</p>
 <div class='notice warn'><strong>중요:</strong> v1.3/v1.4의 실제 패치와 실험 교란을 구분해야 한다. 명시적으로 겹치는 것은 C1 <code>U+0092</code>와 <code>25 mg → 25mg</code>뿐이며, 둘 다 Seen 학습 교란이다. Future 7종은 전부 학습·검증·threshold 선택에 없고 전용 v1.4 패치도 없다.</div>
-<div class='tablewrap'><table><thead><tr><th class='left'>ID</th><th class='left'>교란</th><th>실험 그룹</th><th class='left'>v1.4 직접 커버 여부</th></tr></thead><tbody>""" + "".join(rows) + "</tbody></table></div>"
+<div class='notice'><strong>표의 의미:</strong> 아래 ‘커버’는 <strong>코드 수준의 처리 분기</strong> 여부이며, 교란 후 모든 target을 가린 실측 탐지율이 아니다. 특히 ‘부분’은 일부 입력 경로만 처리한다는 뜻이다. Seen 5는 학습 증강용이라 이 표만으로 규칙의 test 성능을 주장하지 않는다.</div>
+<div class='tablewrap'><table><thead><tr><th class='left'>ID</th><th class='left'>교란</th><th>실험 그룹</th><th class='left'>v1.4 코드 수준 커버<br>(실측 정확도 아님)</th></tr></thead><tbody>""" + "".join(rows) + "</tbody></table></div>"
 
 
 def build_html() -> str:
