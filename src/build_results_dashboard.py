@@ -497,45 +497,33 @@ def seen_augmentation_ablation_table():
  if not path.exists(): return ''
  source=load(path); rows=[]
  for item in source['datasets'].values():
-  rule=item['rule']; clean=item['clean_only']; seen=item['seen5']; delta=item['seen5_minus_clean_only']
-  for i,(label,student) in enumerate((('clean-only',clean),('Seen-5 증강',seen))):
-   dataset_cell=(
-    f"<td rowspan='2' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['domain']} · {item['policy']}</span></td>"
-    if i == 0 else ''
-   )
-   pair_cell=f"<td rowspan='2'>{item['pairs']:,}</td>" if i == 0 else ''
-   rule_cells=(
-    f"<td rowspan='2'>{rule['clean_target']*100:.1f}%</td><td rowspan='2'>{rule['future_target']*100:.1f}%</td>"
-    if i == 0 else ''
-   )
-   rule_drop_cell=f"<td rowspan='2'>{rule['drop']*100:.1f}%p</td>" if i == 0 else ''
-   delta_cell=(
-    f"<td>{(student['future_target']-rule['future_target'])*100:+.1f}%p</td>"
-   )
-   gain_cell=(
-    f"<td class='best'>{delta['future_target']*100:+.1f}%p</td>" if i == 1 else "<td class='muted'>기준</td>"
-   )
-   benefit_cell=(
-    f"<td class='best'>{(clean['drop']-seen['drop'])*100:+.1f}%p</td>" if i == 1 else "<td class='muted'>기준</td>"
-   )
-   rows.append(
-    f"<tr>{dataset_cell}<td class='left meta'>{label}</td>{pair_cell}{rule_cells}"
-    f"<td>{student['clean_f2']:.3f}</td><td>{student['clean_target']*100:.1f}%</td>"
-    f"<td class='best'>{student['future_target']*100:.1f}%</td>{delta_cell}{rule_drop_cell}"
-    f"<td>{student['drop']*100:.1f}%p</td>{benefit_cell}{gain_cell}</tr>"
-   )
+  rule=item['rule']; student=item['clean_only']
+  quality=sum(run['quality_gate'] for run in item['clean_only_runs'])
+  absolute=sum(run['absolute_gate'] for run in item['clean_only_runs'])
+  verdict = '우세 · CI 3/3' if (item['clean_only_all_seeds_quality_gate'] and item['clean_only_all_seeds_absolute_gate']) else '미달'
+  verdict_class = 'best' if verdict.startswith('우세') else 'low'
+  rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']} · {item['policy']}</span></td>"
+   f"<td>{item['pairs']:,}</td><td>{student['clean_f2']:.3f}</td>"
+   f"<td>{rule['clean_target']*100:.1f}%</td><td>{rule['future_target']*100:.1f}%</td>"
+   f"<td>{student['clean_target']*100:.1f}%</td><td class='best'>{student['future_target']*100:.1f}%</td>"
+   f"<td class='best'>{(student['future_target']-rule['future_target'])*100:+.1f}%p</td>"
+   f"<td>{rule['drop']*100:.1f}%p</td><td>{student['drop']*100:.1f}%p</td>"
+   f"<td class='best'>{(rule['drop']-student['drop'])*100:+.1f}%p</td>"
+   f"<td class='{'best' if quality == 3 else 'low'}'>{quality}/3</td><td class='{verdict_class}'>{verdict}</td></tr>"
+  )
  values=list(source['datasets'].values())
  macro=lambda arm,key: sum(x[arm][key] for x in values)/len(values)
  return (
-  "<h2>5. Seen 교란 증강의 기여 — clean-only vs Seen-5 Student</h2>"
-  "<p class='lede'>4번과 <strong>완전히 같은</strong> clean split·ELECTRA-small·hidden-128 MLP·5 epoch·seed 42/43/44·Future 7 pair·rule cache를 사용했다. 차이는 학습 입력 하나뿐이다: clean-only는 clean v1.4 라벨만, Seen-5는 각 eligible clean train 행에 과거 교란 한 개를 추가로 본다. Future 7은 양쪽 모두 학습·validation·threshold 선택에 없다.</p>"
-  "<div class='notice'><strong>읽는 법:</strong> 열의 정의와 단위는 4번과 같다. <strong>규칙 clean/noisy target·Student clean/noisy target·하락폭은 span 단위</strong>이고, <strong>Clean F2는 token 단위</strong>다. 각 데이터셋의 두 행은 Student 학습 입력만 다르다. 오른쪽 <strong>Seen−clean 탐지 이득</strong>과 <strong>하락폭 개선</strong>이 양수면 Seen-5 증강이 Future 7 일반화에 기여한 것이다.</div>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>Student 학습</th><th>Future pair</th><th>Student<br>Clean F2</th><th>규칙 clean<br>target</th><th>규칙 noisy<br>target</th><th>Student clean<br>target</th><th>Student noisy<br>target</th><th>규칙 대비<br>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>Seen−clean<br>하락폭 개선</th><th>Seen−clean<br>탐지 이득</th></tr></thead><tbody>"
+  "<h2>5. 교란 증강 없는 Student — clean-only 학습</h2>"
+  "<p class='lede'>4번의 Seen-5 증강 결과와 직접 비교하는 <strong>clean-only ablation</strong>이다. clean split·ELECTRA-small·hidden-128 MLP·5 epoch·seed 42/43/44·Future 7 pair·rule cache는 4번과 완전히 같다. 차이는 clean-only Student가 원문 clean v1.4 규칙 라벨만 학습하고, Seen 5 교란 증강을 전혀 보지 않았다는 점뿐이다.</p>"
+  "<div class='notice'><strong>읽는 법:</strong> <strong>4번과 모든 열의 정의·단위·우세 판정 기준이 같다.</strong> Clean F2는 token 단위, 나머지 target과 하락폭은 span 단위다. 우세는 세 seed 모두 clean quality gate를 통과하고, 규칙 대비 future target 탐지 차이와 하락폭 이점의 source-cluster bootstrap 95% CI가 모두 0보다 커야 한다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean F2<br>(token)</th><th>규칙 clean<br>target</th><th>규칙 noisy<br>target</th><th>Student clean<br>target</th><th>Student noisy<br>target</th><th>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>하락폭 이점</th><th>Clean gate</th><th>판정</th></tr></thead><tbody>"
   + ''.join(rows) + "</tbody></table></div>"
-  f"<div class='analysis-grid'><article class='analysis-card'><h3>평균 Future target</h3><p>clean-only <strong>{macro('clean_only','future_target')*100:.1f}%</strong> → Seen-5 <strong>{macro('seen5','future_target')*100:.1f}%</strong> ({(macro('seen5','future_target')-macro('clean_only','future_target'))*100:+.1f}%p)다.</p></article>"
-  f"<article class='analysis-card'><h3>평균 하락폭</h3><p>clean-only <strong>{macro('clean_only','drop')*100:.1f}%p</strong>, Seen-5 <strong>{macro('seen5','drop')*100:.1f}%p</strong>다. 차이는 {(macro('clean_only','drop')-macro('seen5','drop'))*100:+.1f}%p다.</p></article>"
-  f"<article class='analysis-card'><h3>Clean 기본 품질</h3><p>Clean F2는 clean-only <strong>{macro('clean_only','clean_f2'):.3f}</strong>, Seen-5 <strong>{macro('seen5','clean_f2'):.3f}</strong>다. Future 강건성 변화가 clean 품질 희생인지 함께 확인한다.</p></article>"
-  "<article class='analysis-card'><h3>해석 범위</h3><p>이 표는 Seen 교란 증강의 <strong>인과적 기여</strong>를 보는 ablation이다. 규칙과의 우세가 아니라, Student가 과거 표면 결함을 본 것이 Future 7 일반화를 실제로 높였는지를 확인한다.</p></article></div>"
+  f"<div class='analysis-grid'><article class='analysis-card'><h3>4번 Seen-5와의 평균 비교</h3><p>clean-only Future target은 <strong>{macro('clean_only','future_target')*100:.1f}%</strong>, Seen-5는 <strong>{macro('seen5','future_target')*100:.1f}%</strong>로 Seen-5가 {(macro('seen5','future_target')-macro('clean_only','future_target'))*100:+.1f}%p다.</p></article>"
+  f"<article class='analysis-card'><h3>증강 전후 하락폭</h3><p>clean-only 하락은 <strong>{macro('clean_only','drop')*100:.1f}%p</strong>, Seen-5는 <strong>{macro('seen5','drop')*100:.1f}%p</strong>다. Seen-5의 하락폭 변화는 {(macro('clean_only','drop')-macro('seen5','drop'))*100:+.1f}%p다.</p></article>"
+  f"<article class='analysis-card'><h3>Clean 기본 품질</h3><p>Clean F2는 clean-only <strong>{macro('clean_only','clean_f2'):.3f}</strong>, Seen-5 <strong>{macro('seen5','clean_f2'):.3f}</strong>다. Future 결과의 차이가 clean 품질 차이인지 함께 본다.</p></article>"
+  "<article class='analysis-card'><h3>해석 범위</h3><p>5번은 증강 없는 Student의 절대 성능을 4번과 같은 엄격 기준으로 제시한다. 4번과의 차이가 Seen 교란 증강이 Future 7 일반화에 제공한 기여다.</p></article></div>"
  )
 
 

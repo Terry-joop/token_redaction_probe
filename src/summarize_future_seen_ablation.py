@@ -47,6 +47,8 @@ def main() -> None:
                 "future_recall": student["noisy"]["recall"],
                 "future_f2": student["noisy"]["f2"],
                 "future_mask": student["noisy"]["predicted_mask_rate"],
+                "quality_gate": payload["acceptance"]["final_student_quality_gate"]["pass"],
+                "absolute_gate": payload["acceptance"]["absolute_target_robustness_gate"]["pass"],
             })
         seen_runs = seen["datasets"][key]["runs"]
         seen_values = [{
@@ -79,6 +81,8 @@ def main() -> None:
             "seen5_minus_clean_only": {
                 field: seen_summary[field] - clean_summary[field] for field in fields
             },
+            "clean_only_all_seeds_quality_gate": all(row["quality_gate"] for row in clean_runs),
+            "clean_only_all_seeds_absolute_gate": all(row["absolute_gate"] for row in clean_runs),
         }
     (ROOT / "reports/future_seen_ablation_summary.json").write_text(
         json.dumps(output, ensure_ascii=False, indent=2), encoding="utf-8"
