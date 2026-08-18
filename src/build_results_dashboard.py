@@ -514,6 +514,38 @@ def seen_augmentation_ablation_table():
   )
  values=list(source['datasets'].values())
  macro=lambda arm,key: sum(x[arm][key] for x in values)/len(values)
+ combo_rows=[]
+ summaries=[]
+ for item in values:
+  rule=item['rule']; student=item['clean_only']
+  student_verdict = '우세' if (item['clean_only_all_seeds_quality_gate'] and item['clean_only_all_seeds_absolute_gate']) else '미달'
+  or_verdict = '우세' if item['clean_only_all_seeds_rule_or_absolute_gate'] else '미달'
+  transition=(
+   '미달 → OR 우세' if student_verdict == '미달' and or_verdict == '우세'
+   else ('둘 다 우세' if student_verdict == '우세' and or_verdict == '우세' else '미달 유지')
+  )
+  transition_class='best' if 'OR 우세' in transition else ('warn' if '둘 다 우세' in transition else 'low')
+  summaries.append((rule,student,item))
+  combo_rows.append(
+   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']}</span></td>"
+   f"<td>{rule['future_target']*100:.1f}%</td><td>{student['future_target']*100:.1f}%</td>"
+   f"<td class='best'>{student['rule_or_future_target']*100:.1f}%</td>"
+   f"<td class='best'>{(student['rule_or_future_target']-rule['future_target'])*100:+.1f}%p</td>"
+   f"<td class='over'>{student['rule_or_future_overmask']*100:.1f}%</td>"
+   f"<td>{student['rule_and_future_target']*100:.1f}%</td>"
+   f"<td class='{'best' if student_verdict == '우세' else 'low'}'>{student_verdict}</td>"
+   f"<td class='best'>{or_verdict}</td><td class='{transition_class}'>{transition}</td></tr>"
+  )
+ or_better=sum(student['rule_or_future_target'] > rule['future_target'] for rule,student,_ in summaries)
+ or_strict=sum(item['clean_only_all_seeds_rule_or_absolute_gate'] for _,_,item in summaries)
+ upgraded=sum(
+  not (item['clean_only_all_seeds_quality_gate'] and item['clean_only_all_seeds_absolute_gate'])
+  and item['clean_only_all_seeds_rule_or_absolute_gate']
+  for _,_,item in summaries
+ )
+ macro_rule=sum(rule['future_target'] for rule,_,_ in summaries)/len(summaries)
+ macro_or=sum(student['rule_or_future_target'] for _,student,_ in summaries)/len(summaries)
+ macro_or_fp=sum(student['rule_or_future_overmask'] for _,student,_ in summaries)/len(summaries)
  return (
   "<h2>5. 교란 증강 없는 Student — clean-only 학습</h2>"
   "<p class='lede'>4번의 Seen-5 증강 결과와 직접 비교하는 <strong>clean-only ablation</strong>이다. clean split·ELECTRA-small·hidden-128 MLP·5 epoch·seed 42/43/44·Future 7 pair·rule cache는 4번과 완전히 같다. 차이는 clean-only Student가 원문 clean v1.4 규칙 라벨만 학습하고, Seen 5 교란 증강을 전혀 보지 않았다는 점뿐이다.</p>"
@@ -524,6 +556,15 @@ def seen_augmentation_ablation_table():
   f"<article class='analysis-card'><h3>증강 전후 하락폭</h3><p>clean-only 하락은 <strong>{macro('clean_only','drop')*100:.1f}%p</strong>, Seen-5는 <strong>{macro('seen5','drop')*100:.1f}%p</strong>다. Seen-5의 하락폭 변화는 {(macro('clean_only','drop')-macro('seen5','drop'))*100:+.1f}%p다.</p></article>"
   f"<article class='analysis-card'><h3>Clean 기본 품질</h3><p>Clean F2는 clean-only <strong>{macro('clean_only','clean_f2'):.3f}</strong>, Seen-5 <strong>{macro('seen5','clean_f2'):.3f}</strong>다. Future 결과의 차이가 clean 품질 차이인지 함께 본다.</p></article>"
   "<article class='analysis-card'><h3>해석 범위</h3><p>5번은 증강 없는 Student의 절대 성능을 4번과 같은 엄격 기준으로 제시한다. 4번과의 차이가 Seen 교란 증강이 Future 7 일반화에 제공한 기여다.</p></article></div>"
+  "<h3>5-1. clean-only Student 결합 방식 한눈에 보기</h3>"
+  "<p class='lede'>4-1과 같은 Future 7 pair·고정 target·seed 42·43·44에서, Seen-5 증강을 전혀 보지 않은 Student를 규칙과 결합했다. OR은 둘 중 하나라도 가리고, AND는 둘 다 가릴 때만 가린다. OR 판정도 4-1과 같이 고정 target 탐지 및 하락폭 이점의 source-cluster bootstrap 95% CI가 세 seed에서 모두 0보다 커야 한다.</p>"
+  "<div class='analysis-grid'>"
+  f"<article class='analysis-card'><h3>Rule OR clean-only</h3><p>OR은 <strong>{or_better}/10개</strong>에서 규칙보다 Future target 탐지를 높였다. Macro는 규칙 <strong>{macro_rule*100:.1f}%</strong>에서 OR <strong>{macro_or*100:.1f}%</strong>로 {(macro_or-macro_rule)*100:+.1f}%p다.</p></article>"
+  f"<article class='analysis-card'><h3>우세 전환</h3><p>clean-only Student 단독 미달 중 <strong>{upgraded}개</strong>가 OR에서 우세가 됐고, OR의 엄격 우세는 <strong>{or_strict}/10개</strong>다. 이는 Student 단독의 규칙 대체가 아니라 규칙+Student 보완 효과다.</p></article>"
+  f"<article class='analysis-card'><h3>OR의 비용</h3><p>OR의 평균 불필요 mask(FP)는 <strong>{macro_or_fp*100:.1f}%</strong>다. target 누락을 줄이는 대신 가리지 않아도 될 토큰이 더 가려질 수 있으므로, 이 비용을 함께 제시한다.</p></article>"
+  "</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Rule only<br>target</th><th>clean-only Student<br>target</th><th>Rule OR Student<br>target</th><th>OR−Rule</th><th>OR 불필요<br>mask(FP)</th><th>Rule AND Student<br>target</th><th>Student<br>판정</th><th>OR<br>판정</th><th>전환</th></tr></thead><tbody>"
+  + ''.join(combo_rows) + "</tbody></table></div>"
  )
 
 
