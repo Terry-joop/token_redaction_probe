@@ -19,6 +19,7 @@ OUT = ROOT / "reports" / "perturbation_catalog.html"
 MARKDOWN_OUT = ROOT / "PERTURBATION_CATALOG.md"
 PAIR_PATH = ROOT / "data/robustness/v14_strict/drug/catalog_examples.jsonl"
 STRICT_ROOT = ROOT / "data" / "robustness" / "v14_strict"
+FUTURE_PAIR_PATH = ROOT / "data" / "robustness" / "v14_future" / "drug" / "future_pairs.jsonl"
 
 
 CATALOG = [
@@ -169,6 +170,16 @@ FUTURE_CATALOG = [
     ("F-07", "right_paren_after_number", "숫자 뒤 닫는 괄호", "U+0029", "전용 패치 없음"),
 ]
 
+FUTURE_DETAILS = [
+    {"id":"F-01","name":"zwnj_inside","title":"단어 내부 ZWNJ","family":"비가시 문자","condition":"길이 5자 이상인 민감 영문 단어가 있을 때","change":"단어 가운데에 ZWNJ 삽입","codepoint":"U+200C","reason":"현재 4·5번 Future test 전용. 학습·검증·threshold 선택 및 v1.4 전용 패치에 없다."},
+    {"id":"F-02","name":"word_joiner_inside","title":"단어 내부 word joiner","family":"비가시 문자","condition":"길이 5자 이상인 민감 영문 단어가 있을 때","change":"단어 가운데에 word joiner 삽입","codepoint":"U+2060","reason":"현재 4·5번 Future test 전용. 학습·검증·threshold 선택 및 v1.4 전용 패치에 없다."},
+    {"id":"F-03","name":"soft_hyphen_inside","title":"단어 내부 soft hyphen","family":"비가시 문자","condition":"길이 5자 이상인 민감 영문 단어가 있을 때","change":"단어 가운데에 soft hyphen 삽입","codepoint":"U+00AD","reason":"현재 4·5번 Future test 전용. 학습·검증·threshold 선택 및 v1.4 전용 패치에 없다."},
+    {"id":"F-04","name":"fullwidth_apostrophe","title":"전각 아포스트로피","family":"아포스트로피·인코딩","condition":"민감 단어 안에 아포스트로피가 있을 때","change":"아포스트로피를 전각 문자로 교체","codepoint":"U+FF07","reason":"현재 4·5번 Future test 전용. Seen의 곱슬·C1 아포스트로피와 다른 표면형이다."},
+    {"id":"F-05","name":"dosage_nb_hyphen","title":"용량 non-breaking hyphen","family":"용량 경계","condition":"민감한 숫자와 용량 단위가 공백으로 분리됐을 때","change":"사이 공백을 non-breaking hyphen으로 교체","codepoint":"U+2011","reason":"현재 4·5번 Future test 전용. v1.3의 25mg 붙여쓰기 패치와는 다른 표면형이다."},
+    {"id":"F-06","name":"narrow_nbsp","title":"좁은 non-breaking 공백","family":"공백 경계","condition":"서로 인접한 두 민감 토큰 사이에 일반 공백이 있을 때","change":"일반 공백을 narrow NBSP로 교체","codepoint":"U+202F","reason":"현재 4·5번 Future test 전용. 기존 NBSP(Unseen 7)와도 다른 Unicode 공백이다."},
+    {"id":"F-07","name":"right_paren_after_number","title":"숫자 뒤 닫는 괄호","family":"구두점 경계","condition":"숫자를 포함한 민감 토큰 바로 뒤에 구두점이 없을 때","change":"민감 숫자 뒤에 닫는 괄호 삽입","codepoint":"U+0029","reason":"현재 4·5번 Future test 전용. Seen의 쉼표·Unseen의 세미콜론과 다른 경계 문자다."},
+]
+
 V14_COVERAGE = {
     "double_space": "부분: token render의 중복 공백 축약. raw 이중 공백 전체 보장은 아님",
     "curly_apostrophe": "부분: 소유격 처리에서 U+2019 인식. 범용 정규화는 아님",
@@ -263,6 +274,32 @@ def load_examples() -> dict[str, dict]:
             row = json.loads(line)
             examples.setdefault(row["noise_type"], row)
     return examples
+
+
+def load_future_examples() -> dict[str, dict]:
+    examples: dict[str, dict] = {}
+    with FUTURE_PAIR_PATH.open(encoding="utf-8") as handle:
+        for line in handle:
+            row = json.loads(line)
+            examples.setdefault(row["noise_type"], row)
+    return examples
+
+
+def future_cards(examples: dict[str, dict]) -> str:
+    cards = []
+    for item in FUTURE_DETAILS:
+        row = examples[item["name"]]
+        cards.append(
+            f"""
+            <article class="rule" id="{item['id'].lower()}">
+              <div class="rule-head"><div><span class="rule-id">{item['id']}</span><h3>{escape(item['title'])}</h3></div><span class="badge future">Future 7 · test 전용</span></div>
+              <dl><div><dt>계열</dt><dd>{escape(item['family'])}</dd></div><div><dt>적용 조건</dt><dd>{escape(item['condition'])}</dd></div><div><dt>변환</dt><dd>{escape(item['change'])}</dd></div><div><dt>문자 코드</dt><dd><code>{escape(item['codepoint'])}</code></dd></div></dl>
+              <p class="why">{escape(item['reason'])}</p>
+              <div class="example"><div><b>Clean</b><code>{marked_excerpt(row['clean_text'], row['clean_target'])}</code></div><div><b>Noisy</b><code>{marked_excerpt(row['text'], row['noisy_target'])}</code></div></div>
+              <div class="counts">4·5번 Future 평가 예문 · Drug Reviews <code>{escape(row['source_id'])}</code></div>
+            </article>"""
+        )
+    return "".join(cards)
 
 
 def visible(text: str) -> str:
@@ -387,6 +424,7 @@ def future_coverage_section() -> str:
 def build_html() -> str:
     validate_catalog()
     examples = load_examples()
+    future_examples = load_future_examples()
     missing = {item["name"] for item in CATALOG} - examples.keys()
     if missing:
         raise ValueError(f"Missing stored examples for: {sorted(missing)}")
@@ -399,7 +437,7 @@ def build_html() -> str:
         if item["group"] == "unseen"
     }
     final_unseen = sum(unseen_counts.values())
-    cards = catalog_cards(examples, train_counts, unseen_counts)
+    cards = catalog_cards(examples, train_counts, unseen_counts) + future_cards(future_examples)
     rows = count_rows(train_counts, unseen_counts)
     mapping_rows = generalization_rows()
     c1_actual = examples["c1_apostrophe"]["edit"]["new"]
@@ -411,7 +449,7 @@ def build_html() -> str:
 <style>
 :root{{--bg:#f4f6f8;--panel:#fff;--ink:#172126;--muted:#63717a;--line:#dce3e7;--line2:#edf1f3;--teal:#087f70;--tealbg:#e4f5f1;--amber:#9a5b08;--amberbg:#fff5e5;--blue:#486581;--bluebg:#eaf0f5;--red:#b43b33;--redbg:#fbe9e7;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;--sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI","Noto Sans KR",sans-serif}}
 :root[data-theme=dark]{{--bg:#11171b;--panel:#192126;--ink:#edf2f4;--muted:#a5b0b7;--line:#303a40;--line2:#253036;--teal:#52cfbb;--tealbg:#173b35;--amber:#f4bd6b;--amberbg:#3b2d18;--blue:#b1c9dd;--bluebg:#23313d;--red:#f08a80;--redbg:#3c211f}}
-*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}}.wrap{{max-width:1180px;margin:auto;padding:42px 22px 80px}}.hero{{display:flex;justify-content:space-between;gap:24px}}.eyebrow{{color:var(--teal);font:700 12px var(--mono);letter-spacing:.13em}}h1{{font-size:clamp(29px,4vw,44px);line-height:1.15;margin:8px 0 12px;letter-spacing:-.04em}}.hero p,.lede{{color:var(--muted);max-width:820px}}.actions{{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}}.button,button{{border:1px solid var(--line);color:var(--ink);background:var(--panel);border-radius:9px;padding:8px 11px;text-decoration:none;cursor:pointer;font:650 12px var(--sans)}}.cards{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0}}.card,.notice,.rule,.flow-step{{background:var(--panel);border:1px solid var(--line);border-radius:13px}}.card{{padding:16px}}.card b{{display:block;font:750 26px var(--mono)}}.card span{{color:var(--muted);font-size:12px}}h2{{font-size:22px;margin:38px 0 7px}}.lede{{font-size:13px;margin:0 0 16px}}.notice{{border-left:4px solid var(--teal);padding:14px 16px;color:var(--muted);font-size:13px;margin:16px 0}}.notice strong{{color:var(--ink)}}.warn{{border-left-color:var(--amber);background:var(--amberbg)}}.flow{{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}}.flow-step{{padding:14px;position:relative}}.flow-step b{{display:block;color:var(--teal);font-size:12px;margin-bottom:5px}}.flow-step span{{font-size:12px;color:var(--muted)}}.catalog{{display:grid;grid-template-columns:1fr 1fr;gap:14px}}.rule{{padding:17px}}.rule-head{{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}}.rule-head h3{{margin:2px 0 0;font-size:18px}}.rule-id{{font:750 11px var(--mono);color:var(--teal)}}.badge{{padding:3px 8px;border-radius:999px;font-size:10px;font-weight:750;white-space:nowrap}}.seen{{background:var(--tealbg);color:var(--teal)}}.unseen{{background:var(--bluebg);color:var(--blue)}}dl{{margin:13px 0;border-top:1px solid var(--line2)}}dl div{{display:grid;grid-template-columns:80px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2)}}dt{{font-size:11px;color:var(--muted)}}dd{{margin:0;font-size:12px}}code{{font-family:var(--mono)}}.why{{font-size:12px;color:var(--muted)}}.example{{background:var(--bg);border-radius:9px;padding:10px;overflow:auto}}.example div{{display:grid;grid-template-columns:50px 1fr;gap:8px;margin:4px 0;min-width:520px}}.example b{{font-size:10px;color:var(--muted)}}.example code{{font-size:11px;white-space:nowrap}}mark{{background:#ffe08a;color:#172126;border-radius:3px;padding:1px 2px}}.counts{{margin-top:10px;color:var(--muted);font-size:10px}}.tablewrap{{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}}table{{width:100%;border-collapse:collapse;white-space:nowrap;font-size:12px}}th,td{{padding:9px;border-bottom:1px solid var(--line2);text-align:right}}th{{color:var(--muted);font-size:11px}}.left{{text-align:left}}.limits{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}.limit{{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px;font-size:12px;color:var(--muted)}}.limit b{{display:block;color:var(--ink);margin-bottom:5px}}footer{{margin-top:38px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:11px}}@media(max-width:820px){{.hero{{display:block}}.actions{{margin-top:14px}}.cards,.catalog,.limits{{grid-template-columns:1fr 1fr}}.flow{{grid-template-columns:1fr}}}}@media(max-width:560px){{.wrap{{padding:24px 12px}}.cards,.catalog,.limits{{grid-template-columns:1fr}}}}
+*{{box-sizing:border-box}}body{{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55}}.wrap{{max-width:1180px;margin:auto;padding:42px 22px 80px}}.hero{{display:flex;justify-content:space-between;gap:24px}}.eyebrow{{color:var(--teal);font:700 12px var(--mono);letter-spacing:.13em}}h1{{font-size:clamp(29px,4vw,44px);line-height:1.15;margin:8px 0 12px;letter-spacing:-.04em}}.hero p,.lede{{color:var(--muted);max-width:820px}}.actions{{display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap}}.button,button{{border:1px solid var(--line);color:var(--ink);background:var(--panel);border-radius:9px;padding:8px 11px;text-decoration:none;cursor:pointer;font:650 12px var(--sans)}}.cards{{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:26px 0}}.card,.notice,.rule,.flow-step{{background:var(--panel);border:1px solid var(--line);border-radius:13px}}.card{{padding:16px}}.card b{{display:block;font:750 26px var(--mono)}}.card span{{color:var(--muted);font-size:12px}}h2{{font-size:22px;margin:38px 0 7px}}.lede{{font-size:13px;margin:0 0 16px}}.notice{{border-left:4px solid var(--teal);padding:14px 16px;color:var(--muted);font-size:13px;margin:16px 0}}.notice strong{{color:var(--ink)}}.warn{{border-left-color:var(--amber);background:var(--amberbg)}}.flow{{display:grid;grid-template-columns:repeat(5,1fr);gap:9px}}.flow-step{{padding:14px;position:relative}}.flow-step b{{display:block;color:var(--teal);font-size:12px;margin-bottom:5px}}.flow-step span{{font-size:12px;color:var(--muted)}}.catalog{{display:grid;grid-template-columns:1fr 1fr;gap:14px}}.rule{{padding:17px}}.rule-head{{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}}.rule-head h3{{margin:2px 0 0;font-size:18px}}.rule-id{{font:750 11px var(--mono);color:var(--teal)}}.badge{{padding:3px 8px;border-radius:999px;font-size:10px;font-weight:750;white-space:nowrap}}.seen{{background:var(--tealbg);color:var(--teal)}}.unseen{{background:var(--bluebg);color:var(--blue)}}.future{{background:var(--amberbg);color:var(--amber)}}dl{{margin:13px 0;border-top:1px solid var(--line2)}}dl div{{display:grid;grid-template-columns:80px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--line2)}}dt{{font-size:11px;color:var(--muted)}}dd{{margin:0;font-size:12px}}code{{font-family:var(--mono)}}.why{{font-size:12px;color:var(--muted)}}.example{{background:var(--bg);border-radius:9px;padding:10px;overflow:auto}}.example div{{display:grid;grid-template-columns:50px 1fr;gap:8px;margin:4px 0;min-width:520px}}.example b{{font-size:10px;color:var(--muted)}}.example code{{font-size:11px;white-space:nowrap}}mark{{background:#ffe08a;color:#172126;border-radius:3px;padding:1px 2px}}.counts{{margin-top:10px;color:var(--muted);font-size:10px}}.tablewrap{{overflow:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}}table{{width:100%;border-collapse:collapse;white-space:nowrap;font-size:12px}}th,td{{padding:9px;border-bottom:1px solid var(--line2);text-align:right}}th{{color:var(--muted);font-size:11px}}.left{{text-align:left}}.limits{{display:grid;grid-template-columns:1fr 1fr;gap:12px}}.limit{{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:14px;font-size:12px;color:var(--muted)}}.limit b{{display:block;color:var(--ink);margin-bottom:5px}}footer{{margin-top:38px;border-top:1px solid var(--line);padding-top:14px;color:var(--muted);font-size:11px}}@media(max-width:820px){{.hero{{display:block}}.actions{{margin-top:14px}}.cards,.catalog,.limits{{grid-template-columns:1fr 1fr}}.flow{{grid-template-columns:1fr}}}}@media(max-width:560px){{.wrap{{padding:24px 12px}}.cards,.catalog,.limits{{grid-template-columns:1fr}}}}
 </style></head><body><main class="wrap">
 <header class="hero"><div><div class="eyebrow">TOKEN REDACTION PROBE · PERTURBATION CATALOG V1</div><h1>입력 오염 규칙 12종</h1><p>최신 v1.4 clean pseudo-label을 유지한 채 공백·Unicode·용량·구두점 경계만 바꾸어, 규칙과 학습형 redactor가 같은 민감 span을 계속 탐지하는지 비교한 통제 실험 명세입니다.</p></div><div class="actions"><a class="button" href="../">전체 결과</a><a class="button" href="https://github.com/Terry-joop/token_redaction_probe/blob/main/src/robustness/build_pairs.py">생성 코드</a><button id="theme">다크 모드</button></div></header>
 <section class="cards"><div class="card"><b>12</b><span>strict 실험 · Seen 5 / Unseen 7</span></div><div class="card"><b>5</b><span>Seen 5 · 학습 증강</span></div><div class="card"><b>7</b><span>Unseen 7 · 이전 strict test</span></div><div class="card"><b>{final_unseen:,}</b><span>strict Unseen target-pair</span></div></section>
@@ -421,7 +459,7 @@ def build_html() -> str:
 <h2>2. 학습에서 본 교란과 test에서 처음 본 교란</h2><p class="lede">Test 교란은 Seen 문장을 다시 사용한 것이 아닙니다. 네 계열은 학습 교란과 원리는 같지만 표면 문자가 다른 변형이고, zero-width는 학습에 직접 대응하는 예가 없는 완전히 새로운 계열입니다.</p>
 <div class="tablewrap"><table><thead><tr><th class="left">일반화 계열</th><th class="left">Train · Seen</th><th class="left">Test · Unseen</th><th class="left">확인하려는 질문</th></tr></thead><tbody>{mapping_rows}</tbody></table></div>
 <div class="notice"><strong>최종 test 구성:</strong> strict 최종 표는 10개 데이터셋 모두에서 Unseen 7종만 사용했고 유형당 상한을 두지 않았습니다. 교란의 적용 조건을 만족하지 않는 문장에는 억지로 변형을 넣지 않으므로 데이터셋별 실제 pair 수와 나타난 교란 종류는 다릅니다. 앞선 10데이터셋 × 3모델 탐색 표는 12종 전체를 종류별 최대 100쌍만 사용한 별도 pilot입니다.</div>
-<h2>3. 교란 규칙 전체 목록</h2><p class="lede">예문은 실제 Drug Reviews pair에서 가져왔습니다. 가운데점(·)은 일반 공백이고 꺾쇠 표시는 화면에 보이지 않는 Unicode 문자입니다. 노란 영역은 clean 규칙이 민감하다고 정한 target span입니다.</p>
+<h2>3. 교란 19종 전체 목록</h2><p class="lede">예문은 실제 Drug Reviews pair에서 가져왔습니다. 가운데점(·)은 일반 공백이고 꺾쇠 표시는 화면에 보이지 않는 Unicode 문자입니다. 노란 영역은 clean 규칙이 민감하다고 정한 target span입니다.</p>
 <div class="catalog">{cards}</div>
 <h2>4. 이전 strict Seen 5 / Unseen 7 실험의 실제 사용 개수</h2><p class="lede">10개 데이터셋의 clean train {strict['clean_train_rows']:,}행에 Seen {strict['augmented_train_rows']:,}행을 더했습니다. 이전 strict 표면 일반화 평가는 각 전체 test에서 생성 가능한 Unseen {strict['unseen_pairs']:,}쌍을 모두 사용했습니다.</p>
 <div class="tablewrap"><table><thead><tr><th class="left">ID</th><th class="left">교란</th><th>구분</th><th>학습 증강</th><th>이전 strict Unseen test</th></tr></thead><tbody>{rows}</tbody></table></div>
