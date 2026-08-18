@@ -497,23 +497,40 @@ def seen_augmentation_ablation_table():
  if not path.exists(): return ''
  source=load(path); rows=[]
  for item in source['datasets'].values():
-  clean=item['clean_only']; seen=item['seen5']; delta=item['seen5_minus_clean_only']
-  rows.append(
-   f"<tr><td class='left meta dataset'>{item['name']}<span class='task'>{item['domain']} · {item['policy']}</span></td>"
-   f"<td>{item['pairs']:,}</td><td>{clean['clean_f2']:.3f}</td><td>{seen['clean_f2']:.3f}</td>"
-   f"<td>{clean['future_target']*100:.1f}%</td><td class='best'>{seen['future_target']*100:.1f}%</td>"
-   f"<td class='best'>{delta['future_target']*100:+.1f}%p</td><td>{clean['drop']*100:.1f}%p</td>"
-   f"<td>{seen['drop']*100:.1f}%p</td><td class='best'>{(clean['drop']-seen['drop'])*100:+.1f}%p</td>"
-   f"<td>{clean['future_precision']:.3f} / {seen['future_precision']:.3f}</td>"
-   f"<td>{clean['future_f2']:.3f} / {seen['future_f2']:.3f}</td></tr>"
-  )
+  rule=item['rule']; clean=item['clean_only']; seen=item['seen5']; delta=item['seen5_minus_clean_only']
+  for i,(label,student) in enumerate((('clean-only',clean),('Seen-5 증강',seen))):
+   dataset_cell=(
+    f"<td rowspan='2' class='left meta merge dataset-cell'><b class='dataset'>{item['name']}</b><span class='task'>{item['domain']} · {item['policy']}</span></td>"
+    if i == 0 else ''
+   )
+   pair_cell=f"<td rowspan='2'>{item['pairs']:,}</td>" if i == 0 else ''
+   rule_cells=(
+    f"<td rowspan='2'>{rule['clean_target']*100:.1f}%</td><td rowspan='2'>{rule['future_target']*100:.1f}%</td>"
+    if i == 0 else ''
+   )
+   rule_drop_cell=f"<td rowspan='2'>{rule['drop']*100:.1f}%p</td>" if i == 0 else ''
+   delta_cell=(
+    f"<td>{(student['future_target']-rule['future_target'])*100:+.1f}%p</td>"
+   )
+   gain_cell=(
+    f"<td class='best'>{delta['future_target']*100:+.1f}%p</td>" if i == 1 else "<td class='muted'>기준</td>"
+   )
+   benefit_cell=(
+    f"<td class='best'>{(clean['drop']-seen['drop'])*100:+.1f}%p</td>" if i == 1 else "<td class='muted'>기준</td>"
+   )
+   rows.append(
+    f"<tr>{dataset_cell}<td class='left meta'>{label}</td>{pair_cell}{rule_cells}"
+    f"<td>{student['clean_f2']:.3f}</td><td>{student['clean_target']*100:.1f}%</td>"
+    f"<td class='best'>{student['future_target']*100:.1f}%</td>{delta_cell}{rule_drop_cell}"
+    f"<td>{student['drop']*100:.1f}%p</td>{benefit_cell}{gain_cell}</tr>"
+   )
  values=list(source['datasets'].values())
  macro=lambda arm,key: sum(x[arm][key] for x in values)/len(values)
  return (
   "<h2>5. Seen 교란 증강의 기여 — clean-only vs Seen-5 Student</h2>"
   "<p class='lede'>4번과 <strong>완전히 같은</strong> clean split·ELECTRA-small·hidden-128 MLP·5 epoch·seed 42/43/44·Future 7 pair·rule cache를 사용했다. 차이는 학습 입력 하나뿐이다: clean-only는 clean v1.4 라벨만, Seen-5는 각 eligible clean train 행에 과거 교란 한 개를 추가로 본다. Future 7은 양쪽 모두 학습·validation·threshold 선택에 없다.</p>"
-  "<div class='notice'><strong>읽는 법:</strong> Future target과 하락폭은 모두 4번과 동일한 <strong>고정 target span</strong> 기준이다. Seen-5−clean-only가 양수이고 Seen-5 하락폭이 더 작으면, 과거 교란 증강이 학습하지 않은 Future 표면형에도 도움이 된 것이다.</div>"
-  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th>Future pair</th><th>Clean-only<br>Clean F2</th><th>Seen-5<br>Clean F2</th><th>Clean-only<br>Future target</th><th>Seen-5<br>Future target</th><th>Seen−Clean<br>탐지 차이</th><th>Clean-only<br>하락</th><th>Seen-5<br>하락</th><th>하락폭 개선</th><th>Future P<br>Clean / Seen</th><th>Future F2<br>Clean / Seen</th></tr></thead><tbody>"
+  "<div class='notice'><strong>읽는 법:</strong> 열의 정의와 단위는 4번과 같다. <strong>규칙 clean/noisy target·Student clean/noisy target·하락폭은 span 단위</strong>이고, <strong>Clean F2는 token 단위</strong>다. 각 데이터셋의 두 행은 Student 학습 입력만 다르다. 오른쪽 <strong>Seen−clean 탐지 이득</strong>과 <strong>하락폭 개선</strong>이 양수면 Seen-5 증강이 Future 7 일반화에 기여한 것이다.</div>"
+  "<div class='tablewrap solo'><table><thead><tr><th class='left'>데이터셋</th><th class='left'>Student 학습</th><th>Future pair</th><th>Student<br>Clean F2</th><th>규칙 clean<br>target</th><th>규칙 noisy<br>target</th><th>Student clean<br>target</th><th>Student noisy<br>target</th><th>규칙 대비<br>탐지 차이</th><th>규칙 하락</th><th>Student 하락</th><th>Seen−clean<br>하락폭 개선</th><th>Seen−clean<br>탐지 이득</th></tr></thead><tbody>"
   + ''.join(rows) + "</tbody></table></div>"
   f"<div class='analysis-grid'><article class='analysis-card'><h3>평균 Future target</h3><p>clean-only <strong>{macro('clean_only','future_target')*100:.1f}%</strong> → Seen-5 <strong>{macro('seen5','future_target')*100:.1f}%</strong> ({(macro('seen5','future_target')-macro('clean_only','future_target'))*100:+.1f}%p)다.</p></article>"
   f"<article class='analysis-card'><h3>평균 하락폭</h3><p>clean-only <strong>{macro('clean_only','drop')*100:.1f}%p</strong>, Seen-5 <strong>{macro('seen5','drop')*100:.1f}%p</strong>다. 차이는 {(macro('clean_only','drop')-macro('seen5','drop'))*100:+.1f}%p다.</p></article>"

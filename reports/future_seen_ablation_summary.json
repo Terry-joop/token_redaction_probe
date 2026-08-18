@@ -10,6 +10,11 @@
       "domain": "의료: 약물·용량·증상",
       "policy": "medterm5 v1.4",
       "pairs": 9519,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.6381972896312638,
+        "drop": 0.36180271036873624
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -128,6 +133,11 @@
       "domain": "의료: 증상·용량",
       "policy": "medterm5 v1.4",
       "pairs": 371,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5929919137466307,
+        "drop": 0.4070080862533693
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -246,6 +256,11 @@
       "domain": "의료: 임상 문장쌍",
       "policy": "medterm5 v1.4",
       "pairs": 5356,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.6891336818521284,
+        "drop": 0.3108663181478716
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -364,6 +379,11 @@
       "domain": "비정형: 정신건강 서술",
       "policy": "medterm5 v1.4",
       "pairs": 8770,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5735461801596351,
+        "drop": 0.4264538198403649
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -482,6 +502,11 @@
       "domain": "의료: 약물 부작용",
       "policy": "medterm5 v1.4",
       "pairs": 7852,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.7663015792154865,
+        "drop": 0.23369842078451353
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -600,6 +625,11 @@
       "domain": "비정형: 정신건강 서술",
       "policy": "medterm5 v1.4",
       "pairs": 7604,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5529984218832193,
+        "drop": 0.44700157811678065
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -718,6 +748,11 @@
       "domain": "비개인 엔티티: 질문·문장",
       "policy": "piiclean2 v1.4",
       "pairs": 9906,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5130224106602059,
+        "drop": 0.48697758933979407
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -836,6 +871,11 @@
       "domain": "비개인 엔티티: 금융",
       "policy": "piiclean2 v1.4",
       "pairs": 683,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.6427525622254758,
+        "drop": 0.3572474377745241
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -954,6 +994,11 @@
       "domain": "실제 PII: 인명",
       "policy": "piiclean2 v1.4",
       "pairs": 12005,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5784256559766764,
+        "drop": 0.42157434402332356
+      },
       "clean_only_runs": [
         {
           "seed": 42,
@@ -1072,6 +1117,11 @@
       "domain": "실제 PII: 날짜·연락처·URL",
       "policy": "piiclean2 strict v1.4",
       "pairs": 4858,
+      "rule": {
+        "clean_target": 1.0,
+        "future_target": 0.5942774804446275,
+        "drop": 0.4057225195553726
+      },
       "clean_only_runs": [
         {
           "seed": 42,

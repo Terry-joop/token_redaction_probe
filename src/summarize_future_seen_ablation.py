@@ -63,9 +63,15 @@ def main() -> None:
         fields = ["clean_f2", "clean_recall", "clean_target", "future_target", "drop", "future_precision", "future_recall", "future_f2", "future_mask"]
         clean_summary = {field: mean(clean_runs, field) for field in fields}
         seen_summary = {field: mean(seen_values, field) for field in fields}
+        rule = seen["datasets"][key]["summary"]
         output["datasets"][key] = {
             "name": name, "domain": domain, "policy": policy,
             "pairs": seen["datasets"][key]["pairs"],
+            "rule": {
+                "clean_target": 1.0,
+                "future_target": rule["rule_noisy_target_detection"],
+                "drop": rule["rule_detection_drop"],
+            },
             "clean_only_runs": clean_runs,
             "seen5_runs": seen_values,
             "clean_only": clean_summary,
