@@ -202,7 +202,7 @@ def markdown(result: dict) -> str:
         "학습이 끝난 뒤 새로 발견됐다고 가정한 7개 표면 교란을 test 전용으로 두었다. clean 최신 v1.4 규칙 span을 고정 정답으로 이동했으며, Student는 기존 strict seen-5 checkpoint를 그대로 사용했다. 즉 미래 교란은 학습·validation·threshold 선택에 들어가지 않았다.",
         "",
         f"- 평가: {len(items)}개 데이터셋, {total_pairs:,} future target-pair, ELECTRA-small 3 seed(42/43/44).",
-        "- 비교 대상: 현재 RedactFormer raw 규칙 v1.4. 새 normalizer나 사후 규칙 패치는 이 비교에 넣지 않았다.",
+        "- 비교 대상: 현재 RedactFormer raw 규칙 v1.4. 사후 규칙 패치는 이 비교에 넣지 않았다.",
         "- 판정: clean quality gate와 미래 절대 탐지 우세·하락폭 우세의 source-cluster 95% CI를 세 seed 모두 통과해야 한다.",
         "",
         "## 데이터셋별 결과",

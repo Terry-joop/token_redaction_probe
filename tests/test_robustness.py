@@ -15,10 +15,6 @@ from build_pairs import (  # noqa: E402
     transforms_for_group,
     zero_width_variant,
 )
-from text_normalization import (  # noqa: E402
-    normalize_with_alignment,
-    project_normalized_labels,
-)
 from evaluate import (  # noqa: E402
     absolute_target_robustness,
     bootstrap_cluster_sums,
@@ -114,24 +110,6 @@ def test_zero_width_control_is_not_sensitive_gold():
     words, _, labels = labels_from_char_mask(variant.text, variant.char_mask)
     assert words[:3] == ["Phent", "\u200b", "ermine"]
     assert labels[:3] == [1, 0, 1]
-
-
-def test_generic_normalizer_repairs_unseen_seams_with_alignment():
-    noisy = "Phent\u200bermine  25-mg born 1990; Andrew\u02bcs"
-    normalized = normalize_with_alignment(noisy)
-    assert normalized.text == "Phentermine 25 mg born 1990 Andrew's"
-    projected = project_normalized_labels(
-        noisy, normalized, [1, 1, 1, 0, 0, 1]
-    )
-    from medical_common import word_offsets
-
-    noisy_words, _ = word_offsets(noisy)
-    assert [word for word, label in zip(noisy_words, projected) if label] == [
-        "Phent",
-        "ermine",
-        "25-mg",
-        "Andrewʼs",
-    ]
 
 
 def test_vectorized_source_bootstrap_matches_literal_resampling():

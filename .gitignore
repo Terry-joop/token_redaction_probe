@@ -10,3 +10,5 @@ teacher/chatgpt_chunks_100/
 teacher/*_rejected.jsonl
 .venv*/
 reports/robustness_v14_strict_*_seed*.md
+reports/future_v14_cleanonly_*.json
+reports/future_v14_cleanonly_*.md
