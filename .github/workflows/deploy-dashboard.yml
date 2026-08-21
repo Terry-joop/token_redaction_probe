@@ -8,6 +8,7 @@ on:
       - "reports/redactor_results_dashboard.html"
       - "reports/perturbation_catalog.html"
       - "reports/medical_review_dashboard.html"
+      - "reports/arm_ab_dashboard.html"
       - "reports/rules/index.html"
       - "reports/redactor_results.csv"
       - "reports/full_dataset_results.json"
@@ -39,10 +40,12 @@ jobs:
           mkdir -p _site
           mkdir -p _site/perturbations
           mkdir -p _site/medical-review
+          mkdir -p _site/arm-ab
           mkdir -p _site/rules
           cp reports/redactor_results_dashboard.html _site/index.html
           cp reports/perturbation_catalog.html _site/perturbations/index.html
           cp reports/medical_review_dashboard.html _site/medical-review/index.html
+          cp reports/arm_ab_dashboard.html _site/arm-ab/index.html
           cp reports/rules/index.html _site/rules/index.html
           cp reports/redactor_results.csv _site/redactor_results.csv
           cp reports/full_dataset_results.json _site/full_dataset_results.json
