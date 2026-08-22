@@ -1,0 +1,8 @@
+# Never publish health text, teacher labels, split data, checkpoints, or local model links.
+data/
+artifacts/
+logs/
+models/
+*.pt
+*.safetensors
+*.jsonl
