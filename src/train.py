@@ -8,6 +8,11 @@ import torch
 from sklearn.metrics import fbeta_score, precision_recall_fscore_support
 from torch import nn
 from torch.utils.data import DataLoader, Dataset
+
+# The environment's torchaudio binary is incompatible with its installed torch.
+# Token classification does not use audio, so prevent Transformers from importing it.
+import transformers.utils
+transformers.utils.is_torchaudio_available = lambda: False
 from transformers import AutoModel, AutoTokenizer
 
 from common import read_jsonl
